@@ -1,0 +1,141 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace Superscrot
+{
+    public partial class RegionOverlay : Form
+    {
+        private Screen _screen;
+        private Point? _start = null;
+
+        /// <summary>
+        /// Gets the region selected by the user.
+        /// </summary>
+        public Rectangle SelectedRegion { get; private set; }
+
+        /// <summary>
+        /// Initializes a new region overlay with the colors from the program configuration.
+        /// </summary>
+        public RegionOverlay()
+        {
+            InitializeComponent();
+            this.BackColor = Program.Config.OverlayBackgroundColor;
+            if (Program.Config.OverlayForegroundColor.A == 0)
+            {
+                if (this.BackColor != Color.HotPink)
+                {
+                    this.ForeColor = Color.HotPink;
+                }
+                else
+                {
+                    this.ForeColor = Color.CornflowerBlue;
+                }
+                this.TransparencyKey = this.ForeColor;
+            }
+            else
+            {
+                this.ForeColor = Program.Config.OverlayForegroundColor;
+                this.TransparencyKey = Color.Empty;
+            }
+            this.Opacity = Program.Config.OverlayOpacity;
+        }
+
+        private void RegionOverlay_Load(object sender, EventArgs e)
+        {
+            _screen = Screen.FromPoint(Cursor.Position);
+            this.Left = _screen.Bounds.Left;
+            this.Top = _screen.Bounds.Top;
+            this.Width = _screen.Bounds.Width;
+            this.Height = _screen.Bounds.Height;
+            this.Focus();
+        }
+
+        private void RegionOverlay_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!_screen.Bounds.Contains(Cursor.Position)) return;
+
+            if (_start == null || !_start.HasValue)
+            {
+                _start = e.Location;
+            }
+        }
+
+        private void RegionOverlay_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (_start != null)
+            {
+                SelectedRegion = GetRectangle(e);
+                this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                this.Close();
+            }
+        }
+
+        private void RegionOverlay_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_start != null)
+            {
+                Rectangle rect = GetRectangle(e);
+                using (Graphics g = this.CreateGraphics())
+                using (Pen p = new Pen(this.ForeColor))
+                using (Brush b = new SolidBrush(this.ForeColor))
+                {
+                    g.Clear(this.BackColor);
+                    g.FillRectangle(b, rect);
+                    g.DrawRectangle(p, rect);
+                    g.Flush();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a rectangle based on the start position and the current mouse position.
+        /// </summary>
+        private Rectangle GetRectangle(MouseEventArgs e)
+        {
+            int left = 0;
+            int top = 0;
+            int right = 0;
+            int bottom = 0;
+
+            if (_start != null)
+            {
+                if (_start.Value.X < Cursor.Position.X)
+                {
+                    left = _start.Value.X;
+                    right = Cursor.Position.X;
+                }
+                else
+                {
+                    left = Cursor.Position.X;
+                    right = _start.Value.X;
+                }
+                if (_start.Value.Y < Cursor.Position.Y)
+                {
+                    top = _start.Value.Y;
+                    bottom = Cursor.Position.Y;
+                }
+                else
+                {
+                    top = Cursor.Position.Y;
+                    bottom = _start.Value.Y;
+                }
+
+                return Rectangle.FromLTRB(left, top, right, bottom);
+            }
+            return Rectangle.Empty;
+        }
+
+        private void RegionOverlay_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.Close();
+        }
+
+    }
+}
