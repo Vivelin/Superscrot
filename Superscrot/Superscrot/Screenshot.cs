@@ -115,11 +115,11 @@ namespace Superscrot
         /// <returns>A <c>Superscrot.Screenshot</c> with the primary screen capture.</returns>
         public static Screenshot FromPrimaryScreen()
         {
-            Screenshot screenshot = new Screenshot();
-            screenshot.Source = ScreenshotSource.Desktop;
-
             try
             {
+                Screenshot screenshot = new Screenshot();
+                screenshot.Source = ScreenshotSource.Desktop;
+
                 int width = Screen.PrimaryScreen.Bounds.Width;
                 int height = Screen.PrimaryScreen.Bounds.Height;
                 Write("Taking shot in 5.. 4.. ");
@@ -130,12 +130,14 @@ namespace Superscrot
                     g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, Screen.PrimaryScreen.Bounds.Size, CopyPixelOperation.SourceCopy);
                 }
                 WriteLine("just kidding, already done.", width, height);
+                return screenshot;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
             }
-            return screenshot;
+
+            return null;
         }
 
         /// <summary>
@@ -144,11 +146,11 @@ namespace Superscrot
         /// <returns>A <c>Superscrot.Screenshot</c> with an image containg all screens.</returns>
         public static Screenshot FromDesktop()
         {
-            Screenshot screenshot = new Screenshot();
-            screenshot.Source = ScreenshotSource.Desktop;
-
             try
             {
+                Screenshot screenshot = new Screenshot();
+                screenshot.Source = ScreenshotSource.Desktop;
+
                 // Calculate the size of the user's entire desktop.
                 int left, top, right, bottom;
                 Common.GetDesktopBounds(out left, out top, out right, out bottom);
@@ -162,12 +164,13 @@ namespace Superscrot
                         g.CopyFromScreen(s.Bounds.X, s.Bounds.Y, s.Bounds.X + Math.Abs(left), s.Bounds.Y + Math.Abs(top), s.Bounds.Size, CopyPixelOperation.SourceCopy);
                     }
                 }
+                return screenshot;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
             }
-            return screenshot;
+            return null;
         }
 
         /// <summary>
@@ -176,11 +179,10 @@ namespace Superscrot
         /// <returns>A <c>Superscrot.Screenshot</c> with the active window capture.</returns>
         public static Screenshot FromActiveWindow()
         {
-            Screenshot screenshot = new Screenshot();
-            screenshot.Source = ScreenshotSource.WindowCapture;
-
             try
             {
+                Screenshot screenshot = new Screenshot();
+                screenshot.Source = ScreenshotSource.WindowCapture;
                 Rectangle rectWindow = Common.GetActiveWindowDimensions();
                 Size sizeWindow = new Size(rectWindow.Width, rectWindow.Height);
                 screenshot.WindowTitle = Common.GetActiveWindowCaption();
@@ -191,13 +193,14 @@ namespace Superscrot
                 {
                     g.CopyFromScreen(rectWindow.X, rectWindow.Y, 0, 0, sizeWindow, CopyPixelOperation.SourceCopy);
                 }
+                return screenshot;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
             }
 
-            return screenshot;
+            return null;
         }
 
         /// <summary>
@@ -207,23 +210,29 @@ namespace Superscrot
         /// <returns>A <c>Superscrot.Screenshot</c> with the selected region.</returns>
         public static Screenshot FromRegion()
         {
-            Screenshot screenshot = new Screenshot();
-            screenshot.Source = ScreenshotSource.RegionCapture;
-
             try
             {
+                Screenshot screenshot = new Screenshot();
+                screenshot.Source = ScreenshotSource.RegionCapture;
                 RegionOverlay overlay = new RegionOverlay();
                 if (overlay.ShowDialog() == DialogResult.OK)
                 {
                     Rectangle rect = overlay.SelectedRegion;
-                    WriteLine("Drawn rectangle of {0}x{1} starting at ({1}, {2})", rect.Width, rect.Height, rect.X, rect.Y);
-
-                    screenshot.Bitmap = new Bitmap(rect.Width, rect.Height);
-                    using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
+                    if (rect.Width > 0 && rect.Height > 0)
                     {
-                        g.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
+                        WriteLine("Drawn rectangle of {0}x{1} starting at ({1}, {2})", rect.Width, rect.Height, rect.X, rect.Y);
+
+                        screenshot.Bitmap = new Bitmap(rect.Width, rect.Height);
+                        using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
+                        {
+                            g.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
+                        }
+                        return screenshot;
                     }
-                    WriteLine("What a pretty rectangle :3");
+                    else
+                    {
+                        WriteLine("Nothing to capture (empty rectangle)", rect.Width, rect.Height);
+                    }
                 }
                 else
                 {
@@ -235,7 +244,7 @@ namespace Superscrot
                 Program.ConsoleException(ex);
             }
 
-            return screenshot;
+            return null;
         }
 
         /// <summary>

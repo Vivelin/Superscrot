@@ -12,7 +12,7 @@ namespace Superscrot
     public partial class RegionOverlay : Form
     {
         private Screen _screen;
-        private Point? _start = null;
+        private MouseEventArgs _start = null;
 
         /// <summary>
         /// Gets the region selected by the user.
@@ -60,15 +60,20 @@ namespace Superscrot
         {
             if (!_screen.Bounds.Contains(Cursor.Position)) return;
 
-            if (_start == null || !_start.HasValue)
+            if (_start == null)
             {
-                _start = e.Location;
+                _start = e;
             }
         }
 
         private void RegionOverlay_MouseUp(object sender, MouseEventArgs e)
         {
-            if (_start != null)
+            if (e.Button != _start.Button)
+            {
+                this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                this.Close();
+            }
+            else if (_start != null)
             {
                 SelectedRegion = GetRectangle(e);
                 this.DialogResult = System.Windows.Forms.DialogResult.OK;
@@ -105,25 +110,25 @@ namespace Superscrot
 
             if (_start != null)
             {
-                if (_start.Value.X < Cursor.Position.X)
+                if (_start.X < Cursor.Position.X)
                 {
-                    left = _start.Value.X;
+                    left = _start.X;
                     right = Cursor.Position.X;
                 }
                 else
                 {
                     left = Cursor.Position.X;
-                    right = _start.Value.X;
+                    right = _start.X;
                 }
-                if (_start.Value.Y < Cursor.Position.Y)
+                if (_start.Y < Cursor.Position.Y)
                 {
-                    top = _start.Value.Y;
+                    top = _start.Y;
                     bottom = Cursor.Position.Y;
                 }
                 else
                 {
                     top = Cursor.Position.Y;
-                    bottom = _start.Value.Y;
+                    bottom = _start.Y;
                 }
 
                 return Rectangle.FromLTRB(left, top, right, bottom);
