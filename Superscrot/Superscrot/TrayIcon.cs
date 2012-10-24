@@ -30,7 +30,8 @@ namespace Superscrot
         {
             if (Program.Config.EnableTrayIcon)
             {
-                _instance = new TrayIcon();
+                if (_instance == null)
+                    _instance = new TrayIcon();
                 return _instance;
             }
             else
@@ -104,6 +105,16 @@ namespace Superscrot
             {
                 Tray.Icon = System.Drawing.SystemIcons.Application; //PLACEHOLDER
             }
+        }
+
+        /// <summary>
+        /// Displays an error message from the tray icon.
+        /// </summary>
+        /// <param name="title">The title to display.</param>
+        /// <param name="message">The message to display.</param>
+        public void ShowError(string title, string message)
+        {
+            Tray.ShowBalloonTip(10000, title, message, ToolTipIcon.Error);
         }
 
         /// <summary>

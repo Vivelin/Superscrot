@@ -201,15 +201,25 @@ namespace Superscrot
             string folder = Path.GetDirectoryName(screenshot.ServerPath).Replace('\\', '/');
             SftpCreateDirectoryRecursive(ref c, folder);
 
-            using (MemoryStream stream = new MemoryStream())
+            try
             {
-                screenshot.SaveToStream(stream);
-                c.UploadFile(stream, screenshot.ServerPath);
-            }
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    screenshot.SaveToStream(stream);
+                    c.UploadFile(stream, screenshot.ServerPath);
+                }
 
-            WriteLine("[0x{0:X}] Upload completed!", Thread.CurrentThread.ManagedThreadId);
-            History.Push(screenshot);
-            System.Media.SystemSounds.Asterisk.Play();
+                WriteLine("[0x{0:X}] Upload completed!", Thread.CurrentThread.ManagedThreadId);
+                History.Push(screenshot);
+                System.Media.SystemSounds.Asterisk.Play();
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
+                Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
+                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+            }
         }
 
         private static void SftpCreateDirectoryRecursive(ref SftpClient c, string path)
@@ -254,6 +264,7 @@ namespace Superscrot
                 {
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
                     System.Media.SystemSounds.Exclamation.Play();
+                    Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
                 }
             }
         }
