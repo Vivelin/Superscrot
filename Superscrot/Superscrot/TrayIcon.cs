@@ -114,7 +114,14 @@ namespace Superscrot
         /// <param name="message">The message to display.</param>
         public void ShowError(string title, string message)
         {
-            Tray.ShowBalloonTip(10000, title, message, ToolTipIcon.Error);
+            try
+            {
+                Tray.ShowBalloonTip(10000, title, message, ToolTipIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleException(ex);
+            }
         }
 
         /// <summary>

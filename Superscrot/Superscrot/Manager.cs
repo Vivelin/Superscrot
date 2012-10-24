@@ -194,6 +194,7 @@ namespace Superscrot
             if (!c.IsConnected)
             {
                 Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed: can't connect to server. Check your settings and try again later.", Thread.CurrentThread.ManagedThreadId);
+                Program.Tray.ShowError("Can't connect to server", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
                 return;
             }
@@ -245,6 +246,7 @@ namespace Superscrot
             {
                 Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed: can't connect to server. Check your settings and try again later.", Thread.CurrentThread.ManagedThreadId);
                 System.Media.SystemSounds.Exclamation.Play();
+                Program.Tray.ShowError("Can't connect to server", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
                 return;
             }
 
