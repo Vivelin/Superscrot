@@ -13,17 +13,14 @@ also offers a configuration editor and an option to toggle the developer console
 - <kbd>Ctrl</kbd>+<kbd>PageUp</kbd> uploads copied images and image files
  
 # Download
-The latest build is version 1.5.3.
-- [64-bit][SS64]
-- [32-bit][SS32]
+64-bit and 32-bit builds can be found on [http://horsedrowner.net/projects][PROJ]
  
 # More information
 Filename format strings and build version history can be found on the [GitHub project wiki][GHWIKI]. 
 
 RENCI SSH.NET Library is licensed under [New BSD][BSD3] and available at [Codeplex][SSHNET].
  
- [SS64]: http://horsedrowner.net/downloads/superscrot-1.5.3.zip
- [SS32]: http://horsedrowner.net/downloads/superscrot-1.5.3-x86.zip
+ [PROJ]: http://horsedrowner.net/projects#superscrot
  [GHWIKI]: https://github.com/horsedrowner/Superscrot/wiki
  [BSD3]: http://www.tldrlegal.com/l/BSD3
  [SSHNET]: http://sshnet.codeplex.com/
