@@ -100,6 +100,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="CredentialsDialog.cs" />
     <Compile Include="History.cs" />
+    <Compile Include="Uploaders\IUploader.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Manager.cs" />
     <Compile Include="Program.cs" />
@@ -118,6 +119,9 @@
       <DependentUpon>SettingsDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="TrayIcon.cs" />
+    <Compile Include="Uploaders\FtpUploader.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Uploaders\SftpUploader.cs" />
     <Compile Include="XmlColor.cs" />
     <EmbeddedResource Include="ConfigEditor.resx">
       <DependentUpon>ConfigEditor.cs</DependentUpon>

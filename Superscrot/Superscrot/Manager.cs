@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Threading;
 using Renci.SshNet;
 using System.Text;
+using Superscrot.Uploaders;
 
 namespace Superscrot
 {
@@ -146,22 +147,37 @@ namespace Superscrot
             try
             {
                 string filename = screenshot.GetFileName();
-                screenshot.ServerPath = Common.UriCombine(Program.Config.FtpServerPath, filename);
-                screenshot.PublicPath = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(filename));
+                string target = Common.UriCombine(Program.Config.FtpServerPath, filename);
+                string url = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(filename));
 
                 Thread uploadThread = new Thread(() =>
                 {
                     try
                     {
+                        IUploader up;
                         if (Program.Config.UseSSH)
-                            UploadSftp(screenshot);
+                            up = new SftpUploader();
                         else
-                            UploadFtp(screenshot);
+                            up = new FtpUploader();
+
+                        if (up.Upload(screenshot, target))
+                        {
+                            History.Push(screenshot);
+                            System.Media.SystemSounds.Asterisk.Play();
+                            WriteLine("[0x{0:X}] Upload succeeded", Thread.CurrentThread.ManagedThreadId);
+                        }
+                        else
+                        {
+                            Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
+                            System.Media.SystemSounds.Exclamation.Play();
+                            Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                        }
                     }
                     catch (Exception ex)
                     {
                         Program.ConsoleException(ex);
-                        System.Media.SystemSounds.Exclamation.Play();
+                        System.Media.SystemSounds.Exclamation.Play(); 
+                        Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
                     }
                     finally
                     {
@@ -171,103 +187,14 @@ namespace Superscrot
                 uploadThread.Name = "Upload thread";
                 uploadThread.Start();
 
-                WriteLine("[0x{0:X}] Uploading to {1}...", uploadThread.ManagedThreadId, screenshot.PublicPath);
-                return screenshot.PublicPath;
-
+                WriteLine("[0x{0:X}] Uploading to {1}...", uploadThread.ManagedThreadId, url);
+                return url;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
                 System.Media.SystemSounds.Exclamation.Play();
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Uploads a <c>System.IO.Stream</c> to a file on the configured SFTP server.
-        /// </summary>
-        private void UploadSftp(Screenshot screenshot)
-        {
-            SftpClient c = new SftpClient(Program.Config.FtpHostname, Program.Config.FtpPort, Program.Config.FtpUsername, Program.Config.FtpPassword);
-            c.ConnectionInfo.Timeout = new TimeSpan(0, 0, 0, 0, Program.Config.FtpTimeout);
-            c.Connect();
-            if (!c.IsConnected)
-            {
-                Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed: can't connect to server. Check your settings and try again later.", Thread.CurrentThread.ManagedThreadId);
-                Program.Tray.ShowError("Can't connect to server", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
-                System.Media.SystemSounds.Exclamation.Play();
-                return;
-            }
-
-            string folder = Path.GetDirectoryName(screenshot.ServerPath).Replace('\\', '/');
-            SftpCreateDirectoryRecursive(ref c, folder);
-
-            try
-            {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    screenshot.SaveToStream(stream);
-                    c.UploadFile(stream, screenshot.ServerPath);
-                }
-
-                WriteLine("[0x{0:X}] Upload completed!", Thread.CurrentThread.ManagedThreadId);
-                History.Push(screenshot);
-                System.Media.SystemSounds.Asterisk.Play();
-            }
-            catch (Exception ex)
-            {
-                Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
-                Program.ConsoleException(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
-            }
-        }
-
-        private static void SftpCreateDirectoryRecursive(ref SftpClient c, string path)
-        {
-            if (!c.Exists(path))
-            {
-                string parent = Path.GetDirectoryName(path).Replace('\\', '/');
-                SftpCreateDirectoryRecursive(ref c, parent);
-                WriteLine("[0x{0:X}] Creating directory {1}", Thread.CurrentThread.ManagedThreadId, path);
-                c.CreateDirectory(path);
-            }
-        }
-
-        /// <summary>
-        /// Uploads a <c>System.IO.Stream</c> to a file on the configured FTP server.
-        /// </summary>
-        private void UploadFtp(Screenshot screenshot)
-        {
-            FTP.FtpClient ftp = new FTP.FtpClient(Program.Config.FtpHostname, Program.Config.FtpPort, Program.Config.FtpUsername, Program.Config.FtpPassword);
-            ftp.Timeout = Program.Config.FtpTimeout;
-
-            if (!ftp.AttemptConnection())
-            {
-                Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed: can't connect to server. Check your settings and try again later.", Thread.CurrentThread.ManagedThreadId);
-                System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError("Can't connect to server", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
-                return;
-            }
-
-            if (!ftp.DirectoryExists(Path.GetDirectoryName(screenshot.ServerPath)))
-                ftp.CreateDirectory(Path.GetDirectoryName(screenshot.ServerPath));
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                screenshot.SaveToStream(stream);
-                if (ftp.Upload(stream, screenshot.ServerPath))
-                {
-                    WriteLine("[0x{0:X}] Upload completed!", Thread.CurrentThread.ManagedThreadId);
-                    History.Push(screenshot);
-                    System.Media.SystemSounds.Asterisk.Play();
-                }
-                else
-                {
-                    Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
-                    System.Media.SystemSounds.Exclamation.Play();
-                    Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
-                }
             }
         }
 
@@ -290,10 +217,23 @@ namespace Superscrot
                 {
                     try
                     {
+                        IUploader up;
                         if (Program.Config.UseSSH)
-                            UndoUploadSftp(screenshot.ServerPath);
+                            up = new SftpUploader();
                         else
-                            UndoUploadFtp(screenshot.ServerPath);
+                            up = new FtpUploader();
+
+                        if (up.UndoUpload(screenshot))
+                        {
+                            System.Media.SystemSounds.Asterisk.Play();
+                            WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
+                        }
+                        else
+                        {
+                            System.Media.SystemSounds.Exclamation.Play();
+                            Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Deletion failed!", Thread.CurrentThread.ManagedThreadId);
+                            Program.Tray.ShowError("Screenshot could not be deleted", null);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -309,54 +249,6 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-            }
-        }
-
-        /// <summary>
-        /// Deletes the specified file from the configured SFTP server.
-        /// </summary>
-        /// <param name="serverpath">The path to the file on the server to be deleted.</param>
-        private static void UndoUploadSftp(string serverpath)
-        {
-            SftpClient c = new SftpClient(Program.Config.FtpHostname, Program.Config.FtpPort, Program.Config.FtpUsername, Program.Config.FtpPassword);
-            c.ConnectionInfo.Timeout = new TimeSpan(0, 0, 0, 0, Program.Config.FtpTimeout);
-            c.Connect();
-            if (!c.IsConnected)
-            {
-                Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Delete failed: can't connect to server.", Thread.CurrentThread.ManagedThreadId);
-                System.Media.SystemSounds.Exclamation.Play();
-                return;
-            }
-
-            c.DeleteFile(serverpath);
-            WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
-            System.Media.SystemSounds.Asterisk.Play();
-        }
-
-        /// <summary>
-        /// Deletes the specified file from the configured FTP server.
-        /// </summary>
-        /// <param name="serverpath">The path to the file on the server to be deleted.</param>
-        private static void UndoUploadFtp(string serverpath)
-        {
-            FTP.FtpClient ftp = new FTP.FtpClient(Program.Config.FtpHostname, Program.Config.FtpPort, Program.Config.FtpUsername, Program.Config.FtpPassword);
-            ftp.Timeout = Program.Config.FtpTimeout;
-
-            if (!ftp.AttemptConnection())
-            {
-                Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Delete failed: can't connect to server.", Thread.CurrentThread.ManagedThreadId);
-                System.Media.SystemSounds.Exclamation.Play();
-                return;
-            }
-
-            if (ftp.DeleteFile(serverpath))
-            {
-                WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
-            }
-            else
-            {
-                WriteLine("[0x{0:X} Delete failed!", Thread.CurrentThread.ManagedThreadId);
                 System.Media.SystemSounds.Exclamation.Play();
             }
         }
