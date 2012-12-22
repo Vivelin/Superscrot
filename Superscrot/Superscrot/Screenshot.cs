@@ -135,6 +135,7 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
             }
 
             return null;
@@ -169,6 +170,7 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
             }
             return null;
         }
@@ -198,6 +200,7 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
             }
 
             return null;
@@ -242,6 +245,7 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
             }
 
             return null;
@@ -266,6 +270,7 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
                 return null;
             }
         }
@@ -288,6 +293,7 @@ namespace Superscrot
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
                 return null;
             }
         }
