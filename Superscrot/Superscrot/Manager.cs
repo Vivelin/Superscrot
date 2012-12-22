@@ -288,27 +288,36 @@ namespace Superscrot
             if (e.Modifier != ModifierKeys.None) Write(e.Modifier.ToString() + " + ");
             WriteLine(e.Key.ToString());
 
-            if (e.Key == Keys.PrintScreen)
+            try
             {
-                switch (e.Modifier)
+                if (e.Key == Keys.PrintScreen)
                 {
-                    case ModifierKeys.None:
-                        TakeAndUploadDesktopScreenshot();
-                        break;
-                    case ModifierKeys.Alt:
-                        TakeAndUploadWindowScreenshot();
-                        break;
-                    case ModifierKeys.Control:
-                        TakeAndUploadRegionScreenshot();
-                        break;
-                    case ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift:
-                        UndoUpload();
-                        break;
+                    switch (e.Modifier)
+                    {
+                        case ModifierKeys.None:
+                            TakeAndUploadDesktopScreenshot();
+                            break;
+                        case ModifierKeys.Alt:
+                            TakeAndUploadWindowScreenshot();
+                            break;
+                        case ModifierKeys.Control:
+                            TakeAndUploadRegionScreenshot();
+                            break;
+                        case ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift:
+                            UndoUpload();
+                            break;
+                    }
+                }
+                else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
+                {
+                    UploadClipboard();
                 }
             }
-            else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
+            catch (Exception ex)
             {
-                UploadClipboard();
+                Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
+                Program.Tray.ShowError("Superscrot encountered a problem", "If this problem keeps happening, please report the problem at https://github.com/horsedrowner/Superscrot/issues \nDetails: " + ex.Message);
             }
         }
     }
