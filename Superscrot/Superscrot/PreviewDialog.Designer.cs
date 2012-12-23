@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.FooterPanel = new System.Windows.Forms.Panel();
+            this.DontShowAgain = new System.Windows.Forms.CheckBox();
             this.CancelButton = new System.Windows.Forms.Button();
             this.CopyButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
@@ -38,7 +39,6 @@
             this.FileNameInput = new System.Windows.Forms.TextBox();
             this.PublicUrlLabel = new System.Windows.Forms.Label();
             this.PublicUrl = new System.Windows.Forms.LinkLabel();
-            this.DontShowAgain = new System.Windows.Forms.CheckBox();
             this.FooterPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ScreenshotPreview)).BeginInit();
             this.SuspendLayout();
@@ -56,7 +56,18 @@
             this.FooterPanel.Location = new System.Drawing.Point(0, 145);
             this.FooterPanel.Name = "FooterPanel";
             this.FooterPanel.Size = new System.Drawing.Size(592, 67);
-            this.FooterPanel.TabIndex = 0;
+            this.FooterPanel.TabIndex = 4;
+            // 
+            // DontShowAgain
+            // 
+            this.DontShowAgain.AutoSize = true;
+            this.DontShowAgain.Location = new System.Drawing.Point(16, 6);
+            this.DontShowAgain.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            this.DontShowAgain.Name = "DontShowAgain";
+            this.DontShowAgain.Size = new System.Drawing.Size(176, 19);
+            this.DontShowAgain.TabIndex = 0;
+            this.DontShowAgain.Text = "Don\'t show this dialog again";
+            this.DontShowAgain.UseVisualStyleBackColor = true;
             // 
             // CancelButton
             // 
@@ -66,7 +77,7 @@
             this.CancelButton.Location = new System.Drawing.Point(493, 28);
             this.CancelButton.Name = "CancelButton";
             this.CancelButton.Size = new System.Drawing.Size(87, 27);
-            this.CancelButton.TabIndex = 1;
+            this.CancelButton.TabIndex = 4;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;
             this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
@@ -78,7 +89,7 @@
             this.CopyButton.Location = new System.Drawing.Point(109, 28);
             this.CopyButton.Name = "CopyButton";
             this.CopyButton.Size = new System.Drawing.Size(87, 27);
-            this.CopyButton.TabIndex = 0;
+            this.CopyButton.TabIndex = 2;
             this.CopyButton.Text = "&Copy";
             this.CopyButton.UseVisualStyleBackColor = true;
             this.CopyButton.Click += new System.EventHandler(this.CopyButton_Click);
@@ -90,7 +101,7 @@
             this.SaveButton.Location = new System.Drawing.Point(16, 28);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(87, 27);
-            this.SaveButton.TabIndex = 0;
+            this.SaveButton.TabIndex = 1;
             this.SaveButton.Text = "&Save...";
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
@@ -103,7 +114,7 @@
             this.UploadButton.Location = new System.Drawing.Point(400, 28);
             this.UploadButton.Name = "UploadButton";
             this.UploadButton.Size = new System.Drawing.Size(87, 27);
-            this.UploadButton.TabIndex = 0;
+            this.UploadButton.TabIndex = 3;
             this.UploadButton.Text = "Upload";
             this.UploadButton.UseVisualStyleBackColor = true;
             this.UploadButton.Click += new System.EventHandler(this.UploadButton_Click);
@@ -116,7 +127,7 @@
             this.MainInstruction.Location = new System.Drawing.Point(12, 9);
             this.MainInstruction.Name = "MainInstruction";
             this.MainInstruction.Size = new System.Drawing.Size(139, 21);
-            this.MainInstruction.TabIndex = 1;
+            this.MainInstruction.TabIndex = 0;
             this.MainInstruction.Text = "Upload screenshot";
             // 
             // ScreenshotPreview
@@ -138,7 +149,7 @@
             this.FileNameInput.Location = new System.Drawing.Point(172, 33);
             this.FileNameInput.Name = "FileNameInput";
             this.FileNameInput.Size = new System.Drawing.Size(408, 23);
-            this.FileNameInput.TabIndex = 3;
+            this.FileNameInput.TabIndex = 1;
             this.FileNameInput.TextChanged += new System.EventHandler(this.FileNameInput_TextChanged);
             // 
             // PublicUrlLabel
@@ -148,7 +159,7 @@
             this.PublicUrlLabel.Margin = new System.Windows.Forms.Padding(3);
             this.PublicUrlLabel.Name = "PublicUrlLabel";
             this.PublicUrlLabel.Size = new System.Drawing.Size(194, 15);
-            this.PublicUrlLabel.TabIndex = 4;
+            this.PublicUrlLabel.TabIndex = 2;
             this.PublicUrlLabel.Text = "Your screenshot will be available at:";
             // 
             // PublicUrl
@@ -161,19 +172,8 @@
             this.PublicUrl.Location = new System.Drawing.Point(172, 124);
             this.PublicUrl.Name = "PublicUrl";
             this.PublicUrl.Size = new System.Drawing.Size(408, 15);
-            this.PublicUrl.TabIndex = 5;
+            this.PublicUrl.TabIndex = 3;
             this.PublicUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.PublicUrl_LinkClicked);
-            // 
-            // DontShowAgain
-            // 
-            this.DontShowAgain.AutoSize = true;
-            this.DontShowAgain.Location = new System.Drawing.Point(16, 6);
-            this.DontShowAgain.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
-            this.DontShowAgain.Name = "DontShowAgain";
-            this.DontShowAgain.Size = new System.Drawing.Size(176, 19);
-            this.DontShowAgain.TabIndex = 2;
-            this.DontShowAgain.Text = "Don\'t show this dialog again";
-            this.DontShowAgain.UseVisualStyleBackColor = true;
             // 
             // PreviewDialog
             // 
