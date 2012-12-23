@@ -48,7 +48,8 @@ namespace Superscrot
             if (capture != null)
             {
                 string publicpath = StartUploadAsync(capture);
-                Clipboard.SetText(publicpath);
+                if (!string.IsNullOrWhiteSpace(publicpath))
+                    Clipboard.SetText(publicpath);
             }
         }
 
@@ -61,7 +62,8 @@ namespace Superscrot
             if (capture != null)
             {
                 string publicpath = StartUploadAsync(capture);
-                Clipboard.SetText(publicpath);
+                if (!string.IsNullOrWhiteSpace(publicpath))
+                    Clipboard.SetText(publicpath);
             }
         }
 
@@ -74,7 +76,8 @@ namespace Superscrot
             if (capture != null)
             {
                 string publicpath = StartUploadAsync(capture);
-                Clipboard.SetText(publicpath);
+                if (!string.IsNullOrWhiteSpace(publicpath))
+                    Clipboard.SetText(publicpath);
             }
         }
 
@@ -89,7 +92,8 @@ namespace Superscrot
                 if (capture != null)
                 {
                     string publicpath = StartUploadAsync(capture);
-                    Clipboard.SetText(publicpath);
+                    if (!string.IsNullOrWhiteSpace(publicpath))
+                        Clipboard.SetText(publicpath);
                 }
             }
             else if (Clipboard.ContainsFileDropList())
@@ -110,7 +114,8 @@ namespace Superscrot
                         if (capture != null)
                         {
                             string publicpath = StartUploadAsync(capture);
-                            clipText.AppendLine(publicpath);
+                            if (!string.IsNullOrWhiteSpace(publicpath))
+                                clipText.AppendLine(publicpath);
                         }
                     }
                     catch (Exception ex)
@@ -147,6 +152,18 @@ namespace Superscrot
             try
             {
                 string filename = screenshot.GetFileName();
+
+                if (Program.Config.ShowPreviewDialog)
+                {
+                    using (PreviewDialog preview = new PreviewDialog(screenshot))
+                    {
+                        if (preview.ShowDialog() == DialogResult.OK)
+                            filename = preview.FileName;
+                        else
+                            return null;
+                    }
+                }
+
                 string target = Common.UriCombine(Program.Config.FtpServerPath, filename);
                 string url = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(filename));
 
@@ -176,7 +193,7 @@ namespace Superscrot
                     catch (Exception ex)
                     {
                         Program.ConsoleException(ex);
-                        System.Media.SystemSounds.Exclamation.Play(); 
+                        System.Media.SystemSounds.Exclamation.Play();
                         Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
                     }
                     finally

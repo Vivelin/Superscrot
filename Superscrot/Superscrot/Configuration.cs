@@ -194,6 +194,13 @@ namespace Superscrot
         public bool EnableTrayIcon { get; set; }
 
         /// <summary>
+        /// Determines whether to display a preview dialog when a screenshot is taken.
+        /// </summary>
+        [DisplayName("Show preview dialog"), Category("User interface")]
+        [Description("If enable, a preview dialog appears when a screenshot is taken, which allows you to change the filename and save the screenshot to a file.")]
+        public bool ShowPreviewDialog { get; set; }
+
+        /// <summary>
         /// Loads default values.
         /// </summary>
         public Configuration()
@@ -201,6 +208,7 @@ namespace Superscrot
             ConsoleEnabled = false;
             EnableLogfile = true;
             EnableTrayIcon = true;
+            ShowPreviewDialog = true;
 
             FilenameFormat = "%c\\%s\\%d-%i";
             FtpPort = 21;
