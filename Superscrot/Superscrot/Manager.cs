@@ -47,7 +47,7 @@ namespace Superscrot
             Screenshot capture = Screenshot.FromDesktop();
             if (capture != null)
             {
-                string publicpath = StartUploadAsync(capture);
+                string publicpath = UploadAsync(capture);
                 if (!string.IsNullOrWhiteSpace(publicpath))
                     Clipboard.SetText(publicpath);
             }
@@ -61,7 +61,7 @@ namespace Superscrot
             Screenshot capture = Screenshot.FromActiveWindow();
             if (capture != null)
             {
-                string publicpath = StartUploadAsync(capture);
+                string publicpath = UploadAsync(capture);
                 if (!string.IsNullOrWhiteSpace(publicpath))
                     Clipboard.SetText(publicpath);
             }
@@ -75,7 +75,7 @@ namespace Superscrot
             Screenshot capture = Screenshot.FromRegion();
             if (capture != null)
             {
-                string publicpath = StartUploadAsync(capture);
+                string publicpath = UploadAsync(capture);
                 if (!string.IsNullOrWhiteSpace(publicpath))
                     Clipboard.SetText(publicpath);
             }
@@ -91,7 +91,7 @@ namespace Superscrot
                 Screenshot capture = Screenshot.FromClipboard();
                 if (capture != null)
                 {
-                    string publicpath = StartUploadAsync(capture);
+                    string publicpath = UploadAsync(capture);
                     if (!string.IsNullOrWhiteSpace(publicpath))
                         Clipboard.SetText(publicpath);
                 }
@@ -113,7 +113,7 @@ namespace Superscrot
                         Screenshot capture = Screenshot.FromFile(file);
                         if (capture != null)
                         {
-                            string publicpath = StartUploadAsync(capture);
+                            string publicpath = UploadAsync(capture);
                             if (!string.IsNullOrWhiteSpace(publicpath))
                                 clipText.AppendLine(publicpath);
                         }
@@ -132,6 +132,11 @@ namespace Superscrot
             }
         }
 
+        /// <summary>
+        /// Returns whether the specified file is an image file.
+        /// </summary>
+        /// <param name="file">The name of the file.</param>
+        /// <returns>True if the specified file is a supported image file, otherwise false.</returns>
         private static bool IsImageFile(string file)
         {
             string ext = Path.GetExtension(file);
@@ -147,7 +152,12 @@ namespace Superscrot
             return false;
         }
 
-        public string StartUploadAsync(Screenshot screenshot)
+        /// <summary>
+        /// Uploads the screenshot in a new thread.
+        /// </summary>
+        /// <param name="screenshot">The screenshot to upload.</param>
+        /// <returns>The public URL to the uploaded screenshot.</returns>
+        public string UploadAsync(Screenshot screenshot)
         {
             try
             {
@@ -169,37 +179,7 @@ namespace Superscrot
 
                 Thread uploadThread = new Thread(() =>
                 {
-                    try
-                    {
-                        IUploader up;
-                        if (Program.Config.UseSSH)
-                            up = new SftpUploader();
-                        else
-                            up = new FtpUploader();
-
-                        if (up.Upload(screenshot, target))
-                        {
-                            History.Push(screenshot);
-                            System.Media.SystemSounds.Asterisk.Play();
-                            WriteLine("[0x{0:X}] Upload succeeded", Thread.CurrentThread.ManagedThreadId);
-                        }
-                        else
-                        {
-                            Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
-                            System.Media.SystemSounds.Exclamation.Play();
-                            Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Program.ConsoleException(ex);
-                        System.Media.SystemSounds.Exclamation.Play();
-                        Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
-                    }
-                    finally
-                    {
-                        screenshot.Dispose(); //TODO: don't dispose, rather flush to disk or remove local copy from disk
-                    }
+                    Upload(screenshot, target);
                 });
                 uploadThread.Name = "Upload thread";
                 uploadThread.Start();
@@ -216,9 +196,49 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Uploads a screenshot to the specified file on the server.
+        /// </summary>
+        /// <param name="screenshot">The screenshot to upload.</param>
+        /// <param name="target">The name of the file on the server that the screenshot will be uploaded to.</param>
+        private void Upload(Screenshot screenshot, string target)
+        {
+            try
+            {
+                IUploader up;
+                if (Program.Config.UseSSH)
+                    up = new SftpUploader();
+                else
+                    up = new FtpUploader();
+
+                if (up.Upload(screenshot, target))
+                {
+                    History.Push(screenshot);
+                    System.Media.SystemSounds.Asterisk.Play();
+                    WriteLine("[0x{0:X}] Upload succeeded", Thread.CurrentThread.ManagedThreadId);
+                }
+                else
+                {
+                    Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
+                    System.Media.SystemSounds.Exclamation.Play();
+                    Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
+                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+            }
+            finally
+            {
+                screenshot.Dispose(); //TODO: don't dispose, rather flush to disk or remove local copy from disk
+            }
+        }
+
+        /// <summary>
         /// Deletes the last uploaded file. Can be called multiple times consecutively.
         /// </summary>
-        public void UndoUpload()
+        public void UndoUploadAsync()
         {
             try
             {
@@ -232,31 +252,7 @@ namespace Superscrot
 
                 Thread deleteThread = new Thread(() =>
                 {
-                    try
-                    {
-                        IUploader up;
-                        if (Program.Config.UseSSH)
-                            up = new SftpUploader();
-                        else
-                            up = new FtpUploader();
-
-                        if (up.UndoUpload(screenshot))
-                        {
-                            System.Media.SystemSounds.Asterisk.Play();
-                            WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
-                        }
-                        else
-                        {
-                            System.Media.SystemSounds.Exclamation.Play();
-                            Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Deletion failed!", Thread.CurrentThread.ManagedThreadId);
-                            Program.Tray.ShowError("Screenshot could not be deleted", null);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Program.ConsoleException(ex);
-                        System.Media.SystemSounds.Exclamation.Play();
-                    }
+                    UndoUpload(screenshot);
                 });
                 deleteThread.Name = "Delete thread";
                 deleteThread.Start();
@@ -267,6 +263,40 @@ namespace Superscrot
             {
                 Program.ConsoleException(ex);
                 System.Media.SystemSounds.Exclamation.Play();
+            }
+        }
+        
+        /// <summary>
+        /// Deletes a screenshot from the server.
+        /// </summary>
+        /// <param name="screenshot">The screenshot to delete.</param>
+        private static void UndoUpload(Screenshot screenshot)
+        {
+            try
+            {
+                IUploader up;
+                if (Program.Config.UseSSH)
+                    up = new SftpUploader();
+                else
+                    up = new FtpUploader();
+
+                if (up.UndoUpload(screenshot))
+                {
+                    System.Media.SystemSounds.Asterisk.Play();
+                    WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
+                }
+                else
+                {
+                    System.Media.SystemSounds.Exclamation.Play();
+                    Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Deletion failed!", Thread.CurrentThread.ManagedThreadId);
+                    Program.Tray.ShowError("Screenshot could not be deleted", null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
+                Program.Tray.ShowError("Screenshot could not be deleted", null);
             }
         }
 
@@ -321,7 +351,7 @@ namespace Superscrot
                             TakeAndUploadRegionScreenshot();
                             break;
                         case ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift:
-                            UndoUpload();
+                            UndoUploadAsync();
                             break;
                     }
                 }

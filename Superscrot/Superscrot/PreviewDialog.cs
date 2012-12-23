@@ -9,24 +9,40 @@ using System.Windows.Forms;
 
 namespace Superscrot
 {
+    /// <summary>
+    /// Shows a preview of a screenshot, and allows the user to change the filename, as well as to 
+    /// save the screenshot to a file or copy it to the clipboard.
+    /// </summary>
     public partial class PreviewDialog : Form
     {
         private Screenshot _screenshot;
 
+        /// <summary>
+        /// Gets or sets the filename on the form.
+        /// </summary>
         public string FileName
         {
             get { return FileNameInput.Text; }
             set { FileNameInput.Text = value; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the preview dialog for the specified screenshot.
+        /// </summary>
+        /// <param name="s">The screenshot to preview.</param>
         public PreviewDialog(Screenshot s)
         {
             _screenshot = s;
 
             InitializeComponent();
-            FileNameInput.SetCue("Enter a filename...");
+            FileNameInput.SetCue("Enter a filename");
         }
 
+        /// <summary>
+        /// Displays the screenshot and filename when the form loads.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UploadDialog_Load(object sender, EventArgs e)
         {
             if (_screenshot != null)
@@ -37,6 +53,11 @@ namespace Superscrot
             }
         }
 
+        /// <summary>
+        /// Saves the "Don't show this dialog again" setting and closes the form when the Upload button is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UploadButton_Click(object sender, EventArgs e)
         {
             if (DontShowAgain.Checked)
@@ -47,11 +68,21 @@ namespace Superscrot
             Close();
         }
 
+        /// <summary>
+        /// Closes the form when the cancel button is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CancelButton_Click(object sender, EventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        /// Prompt the user to save the file when the button is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveButton_Click(object sender, EventArgs e)
         {
             using (SaveFileDialog sfd = new SaveFileDialog())
@@ -65,16 +96,31 @@ namespace Superscrot
             }
         }
 
+        /// <summary>
+        /// Copies the image to the clipboard when the button is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CopyButton_Click(object sender, EventArgs e)
         {
             Clipboard.SetImage(_screenshot.Bitmap);
         }
 
+        /// <summary>
+        /// Updates the public link when the filename is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FileNameInput_TextChanged(object sender, EventArgs e)
         {
             PublicUrl.Text = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(FileName));
         }
 
+        /// <summary>
+        /// Opens the link when it is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PublicUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
@@ -83,6 +129,11 @@ namespace Superscrot
             }
         }
 
+        /// <summary>
+        /// Opens the image in the default image viewer when the preview is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ScreenshotPreview_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)

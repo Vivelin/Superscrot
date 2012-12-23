@@ -183,6 +183,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
+            this.CancelButton = this.CancelButton;
             this.ClientSize = new System.Drawing.Size(592, 212);
             this.Controls.Add(this.PublicUrl);
             this.Controls.Add(this.PublicUrlLabel);
@@ -197,7 +198,6 @@
             this.MinimizeBox = false;
             this.Name = "PreviewDialog";
             this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Superscrot";
             this.Load += new System.EventHandler(this.UploadDialog_Load);
