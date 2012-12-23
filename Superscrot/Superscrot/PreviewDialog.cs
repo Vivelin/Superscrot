@@ -113,7 +113,15 @@ namespace Superscrot
         /// <param name="e"></param>
         private void FileNameInput_TextChanged(object sender, EventArgs e)
         {
-            PublicUrl.Text = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(FileName));
+            UploadButton.Enabled = !string.IsNullOrEmpty(FileName);
+            if (!string.IsNullOrEmpty(FileName))
+            {
+                PublicUrl.Text = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(FileName));
+            }
+            else
+            {
+                PublicUrl.Text = string.Empty;
+            }
         }
 
         /// <summary>
@@ -123,7 +131,7 @@ namespace Superscrot
         /// <param name="e"></param>
         private void PublicUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            if (e.Button == System.Windows.Forms.MouseButtons.Left && PublicUrl.Text.Length > 0)
             {
                 System.Diagnostics.Process.Start(PublicUrl.Text);
             }
