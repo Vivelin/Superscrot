@@ -82,5 +82,18 @@ namespace Superscrot
                 System.Diagnostics.Process.Start(PublicUrl.Text);
             }
         }
+
+        private void ScreenshotPreview_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                string fileName = System.IO.Path.GetTempFileName();
+                System.IO.File.Delete(fileName);
+                fileName += ".png";
+
+                _screenshot.Bitmap.Save(fileName);
+                System.Diagnostics.Process.Start(fileName);
+            }
+        }
     }
 }

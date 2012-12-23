@@ -90,7 +90,7 @@
             this.CopyButton.Name = "CopyButton";
             this.CopyButton.Size = new System.Drawing.Size(87, 27);
             this.CopyButton.TabIndex = 2;
-            this.CopyButton.Text = "&Copy";
+            this.CopyButton.Text = "&Copy image";
             this.CopyButton.UseVisualStyleBackColor = true;
             this.CopyButton.Click += new System.EventHandler(this.CopyButton_Click);
             // 
@@ -134,6 +134,7 @@
             // 
             this.ScreenshotPreview.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.ScreenshotPreview.Cursor = System.Windows.Forms.Cursors.Hand;
             this.ScreenshotPreview.Location = new System.Drawing.Point(16, 33);
             this.ScreenshotPreview.MaximumSize = new System.Drawing.Size(150, 127);
             this.ScreenshotPreview.Name = "ScreenshotPreview";
@@ -141,6 +142,7 @@
             this.ScreenshotPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.ScreenshotPreview.TabIndex = 2;
             this.ScreenshotPreview.TabStop = false;
+            this.ScreenshotPreview.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ScreenshotPreview_MouseClick);
             // 
             // FileNameInput
             // 
