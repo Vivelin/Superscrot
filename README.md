@@ -6,6 +6,8 @@ to use their hosting, which I don't want. Superscrot supports FTP and SFTP.
 Superscrot sits in the system tray and does its work when you press PrintScreen. The system tray icon
 also offers a configuration editor and an option to toggle the developer console.
 
+![Superscrot preview window](http://s.horsedrowner.net/Superscrot-Preview.png)
+
 ## Key bindings
 - <kbd>PrintScr</kbd> takes a single screenshot that spans all monitors
 - <kbd>Alt</kbd>+<kbd>PrintScr</kbd> takes a screenshot of the active window
