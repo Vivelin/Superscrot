@@ -30,7 +30,7 @@
         {
             this.FooterPanel = new System.Windows.Forms.Panel();
             this.DontShowAgain = new System.Windows.Forms.CheckBox();
-            this.CancelButton = new System.Windows.Forms.Button();
+            this.CancelButtonASDF = new System.Windows.Forms.Button();
             this.CopyButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.UploadButton = new System.Windows.Forms.Button();
@@ -47,7 +47,7 @@
             // 
             this.FooterPanel.BackColor = System.Drawing.SystemColors.Control;
             this.FooterPanel.Controls.Add(this.DontShowAgain);
-            this.FooterPanel.Controls.Add(this.CancelButton);
+            this.FooterPanel.Controls.Add(this.CancelButtonASDF);
             this.FooterPanel.Controls.Add(this.CopyButton);
             this.FooterPanel.Controls.Add(this.SaveButton);
             this.FooterPanel.Controls.Add(this.UploadButton);
@@ -69,18 +69,18 @@
             this.DontShowAgain.Text = "Don\'t show this dialog again";
             this.DontShowAgain.UseVisualStyleBackColor = true;
             // 
-            // CancelButton
+            // CancelButtonASDF
             // 
-            this.CancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.CancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.CancelButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.CancelButton.Location = new System.Drawing.Point(493, 28);
-            this.CancelButton.Name = "CancelButton";
-            this.CancelButton.Size = new System.Drawing.Size(87, 27);
-            this.CancelButton.TabIndex = 4;
-            this.CancelButton.Text = "Cancel";
-            this.CancelButton.UseVisualStyleBackColor = true;
-            this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
+            this.CancelButtonASDF.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.CancelButtonASDF.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.CancelButtonASDF.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.CancelButtonASDF.Location = new System.Drawing.Point(493, 28);
+            this.CancelButtonASDF.Name = "CancelButtonASDF";
+            this.CancelButtonASDF.Size = new System.Drawing.Size(87, 27);
+            this.CancelButtonASDF.TabIndex = 4;
+            this.CancelButtonASDF.Text = "Cancel";
+            this.CancelButtonASDF.UseVisualStyleBackColor = true;
+            this.CancelButtonASDF.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // CopyButton
             // 
@@ -183,7 +183,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.CancelButton = this.CancelButton;
+            this.CancelButton = this.CancelButtonASDF;
             this.ClientSize = new System.Drawing.Size(592, 212);
             this.Controls.Add(this.PublicUrl);
             this.Controls.Add(this.PublicUrlLabel);
@@ -213,7 +213,7 @@
 
         private System.Windows.Forms.Panel FooterPanel;
         private System.Windows.Forms.Button UploadButton;
-        private System.Windows.Forms.Button CancelButton;
+        private System.Windows.Forms.Button CancelButtonASDF;
         private System.Windows.Forms.Label MainInstruction;
         private System.Windows.Forms.PictureBox ScreenshotPreview;
         public System.Windows.Forms.TextBox FileNameInput;
