@@ -53,15 +53,12 @@ namespace Superscrot
                 FileNameInput.Text = defaultFileName;
 
                 // Select only the filename itself
-                int iFileNameStart = defaultFileName.LastIndexOfAny(new char[] { '\\', '/' }) + 1;
-                if (iFileNameStart < 1)
-                    iFileNameStart = 0;
+                string fileName = System.IO.Path.GetFileNameWithoutExtension(defaultFileName);
+                int iStart = defaultFileName.IndexOf(fileName);
+                if (iStart < 0)
+                    iStart = 0;
 
-                int iFileNameEnd = defaultFileName.IndexOf('.', iFileNameStart);
-                if (iFileNameEnd <= iFileNameStart)
-                    iFileNameEnd = defaultFileName.Length;
-
-                FileNameInput.Select(iFileNameStart, iFileNameEnd - iFileNameStart);
+                FileNameInput.Select(iStart, fileName.Length);
                 FileNameInput.Focus();
             }
         }
