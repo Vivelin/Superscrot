@@ -98,7 +98,6 @@
       <DependentUpon>ConfigEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration.cs" />
-    <Compile Include="CredentialsDialog.cs" />
     <Compile Include="History.cs" />
     <Compile Include="PreviewDialog.cs">
       <SubType>Form</SubType>
