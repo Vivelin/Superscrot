@@ -48,7 +48,17 @@ namespace Superscrot
             if (_screenshot != null)
             {
                 ScreenshotPreview.Image = _screenshot.Bitmap;
-                FileNameInput.Text = _screenshot.GetFileName();
+
+                string defaultFileName = _screenshot.GetFileName();
+                FileNameInput.Text = defaultFileName;
+
+                // Select only the filename itself
+                string fileName = System.IO.Path.GetFileNameWithoutExtension(defaultFileName);
+                int iStart = defaultFileName.IndexOf(fileName);
+                if (iStart < 0)
+                    iStart = 0;
+
+                FileNameInput.Select(iStart, fileName.Length);
                 FileNameInput.Focus();
             }
         }
