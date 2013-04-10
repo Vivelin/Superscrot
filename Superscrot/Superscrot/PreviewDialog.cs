@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,26 @@ namespace Superscrot
     public partial class PreviewDialog : Form
     {
         private Screenshot _screenshot;
+        private string _tempFileName;
+
+        /// <summary>
+        /// Gets the filename to a temporary local copy of the screenshot.
+        /// </summary>
+        private string TempFileName
+        {
+            get
+            {
+                if (_tempFileName == null)
+                {
+                    _tempFileName = System.IO.Path.GetTempFileName();
+                    System.IO.File.Delete(_tempFileName);
+                    _tempFileName += ".png";
+
+                    _screenshot.Bitmap.Save(_tempFileName);
+                }
+                return _tempFileName;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the filename on the form.
@@ -156,13 +177,37 @@ namespace Superscrot
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                string fileName = System.IO.Path.GetTempFileName();
-                System.IO.File.Delete(fileName);
-                fileName += ".png";
-
-                _screenshot.Bitmap.Save(fileName);
-                System.Diagnostics.Process.Start(fileName);
+                Process viewer = Process.Start(TempFileName);
+                viewer.Exited += (sender2, e2) =>
+                {
+                    Cleanup();
+                };
             }
+        }
+
+        /// <summary>
+        /// Deletes the temporary local copy (if any) when the dialog is closed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PreviewDialog_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Cleanup();
+        }
+
+        /// <summary>
+        /// Deletes the temporary local copy (if any).
+        /// </summary>
+        private void Cleanup()
+        {
+            try
+            {
+                if (_tempFileName != null && System.IO.File.Exists(_tempFileName))
+                {
+                    System.IO.File.Delete(_tempFileName);
+                }
+            }
+            catch { }
         }
     }
 }

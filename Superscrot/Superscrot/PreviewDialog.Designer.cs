@@ -200,6 +200,7 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Superscrot";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PreviewDialog_FormClosed);
             this.Load += new System.EventHandler(this.UploadDialog_Load);
             this.FooterPanel.ResumeLayout(false);
             this.FooterPanel.PerformLayout();
