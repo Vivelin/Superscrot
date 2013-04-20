@@ -124,7 +124,9 @@ namespace Superscrot
                         System.Media.SystemSounds.Exclamation.Play();
                     }
                 }
-                Clipboard.SetText(clipText.ToString().Trim());
+
+                if (clipText.Length > 0)
+                    Clipboard.SetText(clipText.ToString().Trim());
             }
             else
             {
@@ -265,7 +267,7 @@ namespace Superscrot
                 System.Media.SystemSounds.Exclamation.Play();
             }
         }
-        
+
         /// <summary>
         /// Deletes a screenshot from the server.
         /// </summary>
