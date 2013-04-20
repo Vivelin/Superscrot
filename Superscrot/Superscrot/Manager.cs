@@ -113,7 +113,7 @@ namespace Superscrot
                         Screenshot capture = Screenshot.FromFile(file);
                         if (capture != null)
                         {
-                            string publicpath = UploadAsync(capture);
+                            string publicpath = UploadAsync(capture, false);
                             if (!string.IsNullOrWhiteSpace(publicpath))
                                 clipText.AppendLine(publicpath);
                         }
@@ -161,11 +161,22 @@ namespace Superscrot
         /// <returns>The public URL to the uploaded screenshot.</returns>
         public string UploadAsync(Screenshot screenshot)
         {
+            return UploadAsync(screenshot, Program.Config.ShowPreviewDialog);
+        }
+
+        /// <summary>
+        /// Uploads the screenshot in a new thread.
+        /// </summary>
+        /// <param name="screenshot">The screenshot to upload.</param>
+        /// <param name="showPreview">Whether or not to show a preview before uploading.</param>
+        /// <returns>The public URL to the uploaded screenshot.</returns>
+        public string UploadAsync(Screenshot screenshot, bool showPreview)
+        {
             try
             {
                 string filename = screenshot.GetFileName();
 
-                if (Program.Config.ShowPreviewDialog)
+                if (showPreview)
                 {
                     using (PreviewDialog preview = new PreviewDialog(screenshot))
                     {
