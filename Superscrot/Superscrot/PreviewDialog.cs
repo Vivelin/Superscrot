@@ -57,6 +57,11 @@ namespace Superscrot
 
             InitializeComponent();
             FileNameInput.SetCue("Enter a filename");
+
+            if (s.Source == ScreenshotSource.File)
+            {
+                SaveButton.Enabled = false;
+            }
         }
 
         /// <summary>

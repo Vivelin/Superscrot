@@ -100,7 +100,12 @@ namespace Superscrot
             {
                 WriteLine("Clipboard contains files: ");
                 StringBuilder clipText = new StringBuilder();
-                foreach (string file in Clipboard.GetFileDropList())
+
+                System.Collections.Specialized.StringCollection files = Clipboard.GetFileDropList();
+                bool showPreview = (files.Count > 1 ? false : Program.Config.ShowPreviewDialog);
+                if (!showPreview) WriteLine("Skipping preview dialog for multiple files");
+
+                foreach (string file in files)
                 {
                     try
                     {
@@ -113,7 +118,7 @@ namespace Superscrot
                         Screenshot capture = Screenshot.FromFile(file);
                         if (capture != null)
                         {
-                            string publicpath = UploadAsync(capture, false);
+                            string publicpath = UploadAsync(capture, showPreview);
                             if (!string.IsNullOrWhiteSpace(publicpath))
                                 clipText.AppendLine(publicpath);
                         }
