@@ -188,7 +188,10 @@ namespace Superscrot
                         if (preview.ShowDialog() == DialogResult.OK)
                             filename = preview.FileName;
                         else
+                        {
+                            WriteLine("Cancelled");
                             return null;
+                        }
                     }
                 }
 
