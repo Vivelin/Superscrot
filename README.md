@@ -20,9 +20,11 @@ also offers a configuration editor and an option to toggle the developer console
 # More information
 Filename format strings and build version history can be found on the [GitHub project wiki][GHWIKI]. 
 
+Superscrot is licensed under [MIT License][MIT].
 RENCI SSH.NET Library is licensed under [New BSD][BSD3] and available at [Codeplex][SSHNET].
  
  [PROJ]: http://horsedrowner.net/projects#superscrot
  [GHWIKI]: https://github.com/horsedrowner/Superscrot/wiki
+ [MIT]: http://opensource.org/licenses/MIT
  [BSD3]: http://www.tldrlegal.com/l/BSD3
  [SSHNET]: http://sshnet.codeplex.com/
