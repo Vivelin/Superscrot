@@ -32,6 +32,8 @@ namespace Superscrot
         private static string _logPath = string.Empty;
         private static bool _startedWithDefaultSettings = false;
 
+        private static EventWaitHandle _startupEventHandle;
+
         /// <summary>
         /// Gets whether the application is shutting down.
         /// </summary>
@@ -145,19 +147,21 @@ namespace Superscrot
 
             if (_startedWithDefaultSettings || cmd["config"] != null) ShowConfigEditor();
 
-            using (Mutex mutex = new Mutex(false, "horsedrowner Superscrot"))
-            {
-                if (!mutex.WaitOne(100, false))
-                {
-                    ConsoleWriteLine(ConsoleColor.Gray, "I should go.");
-                    MessageBox.Show("Superscrot is already running. You may configure Superscrot by using /config, but you will need to restart the running instance.", "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    return;
-                }
 
+            bool created = false;
+            _startupEventHandle = new EventWaitHandle(false, EventResetMode.ManualReset, Environment.UserName + "SuperscrotStartup", out created);
+            if (created)
+            {
                 Manager.InitializeKeyboardHook();
                 Tray.InitializeTrayIcon();
                 ConsoleWriteLine(ConsoleColor.Gray, "Do not exit the console by closing the window! Use the tray menu option!");
                 Application.Run();
+            }
+            else
+            {
+                ConsoleWriteLine(ConsoleColor.Gray, "I should go.");
+                MessageBox.Show("Superscrot is already running. You may configure Superscrot by using /config, but you will need to restart the running instance.", "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
             }
         }
 
