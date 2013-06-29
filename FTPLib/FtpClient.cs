@@ -222,7 +222,6 @@ namespace FTP
                         lst.Add(path);
                         path = sr.ReadLine();
                     }
-                    sr.Close();
                 }
                 response.Close();
 
@@ -259,7 +258,6 @@ namespace FTP
                         lst.Add(detail);
                         line = sr.ReadLine();
                     }
-                    sr.Close();
                 }
                 response.Close();
 
@@ -329,9 +327,7 @@ namespace FTP
                             bytesRead = br.Read(buffer, 0, buffer.Length);
                         }
                         fs.Flush();
-                        fs.Close();
                     }
-                    br.Close();
                 }
                 response.Close();
 
@@ -367,9 +363,7 @@ namespace FTP
                             bytesRead = br.Read(buffer, 0, buffer.Length);
                         }
                         bw.Flush();
-                        bw.Close();
                     }
-                    br.Close();
                 }
 
                 FtpWebResponse response = request.GetResponse() as FtpWebResponse;
@@ -408,9 +402,7 @@ namespace FTP
                             bytesRead = fs.Read(buffer, 0, buffer.Length);
                         }
                         bw.Flush();
-                        bw.Close();
                     }
-                    fs.Close();
                 }
 
                 FtpWebResponse response = request.GetResponse() as FtpWebResponse;
@@ -449,9 +441,7 @@ namespace FTP
                             bytesRead = br.Read(buffer, 0, buffer.Length);
                         }
                         bw.Flush();
-                        bw.Close();
                     }
-                    br.Close();
                 }
 
                 FtpWebResponse response = request.GetResponse() as FtpWebResponse;
@@ -490,9 +480,7 @@ namespace FTP
                             bytesRead = fs.Read(buffer, 0, buffer.Length);
                         }
                         bw.Flush();
-                        bw.Close();
                     }
-                    fs.Close();
                 }
 
                 FtpWebResponse response = request.GetResponse() as FtpWebResponse;

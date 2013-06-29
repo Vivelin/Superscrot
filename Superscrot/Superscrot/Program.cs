@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Net;
 using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Superscrot
 {
@@ -14,20 +10,6 @@ namespace Superscrot
     /// </summary>
     public static class Program
     {
-        [DllImport("kernel32")]
-        private static extern bool AllocConsole();
-
-        [DllImport("kernel32")]
-        private static extern bool FreeConsole();
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll")]
-        private static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
-        private const uint SW_HIDE = 0;
-        private const uint SW_SHOW = 1;
-
         private const int LOGFILE_MAXSIZE = 1024 * 1024 * 1024; //1 GB
         private static string _logPath = string.Empty;
         private static bool _startedWithDefaultSettings = false;
@@ -48,16 +30,16 @@ namespace Superscrot
             get { return _consoleVisible; }
             set
             {
-                IntPtr hWnd = GetConsoleWindow();
+                IntPtr hWnd = NativeMethods.GetConsoleWindow();
                 _consoleVisible = value;
 
                 if (value)
                 {
-                    ShowWindow(hWnd, SW_SHOW);
+                    NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOWNORMAL);
                 }
                 else
                 {
-                    ShowWindow(hWnd, SW_HIDE);
+                    NativeMethods.ShowWindow(hWnd, NativeMethods.SW_HIDE);
                 }
             }
         }
@@ -127,7 +109,7 @@ namespace Superscrot
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
-            AllocConsole();
+            NativeMethods.AllocConsole();
             Console.Title = "superscrot Developer Console";
             ConsoleWriteLine(ConsoleColor.Gray, "superscrot " + Application.ProductVersion);
 
@@ -181,7 +163,7 @@ namespace Superscrot
             }
 
             Manager.Dispose();
-            FreeConsole();
+            NativeMethods.FreeConsole();
             Application.Exit();
         }
 

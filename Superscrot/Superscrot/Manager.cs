@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using Superscrot.Uploaders;
+using System;
 using System.IO;
-using System.Windows.Forms;
-using System.Threading;
-using Renci.SshNet;
 using System.Text;
-using Superscrot.Uploaders;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Superscrot
 {
@@ -14,7 +11,7 @@ namespace Superscrot
     /// Coordinates top-level functionality and provides common functions that interact between 
     /// classes. Console output is marked Cyan.
     /// </summary>
-    public class Manager
+    public class Manager : IDisposable
     {
         private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.Cyan, text); }
         private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.Cyan, format, arg); }
@@ -340,10 +337,20 @@ namespace Superscrot
         /// </summary>
         public void Dispose()
         {
-            if (_hook != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                _hook.Dispose();
-                _hook = null;
+                // Free managed resources
+                if (_hook != null)
+                {
+                    _hook.Dispose();
+                    _hook = null;
+                }
             }
         }
 

@@ -99,6 +99,7 @@
     </Compile>
     <Compile Include="Configuration.cs" />
     <Compile Include="History.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="PreviewDialog.cs">
       <SubType>Form</SubType>
     </Compile>

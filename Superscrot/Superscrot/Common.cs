@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Drawing;
 using System.IO;
-using System.Drawing.Imaging;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Superscrot
@@ -17,34 +15,6 @@ namespace Superscrot
         private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.DarkGreen, format, arg); }
         private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, text); }
         private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, format, arg); }
-
-        private const int ECM_FIRST = 0x1500;
-        internal const int EM_SETCUEBANNER = ECM_FIRST + 1;
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        private static extern int GetWindowTextLength(IntPtr hWnd);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
 
         /// <summary>
         /// Returns the given input string stripped of invalid filename characters.
@@ -130,11 +100,11 @@ namespace Superscrot
         /// <exception cref="System.Exception">Throw if GetWindowRect failed</exception>
         public static Rectangle GetActiveWindowDimensions()
         {
-            RECT rect;
-            IntPtr handle = GetForegroundWindow();
-            if (!GetWindowRect(handle, out rect))
+            NativeMethods.RECT rect;
+            IntPtr handle = NativeMethods.GetForegroundWindow();
+            if (!NativeMethods.GetWindowRect(handle, out rect))
             {
-                throw new Exception("GetWindowRect failed");
+                throw new System.ComponentModel.Win32Exception();
             }
 
             int width = rect.Right - rect.Left;
@@ -171,15 +141,15 @@ namespace Superscrot
         /// <returns>The caption of the active window, or null.</returns>
         public static string GetActiveWindowCaption()
         {
-            IntPtr handle = GetForegroundWindow();
-            int length = GetWindowTextLength(handle);
+            IntPtr handle = NativeMethods.GetForegroundWindow();
+            int length = NativeMethods.GetWindowTextLength(handle);
             if (length <= 0)
             {
                 return null;
             }
 
             StringBuilder sb = new StringBuilder(length + 1);
-            GetWindowText(handle, sb, sb.Capacity);
+            NativeMethods.GetWindowText(handle, sb, sb.Capacity);
             return sb.ToString();
         }
 
@@ -190,7 +160,7 @@ namespace Superscrot
         /// <param name="cue">A string that contains the text to display as the textual cue.</param>
         public static void SetCue(this TextBox textBox, string cue)
         {
-            SendMessage(textBox.Handle, EM_SETCUEBANNER, 0, cue);
+            NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, cue);
         }
 
         /// <summary>
@@ -199,7 +169,7 @@ namespace Superscrot
         /// <param name="textBox">The text box</param>
         public static void ClearCue(this TextBox textBox)
         {
-            SendMessage(textBox.Handle, EM_SETCUEBANNER, 0, string.Empty);
+            NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, string.Empty);
         }
     }
 }

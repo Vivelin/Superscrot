@@ -102,10 +102,19 @@ namespace Superscrot
         /// </summary>
         public void Dispose()
         {
-            if (_bitmap != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                _bitmap.Dispose();
-                _bitmap = null;
+                if (_bitmap != null)
+                {
+                    _bitmap.Dispose();
+                    _bitmap = null;
+                }
             }
         }
 
