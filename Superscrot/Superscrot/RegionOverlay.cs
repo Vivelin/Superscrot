@@ -62,7 +62,7 @@ namespace Superscrot
 
             if (_start == null)
             {
-                _start = e;
+                _start = new MouseEventArgs(e.Button, e.Clicks, Cursor.Position.X, Cursor.Position.Y, e.Delta); // use Cursor.Position since the e.Location is relative to the current screen only
             }
         }
 
@@ -86,6 +86,7 @@ namespace Superscrot
             if (_start != null)
             {
                 Rectangle rect = GetRectangle(e);
+                rect.Offset(-_screen.Bounds.X, -_screen.Bounds.Y); // Drawing is in form coordinates, which is screen-relative, unlike Cursor.Position
                 using (Graphics g = this.CreateGraphics())
                 using (Pen p = new Pen(this.ForeColor))
                 using (Brush b = new SolidBrush(this.ForeColor))
