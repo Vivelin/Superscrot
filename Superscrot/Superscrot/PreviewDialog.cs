@@ -183,10 +183,13 @@ namespace Superscrot
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
                 Process viewer = Process.Start(TempFileName);
-                viewer.Exited += (sender2, e2) =>
+                if (viewer != null)
                 {
-                    Cleanup();
-                };
+                    viewer.Exited += (sender2, e2) =>
+                    {
+                        Cleanup();
+                    };
+                }
             }
         }
 
