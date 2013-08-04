@@ -42,6 +42,8 @@ namespace Superscrot
     /// </summary>
     public class Screenshot : IDisposable
     {
+        private const PixelFormat DefaultPixelFormat = PixelFormat.Format24bppRgb;
+
         private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.DarkGreen, text); }
         private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.DarkGreen, format, arg); }
         private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, text); }
@@ -133,7 +135,7 @@ namespace Superscrot
                 int height = Screen.PrimaryScreen.Bounds.Height;
                 Write("Taking shot in 5.. 4.. ");
 
-                screenshot.Bitmap = new Bitmap(width, height);
+                screenshot.Bitmap = new Bitmap(width, height, DefaultPixelFormat);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
                     g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, Screen.PrimaryScreen.Bounds.Size, CopyPixelOperation.SourceCopy);
@@ -166,7 +168,7 @@ namespace Superscrot
                 Common.GetDesktopBounds(out left, out top, out right, out bottom);
 
                 //Do the shit
-                screenshot.Bitmap = new Bitmap(right - left, bottom - top);
+                screenshot.Bitmap = new Bitmap(right - left, bottom - top, DefaultPixelFormat);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
                     foreach (Screen s in Screen.AllScreens)
@@ -199,7 +201,7 @@ namespace Superscrot
                 screenshot.WindowTitle = Common.GetActiveWindowCaption();
                 WriteLine("Found a {0}x{1} window at ({2}, {3}) titled {4}", rectWindow.Width, rectWindow.Height, rectWindow.X, rectWindow.Y, screenshot.WindowTitle);
 
-                screenshot.Bitmap = new Bitmap(rectWindow.Width, rectWindow.Height);
+                screenshot.Bitmap = new Bitmap(rectWindow.Width, rectWindow.Height, DefaultPixelFormat);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
                     g.CopyFromScreen(rectWindow.X, rectWindow.Y, 0, 0, sizeWindow, CopyPixelOperation.SourceCopy);
@@ -234,7 +236,7 @@ namespace Superscrot
                     {
                         WriteLine("Drawn rectangle of {0}x{1} starting at ({1}, {2})", rect.Width, rect.Height, rect.X, rect.Y);
 
-                        screenshot.Bitmap = new Bitmap(rect.Width, rect.Height);
+                        screenshot.Bitmap = new Bitmap(rect.Width, rect.Height, DefaultPixelFormat);
                         using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                         {
                             g.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
