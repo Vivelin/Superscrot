@@ -72,18 +72,12 @@ namespace Superscrot
 
             try
             {
-                foreach (char c in str)
+                string[] paths = str.Split('/', '\\');
+                for (int i = 0; i < paths.Length; i++)
                 {
-                    // http://www.blooberry.com/indexdot/html/topics/urlencoding.htm
-                    bool isControlChar = ((0x00 < c && c < 0x1F) || (c == 0x7F));
-                    bool isNonASCIIChar = (0x80 < c && c < 0xFF);
-                    bool isReservedChar = ("$&+,:;=?@".IndexOf(c) >= 0); //Don't encode forward slash
-                    bool isUnsafeChar = (" \"<>#%{}|^~[]`".IndexOf(c) >= 0); //Don't encode backslash
-                    if (isControlChar || isNonASCIIChar || isReservedChar || isUnsafeChar)
-                        encoded += string.Format("%{0:x}", (int)c);
-                    else
-                        encoded += c;
+                    paths[i] = Uri.EscapeDataString(paths[i]);
                 }
+                encoded = string.Join("/", paths);
             }
             catch (Exception ex)
             {
