@@ -321,15 +321,28 @@ namespace Superscrot
         /// <summary>
         /// Initializes the global keyboard hook.
         /// </summary>
-        public void InitializeKeyboardHook()
+        public bool InitializeKeyboardHook()
         {
-            _hook = new KeyboardHook();
-            _hook.KeyPressed += new EventHandler<KeyPressedEventArgs>(KeyPressed);
-            _hook.RegisterHotKey(ModifierKeys.None, Keys.PrintScreen);      //desktop screenshot
-            _hook.RegisterHotKey(ModifierKeys.Alt, Keys.PrintScreen);       //active window
-            _hook.RegisterHotKey(ModifierKeys.Control, Keys.PrintScreen);   //region
-            _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift, Keys.PrintScreen); //undo last
-            _hook.RegisterHotKey(ModifierKeys.Control, Keys.PageUp); //clipboard
+            try
+            {
+                _hook = new KeyboardHook();
+                _hook.KeyPressed += new EventHandler<KeyPressedEventArgs>(KeyPressed);
+                _hook.RegisterHotKey(ModifierKeys.None, Keys.PrintScreen);      //desktop screenshot
+                _hook.RegisterHotKey(ModifierKeys.Alt, Keys.PrintScreen);       //active window
+                _hook.RegisterHotKey(ModifierKeys.Control, Keys.PrintScreen);   //region
+                _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift, Keys.PrintScreen); //undo last
+                _hook.RegisterHotKey(ModifierKeys.Control, Keys.PageUp); //clipboard
+                return true;
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Program.ConsoleFatal(ex);
+                MessageBox.Show("Superscrot can't start because the hotkey is already registered."
+                    + "\n\nIf Windows needs to restart to apply updates, please try rebooting."
+                    + "\n\nError code: 0x" + ex.NativeErrorCode.ToString("X"),
+                    "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
 
         /// <summary>
