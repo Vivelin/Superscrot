@@ -134,7 +134,11 @@ namespace Superscrot
             _startupEventHandle = new EventWaitHandle(false, EventResetMode.ManualReset, Environment.UserName + "SuperscrotStartup", out created);
             if (created)
             {
-                Manager.InitializeKeyboardHook();
+                if (!Manager.InitializeKeyboardHook())
+                {
+                    Exit();
+                    return;
+                }
                 Tray.InitializeTrayIcon();
                 ConsoleWriteLine(ConsoleColor.Gray, "Do not exit the console by closing the window! Use the tray menu option!");
                 Application.Run();
