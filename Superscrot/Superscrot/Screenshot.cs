@@ -51,7 +51,6 @@ namespace Superscrot
 
         private Bitmap _bitmap;
 
-        #region Properties
         /// <summary>
         /// Gets or sets the source of the screenshot.
         /// </summary>
@@ -65,9 +64,7 @@ namespace Superscrot
             get { return _bitmap; }
             set { _bitmap = value; }
         }
-        #endregion
 
-        #region Metadata
         /// <summary>
         /// Gets or sets the path on the server, or null if the screenshot hasn't been uploaded yet.
         /// </summary>
@@ -87,9 +84,6 @@ namespace Superscrot
         /// Gets or sets the original filename that the screenshot originates from, or null for non file-based captures.
         /// </summary>
         public string OriginalFileName { get; set; }
-        #endregion
-
-        #region Constructors and static load functions
 
         /// <summary>
         /// Initializes a new <c>Superscrot.Screenshot</c> instance.
@@ -308,7 +302,6 @@ namespace Superscrot
                 return null;
             }
         }
-        #endregion
 
         /// <summary>
         /// Saves this screenshot to the specified stream in an image format based on the current 
