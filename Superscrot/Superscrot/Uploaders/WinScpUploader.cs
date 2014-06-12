@@ -24,9 +24,14 @@ namespace Superscrot.Uploaders
             {
                 using (var session = GetSession())
                 {
+                    var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
+                    var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
+                    WriteLine(mkdirResult.Output);
+                    WriteLine(mkdirResult.ErrorOutput);
+
                     var local = screenshot.SaveToFile(); // WinSCP doesn't support uploading streams
-                    var result = session.PutFiles(local, target);
-                    result.Check(); // Throws if upload failed
+                    var transferResult = session.PutFiles(local, target);
+                    transferResult.Check(); // Throws if upload failed
 
                     if (screenshot.Source != ScreenshotSource.File)
                     {
