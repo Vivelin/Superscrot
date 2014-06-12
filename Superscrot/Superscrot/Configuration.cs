@@ -51,30 +51,30 @@ namespace Superscrot
 
         #region FTP settings
         /// <summary>
-        /// Gets/sets the hostname or IP address of the FTP server to upload to. 
+        /// Gets/sets the hostname or IP address of the server to upload to. 
         /// </summary>
-        [DisplayName("Hostname"), Category("FTP settings")]
-        [Description("The hostname or IP address of the FTP server to upload to. Example: ftp.example.com")]
+        [DisplayName("Hostname"), Category("Connection settings")]
+        [Description("The hostname or IP address of the server to upload to. Example: ftp.example.com")]
         public string FtpHostname { get; set; }
 
         /// <summary>
-        /// Gets/sets the port of the FTP server to upload to. 
+        /// Gets/sets the port of the server to upload to. 
         /// </summary>
-        [DisplayName("Port"), Category("FTP settings")]
-        [Description("The port of the FTP server to upload to. Usually 21.")]
+        [DisplayName("Port"), Category("Connection")]
+        [Description("The port of the server to upload to. Usually 21 for FTP or 22 for SSH.")]
         public int FtpPort { get; set; }
 
         /// <summary>
-        /// Gets/sets the username of a user on the FTP server to upload as.
+        /// Gets/sets the username of a user on the server to upload as.
         /// </summary>
-        [DisplayName("Username"), Category("FTP settings")]
-        [Description("The username of a user on the FTP server to upload as.")]
+        [DisplayName("Username"), Category("Connection")]
+        [Description("The username of a user on the server to upload as.")]
         public string FtpUsername { get; set; }
 
         /// <summary>
         /// Gets/sets the password of the user.
         /// </summary>
-        [DisplayName("Password"), Category("FTP settings")]
+        [DisplayName("Password"), Category("Connection")]
         [Description("All your password are belong to me.")]
         [PasswordPropertyText(true)]
         public string FtpPassword { get; set; }
@@ -82,16 +82,39 @@ namespace Superscrot
         /// <summary>
         /// Gets/sets the timeout in milliseconds to wait for responses to FTP requests.
         /// </summary>
-        [DisplayName("Timeout"), Category("FTP settings")]
-        [Description("The timeout in milliseconds to wait for respones to FTP requests.")]
+        [DisplayName("Timeout"), Category("Connection")]
+        [Description("The timeout in milliseconds to wait for responses to requests.")]
         public int FtpTimeout { get; set; }
 
         /// <summary>
         /// Gets/sets a value that determines whether to use SSH FTP.
         /// </summary>
-        [DisplayName("Use SSH"), Category("FTP settings")]
-        [Description("Determines whether to use SSH FTP")]
+        [DisplayName("Use SSH"), Category("Connection")]
+        [Description("Determines whether to use FTP over SSH or not.")]
         public bool UseSSH { get; set; }
+
+#if WINSCP
+        /// <summary>
+        /// Gets/sets the location of winscp.exe
+        /// </summary>
+        [DisplayName("winscp.exe location"), Category("Connection")]
+        [Description("Required if using SSH. The location of winscp.exe.")]
+        public string WinScpPath { get; set; }
+
+        /// <summary>
+        /// Gets/sets the fingerprint of the server host key.
+        /// </summary>
+        [DisplayName("SSH host key fingerprint"), Category("Connection")]
+        [Description("Required if using SSH. A fingerprint of the form \"ssh-rsa 2048 xx:xx:...:xx\".")]
+        public string HostKeyFingerprint { get; set; }
+
+        /// <summary>
+        /// Gets/sets the path to the private key to use.
+        /// </summary>
+        [DisplayName("SSH private key path"), Category("Connection")]
+        [Description("The path to the private key file to use for authentication over SSH.")]
+        public string PrivateKeyPath { get; set; }
+#endif
         #endregion
 
         #region Image settings

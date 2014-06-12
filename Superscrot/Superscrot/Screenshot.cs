@@ -352,6 +352,29 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Saves the screenshot to a temporary file and returns the filename. 
+        /// If the screenshot originated from a file, that filename is returned
+        /// instead and nothing is written to disk.
+        /// </summary>
+        /// <returns>The filename of the screenshot.</returns>
+        public string SaveToFile()
+        {
+            if (Source == ScreenshotSource.File)
+            {
+                return OriginalFileName;
+            }
+            else
+            {
+                var tempFile = Path.GetTempFileName();
+                using (var file = new FileStream(tempFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
+                {
+                    SaveToStream(file);
+                }
+                return tempFile;
+            }
+        }
+
+        /// <summary>
         /// Gets a string that contains the filename for this screenshot, formatted using the program settings.
         /// </summary>
         public string GetFileName()

@@ -224,9 +224,17 @@ namespace Superscrot
             {
                 IUploader up;
                 if (Program.Config.UseSSH)
+                {
+#if WINSCP
+                    up = new WinScpUploader();
+#else
                     up = new SftpUploader();
+#endif
+                }
                 else
+                {
                     up = new FtpUploader();
+                }
 
                 if (up.Upload(screenshot, target))
                 {
@@ -294,9 +302,17 @@ namespace Superscrot
             {
                 IUploader up;
                 if (Program.Config.UseSSH)
+                {
+#if WINSCP
+                    up = new WinScpUploader();
+#else
                     up = new SftpUploader();
+#endif
+                }
                 else
+                {
                     up = new FtpUploader();
+                }
 
                 if (up.UndoUpload(screenshot))
                 {
