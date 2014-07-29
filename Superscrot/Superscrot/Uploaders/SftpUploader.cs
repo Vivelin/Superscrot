@@ -33,6 +33,11 @@ namespace Superscrot.Uploaders
         public event UploadEventHandler DeleteFailed;
 
         /// <summary>
+        /// Occurs when a duplicate file was found on the server before the screenshot was uploaded.
+        /// </summary>
+        public event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
+
+        /// <summary>
         /// Uploads a screenshot to the target location on the currently configured server.
         /// </summary>
         /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>

@@ -159,6 +159,7 @@
     <Compile Include="PreviewDialog.Designer.cs">
       <DependentUpon>PreviewDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Uploaders\DuplicateFileEventArgs.cs" />
     <Compile Include="Uploaders\IUploader.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Manager.cs" />

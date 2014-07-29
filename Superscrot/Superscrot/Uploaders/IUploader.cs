@@ -7,7 +7,7 @@ namespace Superscrot.Uploaders
     /// <summary>
     /// Represents the method that will handle events fired by the <see cref="IUploader"/> class.
     /// </summary>
-    /// <param name="s"></param>
+    /// <param name="s">The screenshot for the event.</param>
     public delegate void UploadEventHandler(Screenshot s);   
 
     /// <summary>
@@ -34,6 +34,11 @@ namespace Superscrot.Uploaders
         /// Occurs when a file could not be deleted.
         /// </summary>
         event UploadEventHandler DeleteFailed;
+
+        /// <summary>
+        /// Occurs when a duplicate file was found on the server before the screenshot was uploaded.
+        /// </summary>
+        event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
 
         /// <summary>
         /// Uploads a screenshot to the target location on the currently configured server.
