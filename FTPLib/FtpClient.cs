@@ -76,7 +76,7 @@ namespace FTP
         /// Creates an FTP request for the specified directory on the server.
         /// </summary>
         /// <param name="serverpath">The path on the server to create a request for.</param>
-        /// <returns>A <c>System.Net.FtpWebRequest</c> instance, with credentials set.</returns>
+        /// <returns>A <see cref="System.Net.FtpWebRequest"/> instance, with credentials set.</returns>
         private FtpWebRequest CreateRequest(string serverpath)
         {
             FtpWebRequest request = WebRequest.Create(new Uri(_baseUri, serverpath)) as FtpWebRequest;
@@ -154,7 +154,7 @@ namespace FTP
         /// <summary>
         /// Determines whether the specified FTP status code is positive.
         /// </summary>
-        /// <param name="code">The <c>System.Net.FtpStatusCode</c> value to check.</param>
+        /// <param name="code">The <see cref="System.Net.FtpStatusCode"/> value to check.</param>
         /// <returns>True if the code is positive, otherwise false.</returns>
         public static bool IsPositiveStatusCode(FtpStatusCode code)
         {
@@ -381,7 +381,7 @@ namespace FTP
         /// Uploads a file to the server.
         /// </summary>
         /// <param name="serverpath">The relative path to the file on the server to upload to.</param>
-        /// <param name="input">The input stream that contains the data to upload.</param>
+        /// <param name="filename">The name of the file that contains the data to upload.</param>
         /// <returns>True if the upload succeeded, otherwise false.</returns>
         public bool Upload(string filename, string serverpath)
         {
@@ -456,10 +456,10 @@ namespace FTP
         }
 
         /// <summary>
-        /// Appends a file to the end of a file on the server..
+        /// Appends a file to the end of a file on the server.
         /// </summary>
         /// <param name="serverpath">The relative path to the file on the server to append to.</param>
-        /// <param name="input">The input stream that contains the data to append.</param>
+        /// <param name="filename">The name of the file that contains the data to append.</param>
         /// <returns>True if the operation succeeded, false otherwise.</returns>
         public bool Append(string filename, string serverpath)
         {

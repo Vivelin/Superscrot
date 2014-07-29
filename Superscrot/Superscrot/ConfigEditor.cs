@@ -9,10 +9,16 @@ using System.Windows.Forms;
 
 namespace Superscrot
 {
+    /// <summary>
+    /// Provides a quick and dirty configuration editor using a property grid.
+    /// </summary>
     public partial class ConfigEditor : Form
     {
         private Configuration _localConfig = null;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Superscrot.ConfigEditor"/> class.
+        /// </summary>
         public ConfigEditor()
         {
             InitializeComponent();

@@ -31,7 +31,7 @@ namespace Superscrot
         /// <summary>
         /// Gets information about the last screenshot.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> object that holds information about the last screenshot.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> object that holds information about the last screenshot.</returns>
         public Screenshot Peek()
         {
             if (Count == 0) return null;
@@ -43,7 +43,7 @@ namespace Superscrot
         /// <summary>
         /// Gets information about the last screenshot, and removes it from the list.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> object that holds information about the last screenshot.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> object that holds information about the last screenshot.</returns>
         public Screenshot Pop()
         {
             if (Count == 0) return null;
@@ -56,7 +56,7 @@ namespace Superscrot
         /// <summary>
         /// Adds information about a taken screenshot.
         /// </summary>
-        /// <param name="screenshot">The <c>Superscrot.Screenshot</c> to add.</param>
+        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to add.</param>
         public void Push(Screenshot screenshot)
         {
             _history.Insert(0, screenshot);

@@ -217,11 +217,11 @@
         private System.Windows.Forms.Button CancelButtonASDF;
         private System.Windows.Forms.Label MainInstruction;
         private System.Windows.Forms.PictureBox ScreenshotPreview;
-        public System.Windows.Forms.TextBox FileNameInput;
         private System.Windows.Forms.Button CopyButton;
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Label PublicUrlLabel;
         private System.Windows.Forms.LinkLabel PublicUrl;
         private System.Windows.Forms.CheckBox DontShowAgain;
+        private System.Windows.Forms.TextBox FileNameInput;
     }
 }

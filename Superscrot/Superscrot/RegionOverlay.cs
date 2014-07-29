@@ -9,6 +9,9 @@ using System.Windows.Forms;
 
 namespace Superscrot
 {
+    /// <summary>
+    /// Allows the user to select a region on the active screen to screenshot.
+    /// </summary>
     public partial class RegionOverlay : Form
     {
         private Screen _screen;

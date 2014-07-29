@@ -222,12 +222,7 @@ namespace Superscrot
         {
             try
             {
-                IUploader up;
-                if (Program.Config.UseSSH)
-                    up = new SftpUploader();
-                else
-                    up = new FtpUploader();
-
+                var up = GetUploader();
                 if (up.Upload(screenshot, target))
                 {
                     History.Push(screenshot);
@@ -237,19 +232,39 @@ namespace Superscrot
                 else
                 {
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
-                    System.Media.SystemSounds.Exclamation.Play();
-                    Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                    ReportUploadError(screenshot);
                 }
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                ReportUploadError(screenshot);
             }
             finally
             {
                 screenshot.Dispose(); //TODO: don't dispose, rather flush to disk or remove local copy from disk
+            }
+        }
+
+        /// <summary>
+        /// Reports an uploading error to the user.
+        /// </summary>
+        /// <param name="screenshot">The screenshot that failed to upload.</param>
+        private void ReportUploadError(Screenshot screenshot = null)
+        {
+            try
+            {
+                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                System.Media.SystemSounds.Exclamation.Play();
+
+                var fileName = Common.RemoveInvalidFilenameChars(screenshot.GetFileName());
+                var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
+                screenshot.SaveToFile(target);
+                WriteLine("Failed screenshot saved to {0}", target);
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleException(ex);
             }
         }
 
@@ -285,6 +300,24 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Returns an uploader for the current configuration.
+        /// </summary>
+        /// <returns>Returns a newly created <see cref="Superscrot.Uploaders.IUploader"/> instance.</returns>
+        private static IUploader GetUploader()
+        {
+            if (Program.Config.UseSSH)
+            {
+#if WINSCP
+                //if (File.Exists(Program.Config.WinScpPath))
+                //    return new WinScpUploader();
+#endif
+                return new SftpUploader();
+            }
+
+            return new FtpUploader();
+        }
+
+        /// <summary>
         /// Deletes a screenshot from the server.
         /// </summary>
         /// <param name="screenshot">The screenshot to delete.</param>
@@ -292,12 +325,7 @@ namespace Superscrot
         {
             try
             {
-                IUploader up;
-                if (Program.Config.UseSSH)
-                    up = new SftpUploader();
-                else
-                    up = new FtpUploader();
-
+                var up = GetUploader();
                 if (up.UndoUpload(screenshot))
                 {
                     System.Media.SystemSounds.Asterisk.Play();
@@ -346,7 +374,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases resources used by the <c>Superscrot.Manager</c> class.
+        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
         /// </summary>
         public void Dispose()
         {
@@ -354,6 +382,10 @@ namespace Superscrot
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// </summary>
+        /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)

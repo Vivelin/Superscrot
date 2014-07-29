@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace FTP
 {
+    /// <summary>
+    /// Provides methods commonly used by all classes.
+    /// </summary>
     public static class Common
     {
         /// <summary>

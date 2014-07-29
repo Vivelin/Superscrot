@@ -86,7 +86,7 @@ namespace Superscrot
         public string OriginalFileName { get; set; }
 
         /// <summary>
-        /// Initializes a new <c>Superscrot.Screenshot</c> instance.
+        /// Initializes a new instance of the <see cref="Superscrot.Screenshot"/> class.
         /// </summary>
         public Screenshot()
         {
@@ -94,7 +94,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases all resources used by this <c>Superscrot.Screenshot</c>
+        /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
         /// </summary>
         public void Dispose()
         {
@@ -102,6 +102,10 @@ namespace Superscrot
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
+        /// </summary>
+        /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -117,7 +121,7 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an image with the contents of the primary screen.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with the primary screen capture.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with the primary screen capture.</returns>
         public static Screenshot FromPrimaryScreen()
         {
             try
@@ -149,7 +153,7 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an iamge with the contents of the user's entire desktop.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with an image containg all screens.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with an image containg all screens.</returns>
         public static Screenshot FromDesktop()
         {
             try
@@ -183,7 +187,7 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an image with the contents of the active window.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with the active window capture.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with the active window capture.</returns>
         public static Screenshot FromActiveWindow()
         {
             try
@@ -215,7 +219,7 @@ namespace Superscrot
         /// Shows an overlay over the screen that allows the user to select a region, of which
         /// the image is captured and returned.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with the selected region.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with the selected region.</returns>
         public static Screenshot FromRegion()
         {
             try
@@ -257,9 +261,9 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Creates a new <c>Superscrot.Screenshot</c> instance based on the image data on the clipboard.
+        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on the image data on the clipboard.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> based on the clipboard image.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the clipboard image.</returns>
         /// <exception cref="System.InvalidOperationException">The clipboard is empty or does not contain an image.</exception>
         public static Screenshot FromClipboard()
         {
@@ -281,9 +285,9 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Creates a new <c>Superscrot.Screenshot</c> instance based on the specified image file.
+        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on the specified image file.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> based on the specified image file.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the specified image file.</returns>
         public static Screenshot FromFile(string path)
         {
             try
@@ -307,7 +311,7 @@ namespace Superscrot
         /// Saves this screenshot to the specified stream in an image format based on the current 
         /// program settings.
         /// </summary>
-        /// <param name="destination">The <c>System.IO.Stream</c> where the image will be saved.</param>
+        /// <param name="destination">The <see cref="System.IO.Stream"/> where the image will be saved.</param>
         public void SaveToStream(Stream destination)
         {
             if (this.Bitmap == null) return;
@@ -349,6 +353,40 @@ namespace Superscrot
 
             //Reset position of the destination stream
             destination.Position = 0;
+        }
+
+        /// <summary>
+        /// Saves the screenshot to a temporary file and returns the filename. 
+        /// If the screenshot originated from a file, that filename is returned
+        /// instead and nothing is written to disk.
+        /// </summary>
+        /// <returns>The filename of the screenshot.</returns>
+        public string SaveToFile()
+        {
+            if (Source == ScreenshotSource.File)
+            {
+                return OriginalFileName;
+            }
+            else
+            {
+                var tempFile = Path.GetTempFileName();
+                return SaveToFile(tempFile);
+            }
+        }
+
+        /// <summary>
+        /// Saves the screenshot to a new file with the specified name in an 
+        /// image format based on the current program settings.
+        /// </summary>
+        /// <param name="path">The name of the file to save to.</param>
+        /// <returns>The name of the file saved to.</returns>
+        public string SaveToFile(string path)
+        {
+            using (var file = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                SaveToStream(file);
+            }
+            return path;
         }
 
         /// <summary>
