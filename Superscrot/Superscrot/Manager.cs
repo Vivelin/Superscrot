@@ -222,20 +222,7 @@ namespace Superscrot
         {
             try
             {
-                IUploader up;
-                if (Program.Config.UseSSH)
-                {
-#if WINSCP
-                    up = new WinScpUploader();
-#else
-                    up = new SftpUploader();
-#endif
-                }
-                else
-                {
-                    up = new FtpUploader();
-                }
-
+                var up = GetUploader();
                 if (up.Upload(screenshot, target))
                 {
                     History.Push(screenshot);
@@ -293,6 +280,24 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Returns an uploader for the current configuration.
+        /// </summary>
+        /// <returns>Returns a newly created <see cref="Superscrot.Uploaders.IUploader"/> instance.</returns>
+        private static IUploader GetUploader()
+        {
+            if (Program.Config.UseSSH)
+            {
+#if WINSCP
+                if (File.Exists(Program.Config.WinScpPath))
+                    return new WinScpUploader();
+#endif
+                return new SftpUploader();
+            }
+
+            return new FtpUploader();
+        }
+
+        /// <summary>
         /// Deletes a screenshot from the server.
         /// </summary>
         /// <param name="screenshot">The screenshot to delete.</param>
@@ -300,20 +305,7 @@ namespace Superscrot
         {
             try
             {
-                IUploader up;
-                if (Program.Config.UseSSH)
-                {
-#if WINSCP
-                    up = new WinScpUploader();
-#else
-                    up = new SftpUploader();
-#endif
-                }
-                else
-                {
-                    up = new FtpUploader();
-                }
-
+                var up = GetUploader();
                 if (up.UndoUpload(screenshot))
                 {
                     System.Media.SystemSounds.Asterisk.Play();

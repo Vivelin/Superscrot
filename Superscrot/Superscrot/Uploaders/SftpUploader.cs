@@ -1,5 +1,4 @@
-﻿#if !WINSCP
-using Renci.SshNet;
+﻿using Renci.SshNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -119,4 +118,3 @@ namespace Superscrot.Uploaders
 
     }
 }
-#endif
