@@ -24,13 +24,24 @@ namespace Superscrot.Uploaders
             {
                 using (var session = GetSession())
                 {
-                    var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
-                    var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
-                    WriteLine(mkdirResult.Output);
-                    WriteLine(mkdirResult.ErrorOutput);
-
                     var local = screenshot.SaveToFile(); // WinSCP doesn't support uploading streams
                     var transferResult = session.PutFiles(local, target);
+
+                    /* If the upload failed, it's possible the directory doesn't exist. However, 
+                     * ExecuteCommand seems to always open a new session internally, so only do
+                     * this when it fails 
+                     */
+                    if (!transferResult.IsSuccess)
+                    {
+                        var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
+                        var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
+                        WriteLine(mkdirResult.Output);
+                        WriteLine(mkdirResult.ErrorOutput);
+
+                        // Retry the upload
+                        transferResult = session.PutFiles(local, target);
+                    }
+
                     transferResult.Check(); // Throws if upload failed
 
                     if (screenshot.Source != ScreenshotSource.File)
