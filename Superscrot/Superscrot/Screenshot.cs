@@ -366,12 +366,23 @@ namespace Superscrot
             else
             {
                 var tempFile = Path.GetTempFileName();
-                using (var file = new FileStream(tempFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
-                {
-                    SaveToStream(file);
-                }
-                return tempFile;
+                return SaveToFile(tempFile);
             }
+        }
+
+        /// <summary>
+        /// Saves the screenshot to a new file with the specified name in an 
+        /// image format based on the current program settings.
+        /// </summary>
+        /// <param name="path">The name of the file to save to.</param>
+        /// <returns>The name of the file saved to.</returns>
+        public string SaveToFile(string path)
+        {
+            using (var file = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                SaveToStream(file);
+            }
+            return path;
         }
 
         /// <summary>

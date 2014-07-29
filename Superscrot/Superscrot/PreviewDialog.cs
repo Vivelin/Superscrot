@@ -127,7 +127,7 @@ namespace Superscrot
                 sfd.FileName = FileName.Replace("/", "-").Replace("\\", "-");
                 if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    _screenshot.Bitmap.Save(sfd.FileName);
+                    _screenshot.SaveToFile(sfd.FileName);
                 }
             }
         }
