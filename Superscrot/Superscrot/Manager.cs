@@ -223,6 +223,7 @@ namespace Superscrot
             try
             {
                 var up = GetUploader();
+                up.DuplicateFileFound += HandleDuplicateFileFound;
                 if (up.Upload(screenshot, target))
                 {
                     History.Push(screenshot);
@@ -244,6 +245,12 @@ namespace Superscrot
             {
                 screenshot.Dispose(); //TODO: don't dispose, rather flush to disk or remove local copy from disk
             }
+        }
+
+        private void HandleDuplicateFileFound(object sender, DuplicateFileEventArgs e)
+        {
+            WriteLine("Duplicate file found: {0}", e.FileName);
+            e.Action = DuplicateFileAction.Ignore;
         }
 
         /// <summary>
@@ -308,8 +315,8 @@ namespace Superscrot
             if (Program.Config.UseSSH)
             {
 #if WINSCP
-                //if (File.Exists(Program.Config.WinScpPath))
-                //    return new WinScpUploader();
+                if (File.Exists(Program.Config.WinScpPath))
+                    return new WinScpUploader();
 #endif
                 return new SftpUploader();
             }

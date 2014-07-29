@@ -60,26 +60,15 @@ namespace Superscrot.Uploaders
                     if (target == null)
                     {
                         // A null reference indicates that the upload should be cancelled
-                        return true;
+                        return false;
                     }
                     
                     var transferResult = session.PutFiles(local, target);
-
-                    /* If the upload failed, it's possible the directory doesn't exist. However, 
-                     * ExecuteCommand seems to always open a new session internally, so only do
-                     * this when it fails 
-                     */
                     if (!transferResult.IsSuccess)
                     {
-                        var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
-                        var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
-                        WriteLine(mkdirResult.Output);
-                        WriteLine(mkdirResult.ErrorOutput);
-
-                        // Retry the upload
+                        EnsureDirectoryExists(target, session);
                         transferResult = session.PutFiles(local, target);
                     }
-
                     transferResult.Check(); // Throws if upload failed
 
                     if (screenshot.Source != ScreenshotSource.File)
@@ -151,8 +140,9 @@ namespace Superscrot.Uploaders
             {
                 var directory = Path.GetDirectoryName(target).Replace('\\', '/');
                 var listing = session.ListDirectory(directory);
+                var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
                 var duplicate = listing.Files.FirstOrDefault(x =>
-                    x.Name.Contains(screenshot.OriginalFileName)
+                    x.Name.Contains(name)
                 );
 
                 if (duplicate != null)
@@ -177,6 +167,14 @@ namespace Superscrot.Uploaders
             }
 
             return target;
+        }
+
+        private static void EnsureDirectoryExists(string target, Session session)
+        {
+            var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
+            var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
+            WriteLine(mkdirResult.Output);
+            WriteLine(mkdirResult.ErrorOutput);
         }
 
         private Session GetSession()
