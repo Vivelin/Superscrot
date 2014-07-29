@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30324.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Superscrot", "Superscrot\Superscrot.csproj", "{19870BDE-C8D6-43D7-AFAA-3B109A3FCC4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTPLib", "..\FTPLib\FTPLib.csproj", "{74C3F14F-036F-44C2-A725-1779793BADAC}"

@@ -308,8 +308,8 @@ namespace Superscrot
             if (Program.Config.UseSSH)
             {
 #if WINSCP
-                //if (File.Exists(Program.Config.WinScpPath))
-                //    return new WinScpUploader();
+                if (File.Exists(Program.Config.WinScpPath))
+                    return new WinScpUploader();
 #endif
                 return new SftpUploader();
             }
