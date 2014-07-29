@@ -223,7 +223,7 @@ namespace Superscrot
         /// If the previous file exceeds a predefined maximum size, it will
         /// be deleted.
         /// </summary>
-        /// <returns>A <c>System.IO.StreamWriter</c> for the logfile.</returns>
+        /// <returns>A <see cref="System.IO.StreamWriter"/> for the logfile.</returns>
         private static StreamWriter InitializeLogWriter()
         {
             StreamWriter ret = null;

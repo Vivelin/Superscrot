@@ -70,7 +70,7 @@ namespace Superscrot
         /// <summary>
         /// Changes the tray icon.
         /// </summary>
-        /// <param name="icon">The <c>System.Drawing.Icon</c> to set as the new icon.</param>
+        /// <param name="icon">The <see cref="System.Drawing.Icon"/> to set as the new icon.</param>
         public void ChangeIcon(System.Drawing.Icon icon)
         {
             if (icon != null)

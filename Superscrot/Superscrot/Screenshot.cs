@@ -121,7 +121,7 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an image with the contents of the primary screen.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with the primary screen capture.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with the primary screen capture.</returns>
         public static Screenshot FromPrimaryScreen()
         {
             try
@@ -153,7 +153,7 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an iamge with the contents of the user's entire desktop.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with an image containg all screens.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with an image containg all screens.</returns>
         public static Screenshot FromDesktop()
         {
             try
@@ -187,7 +187,7 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an image with the contents of the active window.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with the active window capture.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with the active window capture.</returns>
         public static Screenshot FromActiveWindow()
         {
             try
@@ -219,7 +219,7 @@ namespace Superscrot
         /// Shows an overlay over the screen that allows the user to select a region, of which
         /// the image is captured and returned.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> with the selected region.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> with the selected region.</returns>
         public static Screenshot FromRegion()
         {
             try
@@ -261,9 +261,9 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Creates a new <c>Superscrot.Screenshot</c> instance based on the image data on the clipboard.
+        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on the image data on the clipboard.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> based on the clipboard image.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the clipboard image.</returns>
         /// <exception cref="System.InvalidOperationException">The clipboard is empty or does not contain an image.</exception>
         public static Screenshot FromClipboard()
         {
@@ -285,9 +285,9 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Creates a new <c>Superscrot.Screenshot</c> instance based on the specified image file.
+        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on the specified image file.
         /// </summary>
-        /// <returns>A <c>Superscrot.Screenshot</c> based on the specified image file.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the specified image file.</returns>
         public static Screenshot FromFile(string path)
         {
             try
@@ -311,7 +311,7 @@ namespace Superscrot
         /// Saves this screenshot to the specified stream in an image format based on the current 
         /// program settings.
         /// </summary>
-        /// <param name="destination">The <c>System.IO.Stream</c> where the image will be saved.</param>
+        /// <param name="destination">The <see cref="System.IO.Stream"/> where the image will be saved.</param>
         public void SaveToStream(Stream destination)
         {
             if (this.Bitmap == null) return;

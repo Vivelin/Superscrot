@@ -64,10 +64,27 @@ namespace FTP
     /// </summary>
     public struct Triplet
     {
+        /// <summary>
+        /// Determines whether read permissions are granted or not.
+        /// </summary>
         public bool Read;      //r
+
+        /// <summary>
+        /// Determines whether write permissions are granted or not.
+        /// </summary>
         public bool Write;     //w
+
+        /// <summary>
+        /// Determines whether execute permissions are granted or not.
+        /// </summary>
         public bool Execute;   //x or s or t (not S or T)
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Triplet"/> class with the specified permissions.
+        /// </summary>
+        /// <param name="r">'r' if read permissions are granted.</param>
+        /// <param name="w">'w' is write permissions are granted.</param>
+        /// <param name="x">'x', 's' or 't' is execute permissions are granted.</param>
         public Triplet(char r, char w, char x)
         {
             Read = (r == 'r');
