@@ -16,6 +16,7 @@ namespace Superscrot
     {
         private long _jpegQuality = 90L;
         private double _overlayOpacity = 0.8;
+        private string _failedScreenshotsFolder;
 
         /// <summary>
         /// Determines whether to display a debug console window.
@@ -220,8 +221,26 @@ namespace Superscrot
         /// Determines whether to display a preview dialog when a screenshot is taken.
         /// </summary>
         [DisplayName("Show preview dialog"), Category("User interface")]
-        [Description("If enable, a preview dialog appears when a screenshot is taken, which allows you to change the filename and save the screenshot to a file.")]
+        [Description("If enabled, a preview dialog appears when a screenshot is taken, which allows you to change the filename and save the screenshot to a file.")]
         public bool ShowPreviewDialog { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to the folder where failed screenshots are saved.
+        /// </summary>
+        [DisplayName("Failed screenshots folder"), Category("Misc. settings")]
+        [Description("The location where screenshots that could not be uploaded are saved to.")]
+        public string FailedScreenshotsFolder
+        {
+            get { return _failedScreenshotsFolder; }
+            set
+            {
+                if (value != _failedScreenshotsFolder)
+                {
+                    _failedScreenshotsFolder = value;
+                    EnsureDirectoryExists(value);
+                }
+            }
+        }
 
         /// <summary>
         /// Loads default values.
@@ -242,6 +261,10 @@ namespace Superscrot
             OverlayBackgroundColor = Color.Black;
             OverlayForegroundColor = Color.White;
             OverlayOpacity = 0.6;
+
+            FailedScreenshotsFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Superscrot", "Failed");
         }
 
         /// <summary>
@@ -292,6 +315,16 @@ namespace Superscrot
             {
                 Program.ConsoleException(ex);
             }
+        }
+
+        private void EnsureDirectoryExists(string path)
+        {
+            try
+            {
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+            }
+            catch { }
         }
     }
 }

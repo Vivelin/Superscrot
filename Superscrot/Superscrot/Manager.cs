@@ -232,19 +232,39 @@ namespace Superscrot
                 else
                 {
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
-                    System.Media.SystemSounds.Exclamation.Play();
-                    Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                    ReportUploadError(screenshot);
                 }
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                ReportUploadError(screenshot);
             }
             finally
             {
                 screenshot.Dispose(); //TODO: don't dispose, rather flush to disk or remove local copy from disk
+            }
+        }
+
+        /// <summary>
+        /// Reports an uploading error to the user.
+        /// </summary>
+        /// <param name="screenshot">The screenshot that failed to upload.</param>
+        private void ReportUploadError(Screenshot screenshot = null)
+        {
+            try
+            {
+                Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
+                System.Media.SystemSounds.Exclamation.Play();
+
+                var fileName = Common.RemoveInvalidFilenameChars(screenshot.GetFileName());
+                var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
+                screenshot.SaveToFile(target);
+                WriteLine("Failed screenshot saved to {0}", target);
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleException(ex);
             }
         }
 
@@ -288,8 +308,8 @@ namespace Superscrot
             if (Program.Config.UseSSH)
             {
 #if WINSCP
-                if (File.Exists(Program.Config.WinScpPath))
-                    return new WinScpUploader();
+                //if (File.Exists(Program.Config.WinScpPath))
+                //    return new WinScpUploader();
 #endif
                 return new SftpUploader();
             }
