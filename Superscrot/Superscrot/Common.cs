@@ -165,5 +165,18 @@ namespace Superscrot
         {
             NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, string.Empty);
         }
+
+        /// <summary>
+        /// Converts a numeric value into a string that represents the number expressed as a size 
+        /// value in bytes, kilobytes, megabytes, or gigabytes, depending on the size.
+        /// </summary>
+        /// <param name="size">The numeric value to be converted.</param>
+        /// <returns>The converted string.</returns>
+        public static string FormatFileSize(long size)
+        {
+            var buffer = new StringBuilder(11);
+            NativeMethods.StrFormatByteSize(size, buffer, buffer.Capacity);
+            return buffer.ToString();
+        }
     }
 }

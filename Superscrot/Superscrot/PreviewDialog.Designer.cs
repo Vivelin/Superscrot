@@ -39,6 +39,7 @@
             this.FileNameInput = new System.Windows.Forms.TextBox();
             this.PublicUrlLabel = new System.Windows.Forms.Label();
             this.PublicUrl = new System.Windows.Forms.LinkLabel();
+            this.FileSizeLabel = new System.Windows.Forms.Label();
             this.FooterPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ScreenshotPreview)).BeginInit();
             this.SuspendLayout();
@@ -177,6 +178,15 @@
             this.PublicUrl.TabIndex = 3;
             this.PublicUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.PublicUrl_LinkClicked);
             // 
+            // FileSizeLabel
+            // 
+            this.FileSizeLabel.AutoSize = true;
+            this.FileSizeLabel.Location = new System.Drawing.Point(169, 88);
+            this.FileSizeLabel.Name = "FileSizeLabel";
+            this.FileSizeLabel.Size = new System.Drawing.Size(30, 15);
+            this.FileSizeLabel.TabIndex = 5;
+            this.FileSizeLabel.Text = "Size:";
+            // 
             // PreviewDialog
             // 
             this.AcceptButton = this.UploadButton;
@@ -185,6 +195,7 @@
             this.BackColor = System.Drawing.SystemColors.Window;
             this.CancelButton = this.CancelButtonASDF;
             this.ClientSize = new System.Drawing.Size(592, 212);
+            this.Controls.Add(this.FileSizeLabel);
             this.Controls.Add(this.PublicUrl);
             this.Controls.Add(this.PublicUrlLabel);
             this.Controls.Add(this.FileNameInput);
@@ -223,5 +234,6 @@
         private System.Windows.Forms.LinkLabel PublicUrl;
         private System.Windows.Forms.CheckBox DontShowAgain;
         private System.Windows.Forms.TextBox FileNameInput;
+        private System.Windows.Forms.Label FileSizeLabel;
     }
 }

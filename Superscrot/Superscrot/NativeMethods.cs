@@ -248,5 +248,17 @@ namespace Superscrot
         /// </returns>
         [DllImport("user32.dll")]
         internal static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
+
+        /// <summary>
+        /// Converts a numeric value into a string that represents the number expressed as a size 
+        /// value in bytes, kilobytes, megabytes, or gigabytes, depending on the size. 
+        /// </summary>
+        /// <param name="fileSize">The numeric value to be converted.</param>
+        /// <param name="buffer">A pointer to a buffer that, when this function returns 
+        /// successfully, receives the converted number.</param>
+        /// <param name="bufferSize">The size of the buffer pointed to by pszBuf, in characters.</param>
+        /// <returns>Returns a pointer to the converted string, or NULL if the conversion fails.</returns>
+        [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
+        internal static extern long StrFormatByteSize(long fileSize, System.Text.StringBuilder buffer, int bufferSize);
     }
 }

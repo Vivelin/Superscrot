@@ -437,5 +437,26 @@ namespace Superscrot
                 formatted += ".png";
             return formatted;
         }
+
+        /// <summary>
+        /// Calculates the size (in bytes) of the screenshot.
+        /// </summary>
+        /// <returns>The size of the screenshot, in bytes.</returns>
+        public long CalculateSize()
+        {
+            if (File.Exists(OriginalFileName))
+            {
+                var info = new FileInfo(OriginalFileName);
+                return info.Length;
+            }
+            else
+            {
+                using (var stream = new MemoryStream())
+                {
+                    SaveToStream(stream);
+                    return stream.Length;
+                }
+            }
+        }
     }
 }

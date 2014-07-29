@@ -150,6 +150,7 @@
       <DependentUpon>ConfigEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration.cs" />
+    <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="History.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="PreviewDialog.cs">
