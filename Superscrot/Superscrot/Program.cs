@@ -166,6 +166,7 @@ namespace Superscrot
                 Logfile = null;
             }
 
+            Tray.Dispose();
             Manager.Dispose();
             NativeMethods.FreeConsole();
             Application.Exit();
@@ -196,9 +197,6 @@ namespace Superscrot
             }
         }
 
-        /// <summary>
-        /// Redundant commentary because otherwise these lines look too empty.
-        /// </summary>
         private static void LoadSettings()
         {
             string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Superscrot");
@@ -277,7 +275,8 @@ namespace Superscrot
         /// Writes the specified text to the console in the specified color.
         /// </summary>
         /// <param name="color">The foreground color of the text to display.</param>
-        /// <param name="text">The text to display.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="arg">An array of objects to write using <paramref name="format"/>.</param>
         public static void ConsoleWrite(ConsoleColor color, string format, params object[] arg)
         {
             Console.ForegroundColor = color;
@@ -299,7 +298,8 @@ namespace Superscrot
         /// Writes the specified text with a trailing newline to the console in the specified color.
         /// </summary>
         /// <param name="color">The foreground color of the text to display.</param>
-        /// <param name="text">The text to display.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="arg">An array of objects to write using <paramref name="format"/>.</param>
         public static void ConsoleWriteLine(ConsoleColor color, string format, params object[] arg)
         {
             ConsoleWrite(color, format + Environment.NewLine, arg);

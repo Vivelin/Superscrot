@@ -69,6 +69,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <DocumentationFile>bin\Debug\Superscrot.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\Release x64\</OutputPath>
@@ -168,12 +169,6 @@
       <DependentUpon>RegionOverlay.cs</DependentUpon>
     </Compile>
     <Compile Include="Screenshot.cs" />
-    <Compile Include="SettingsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SettingsDialog.Designer.cs">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="TrayIcon.cs" />
     <Compile Include="Uploaders\FtpUploader.cs" />
     <Compile Include="Exceptions.cs" />
@@ -195,9 +190,6 @@
     </Compile>
     <EmbeddedResource Include="RegionOverlay.resx">
       <DependentUpon>RegionOverlay.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SettingsDialog.resx">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PreviewDialog.resx">
       <DependentUpon>PreviewDialog.cs</DependentUpon>

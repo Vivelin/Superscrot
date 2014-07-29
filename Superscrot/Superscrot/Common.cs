@@ -64,7 +64,7 @@ namespace Superscrot
         /// <summary>
         /// Encodes a URL string by replacing certains characters.
         /// </summary>
-        /// <param name="s">The string to URL encode.</param>
+        /// <param name="str">The string to URL encode.</param>
         /// <returns>The URL encoded string, or an empty string.</returns>
         public static string UrlEncode(string str)
         {

@@ -6,6 +6,9 @@ using WinSCP;
 
 namespace Superscrot.Uploaders
 {
+    /// <summary>
+    /// Provides the functionality to upload and delete screenshot to and from an SFTP server using WinSCP.
+    /// </summary>
     class WinScpUploader : IUploader
     {
         private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.Magenta, text); }
@@ -13,11 +16,32 @@ namespace Superscrot.Uploaders
         private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.Magenta, text); }
         private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.Magenta, format, arg); }
 
+        /// <summary>
+        /// Occurs when an upload has succeeded.
+        /// </summary>
         public event UploadEventHandler UploadSucceeded;
+
+        /// <summary>
+        /// Occurs when an upload has failed.
+        /// </summary>
         public event UploadEventHandler UploadFailed;
+
+        /// <summary>
+        /// Occurs when a file was deleted succesfully.
+        /// </summary>
         public event UploadEventHandler DeleteSucceeded;
+
+        /// <summary>
+        /// Occurs when a file could not be deleted.
+        /// </summary>
         public event UploadEventHandler DeleteFailed;
 
+        /// <summary>
+        /// Uploads a screenshot to the target location on the currently configured server.
+        /// </summary>
+        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>
+        /// <param name="target">The path on the server to upload to.</param>
+        /// <returns>True if the upload succeeded, false otherwise.</returns>
         public bool Upload(Screenshot screenshot, string target)
         {
             try
@@ -64,8 +88,16 @@ namespace Superscrot.Uploaders
             }
         }
 
+        /// <summary>
+        /// Removes a screenshot from the server.
+        /// </summary>
+        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to remove from the server.</param>
+        /// <returns>True if the file was deleted, false otherwise.</returns>        
+        /// <exception cref="System.InvalidOperationException"><paramref name="screenshot"/> has not been uploaded (ServerPath property was not set)</exception>
         public bool UndoUpload(Screenshot screenshot)
         {
+            if (screenshot.ServerPath == null) throw new InvalidOperationException("Can't undo an upload that never happened");
+
             try
             {
                 using (var session = GetSession())

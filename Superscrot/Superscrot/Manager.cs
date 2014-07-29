@@ -374,7 +374,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases resources used by the <c>Superscrot.Manager</c> class.
+        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
         /// </summary>
         public void Dispose()
         {
@@ -382,6 +382,10 @@ namespace Superscrot
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// </summary>
+        /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)

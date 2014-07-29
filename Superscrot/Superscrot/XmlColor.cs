@@ -6,14 +6,32 @@ using System.Drawing;
 
 namespace Superscrot
 {
+    /// <summary>
+    /// Provides methods to workaround XML serialization problems with the <see cref="System.Drawing.Color"/> class.
+    /// </summary>
     public static class XmlColor
     {
+        /// <summary>
+        /// Represents the different kinds of representations of a color.
+        /// </summary>
         public enum ColorFormat
         {
+            /// <summary>
+            /// Indicates a named color.
+            /// </summary>
             NamedColor,
+
+            /// <summary>
+            /// Indicates a color with alpha, red, green and blue components.
+            /// </summary>
             ARGBColor
         }
 
+        /// <summary>
+        /// Returns a string that represents the specified <see cref="System.Drawing.Color"/>.
+        /// </summary>
+        /// <param name="color">The <see cref="System.Drawing.Color"/> to serialize.</param>
+        /// <returns>A string representing the color that can be deserialized using the <see cref="DeserializeColor"/> method.</returns>
         public static string SerializeColor(Color color)
         {
             try
@@ -34,6 +52,12 @@ namespace Superscrot
             }
         }
 
+        /// <summary>
+        /// Converts a string serialized with <see cref="SerializeColor"/> to a new instance of 
+        /// the <see cref="System.Drawing.Color"/> class.
+        /// </summary>
+        /// <param name="color">A string value containing the color serialized with <see cref="SerializeColor"/>.</param>
+        /// <returns>A new instance of the <see cref="System.Drawing.Color"/> class.</returns>
         public static Color DeserializeColor(string color)
         {
             try

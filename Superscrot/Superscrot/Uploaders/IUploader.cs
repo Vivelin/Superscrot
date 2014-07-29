@@ -4,6 +4,10 @@ using System.Text;
 
 namespace Superscrot.Uploaders
 {
+    /// <summary>
+    /// Represents the method that will handle events fired by the <see cref="IUploader"/> class.
+    /// </summary>
+    /// <param name="s"></param>
     public delegate void UploadEventHandler(Screenshot s);   
 
     /// <summary>

@@ -86,7 +86,7 @@ namespace Superscrot
         public string OriginalFileName { get; set; }
 
         /// <summary>
-        /// Initializes a new <c>Superscrot.Screenshot</c> instance.
+        /// Initializes a new instance of the <see cref="Superscrot.Screenshot"/> class.
         /// </summary>
         public Screenshot()
         {
@@ -94,7 +94,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases all resources used by this <c>Superscrot.Screenshot</c>
+        /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
         /// </summary>
         public void Dispose()
         {
@@ -102,6 +102,10 @@ namespace Superscrot
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
+        /// </summary>
+        /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)

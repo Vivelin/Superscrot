@@ -9,7 +9,7 @@ namespace Superscrot
     /// <summary>
     /// Handles the application's tray icon initializes and behaviour. Console output is colored White.
     /// </summary>
-    public class TrayIcon
+    public class TrayIcon : IDisposable
     {
         private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.White, text); }
         private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.White, format, arg); }
@@ -18,9 +18,6 @@ namespace Superscrot
 
         private static TrayIcon _instance = null;
 
-        /// <summary>
-        /// WELL I WONDER WHAT THIS DOES.
-        /// </summary>
         private NotifyIcon Tray { get; set; }
 
         /// <summary>
@@ -39,30 +36,9 @@ namespace Superscrot
                 return null;
             }
         }
-
-        /// <summary>
-        /// Does nothing.
-        /// </summary>
-        public TrayIcon()
-        {
-            
-        }
-
-        /// <summary>
-        /// Releases all resources used by the tray icon.
-        /// </summary>
-        ~TrayIcon()
-        {
-            if (Tray != null)
-            {
-                Tray.Visible = false;
-                Tray.Dispose();
-                Tray = null;
-            }
-        }
         
         /// <summary>
-        /// Hurp derp durp durp herp.
+        /// Initializes the tray icon.
         /// </summary>
         public void InitializeTrayIcon()
         {
@@ -114,18 +90,22 @@ namespace Superscrot
         /// <param name="message">The message to display.</param>
         public void ShowError(string title, string message)
         {
-            try
-            {
-                Tray.ShowBalloonTip(10000, title, message, ToolTipIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                Program.ConsoleException(ex);
-            }
+            ShowMessage(title, message, ToolTipIcon.Error);
         }
 
         /// <summary>
-        /// Shows the config editor. (duuuh)
+        /// Displays a message from the tray icon.
+        /// </summary>
+        /// <param name="title">The title of the message to display.</param>
+        /// <param name="message">The message contents to display.</param>
+        /// <param name="icon">The icon to display with the message.</param>
+        public void ShowMessage(string title, string message, System.Windows.Forms.ToolTipIcon icon = ToolTipIcon.None)
+        {
+            Tray.ShowBalloonTip(10000, title, message, icon);
+        }
+
+        /// <summary>
+        /// Shows the config editor.
         /// </summary>
         private void OnTrayConfigure(object sender, EventArgs e)
         {
@@ -133,7 +113,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Shows or hides the console (again, duh).
+        /// Shows or hides the console.
         /// </summary>
         private void OnTrayShowConsole(object sender, EventArgs e)
         {
@@ -147,6 +127,32 @@ namespace Superscrot
         {
             this.Hide();
             Program.Exit();
+        }
+
+        /// <summary>
+        /// Releases resources used by this instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases resources used by this instance.
+        /// </summary>
+        /// <param name="disposing">True to release managed resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Tray != null)
+                {
+                    Tray.Visible = false;
+                    Tray.Dispose();
+                    Tray = null;
+                }
+            }
         }
     }
 }

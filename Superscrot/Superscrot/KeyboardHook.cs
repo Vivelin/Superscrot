@@ -3,6 +3,9 @@ using System.Windows.Forms;
 
 namespace Superscrot
 {
+    /// <summary>
+    /// Provides a global low-level keyboard hook.
+    /// </summary>
     public sealed class KeyboardHook : IDisposable
     {
         /// <summary>
@@ -48,6 +51,9 @@ namespace Superscrot
         private Window _window = new Window();
         private int _currentId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Superscrot.KeyboardHook"/> class.
+        /// </summary>
         public KeyboardHook()
         {
             // register the event of the inner native window.
@@ -78,6 +84,9 @@ namespace Superscrot
         /// </summary>
         public event EventHandler<KeyPressedEventArgs> KeyPressed;
 
+        /// <summary>
+        /// Unregisters the hotkeys that have been registered and releases any resources.
+        /// </summary>
         public void Dispose()
         {
             for (int i = _currentId; i > 0; i--)
@@ -103,11 +112,17 @@ namespace Superscrot
             _key = key;
         }
 
+        /// <summary>
+        /// Gets any modifier keys that have been pressed together with the pressed <see cref="Key"/>.
+        /// </summary>
         public ModifierKeys Modifier
         {
             get { return _modifier; }
         }
 
+        /// <summary>
+        /// Gets the key that was pressed.
+        /// </summary>
         public Keys Key
         {
             get { return _key; }
@@ -120,10 +135,29 @@ namespace Superscrot
     [Flags]
     public enum ModifierKeys : uint
     {
+        /// <summary>
+        /// Indicates no modifier keys.
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// Represents the Alt key.
+        /// </summary>
         Alt = 1,
+        
+        /// <summary>
+        /// Represents the Ctrl key.
+        /// </summary>
         Control = 2,
+
+        /// <summary>
+        /// Represents the Shift key.
+        /// </summary>
         Shift = 4,
+
+        /// <summary>
+        /// Represents the Windows key.
+        /// </summary>
         Win = 8
     }
 }
