@@ -178,5 +178,26 @@ namespace Superscrot
             NativeMethods.StrFormatByteSize(size, buffer, buffer.Capacity);
             return buffer.ToString();
         }
+
+        /// <summary>
+        /// Translates a path on the FTP server to an HTTP link.
+        /// </summary>
+        /// <param name="serverPath">The full path to the file on the server.</param>
+        /// <returns>A string that contains the HTTP address of the file.</returns>
+        public static string TranslateServerPath(string serverPath)
+        {
+            if (serverPath == null) return null;
+            if (serverPath == string.Empty) return string.Empty;
+
+            var folder = Path.GetDirectoryName(serverPath).Replace('\\', '/') + '/'; // GetDirectoryName never ends in a trailing slash, but FtpServerPath always ends in a trailing slash
+            var file = Path.GetFileName(serverPath);
+
+            if (!folder.StartsWith(Program.Config.FtpServerPath))
+                throw new Exception("Server path is outside of the configured base server path, " + Program.Config.FtpServerPath);
+
+            var baseUrl = folder.Replace(Program.Config.FtpServerPath, Program.Config.HttpBaseUri);
+            var url = UriCombine(baseUrl, UrlEncode(file));
+            return url;
+        }
     }
 }
