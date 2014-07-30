@@ -56,7 +56,7 @@ namespace Superscrot.Uploaders
                 {
                     var local = screenshot.SaveToFile(); // WinSCP doesn't support uploading streams
 
-                    if (!FindDuplicateFile(screenshot, ref target, session))
+                    if (Program.Config.CheckForDuplicateFiles && !FindDuplicateFile(screenshot, ref target, session))
                         return false;
                     
                     var transferResult = session.PutFiles(local, target);

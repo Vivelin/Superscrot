@@ -54,7 +54,7 @@ namespace Superscrot
         /// <summary>
         /// Gets/sets the hostname or IP address of the server to upload to. 
         /// </summary>
-        [DisplayName("Hostname"), Category("Connection settings")]
+        [DisplayName("Hostname"), Category("Connection")]
         [Description("The hostname or IP address of the server to upload to. Example: ftp.example.com")]
         public string FtpHostname { get; set; }
 
@@ -243,6 +243,14 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Gets or sets a value that determines whether or not to check for 
+        /// duplicate files when uploading a screenshot.
+        /// </summary>
+        [DisplayName("Check for duplicate files"), Category("Misc. settings")]
+        [Description("Set to true to check if a file with the same name already exists on the server.")]
+        public bool CheckForDuplicateFiles { get; set; }
+
+        /// <summary>
         /// Loads default values.
         /// </summary>
         public Configuration()
@@ -262,6 +270,7 @@ namespace Superscrot
             OverlayForegroundColor = Color.White;
             OverlayOpacity = 0.6;
 
+            CheckForDuplicateFiles = false;
             FailedScreenshotsFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "Superscrot", "Failed");

@@ -57,7 +57,7 @@ namespace Superscrot.Uploaders
 
             try
             {
-                if (!FindDuplicateFile(screenshot, ref target, c))
+                if (Program.Config.CheckForDuplicateFiles && !FindDuplicateFile(screenshot, ref target, c))
                     return false;
 
                 using (MemoryStream stream = new MemoryStream())

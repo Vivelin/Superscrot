@@ -54,7 +54,7 @@ namespace Superscrot.Uploaders
             if (!ftp.DirectoryExists(Path.GetDirectoryName(target)))
                 ftp.CreateDirectory(Path.GetDirectoryName(target));
 
-            if (!FindDuplicateFile(screenshot, ref target, ftp))
+            if (Program.Config.CheckForDuplicateFiles && !FindDuplicateFile(screenshot, ref target, ftp))
                 return false;
 
             using (MemoryStream stream = new MemoryStream())

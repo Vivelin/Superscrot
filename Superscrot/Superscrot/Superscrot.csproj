@@ -65,7 +65,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;WINSCP</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
@@ -150,6 +150,15 @@
       <DependentUpon>ConfigEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration.cs" />
+    <Compile Include="Dialogs\CommandLink.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\DuplicateFileFoundDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\DuplicateFileFoundDialog.Designer.cs">
+      <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="History.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -180,6 +189,9 @@
     <Compile Include="XmlColor.cs" />
     <EmbeddedResource Include="ConfigEditor.resx">
       <DependentUpon>ConfigEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\DuplicateFileFoundDialog.resx">
+      <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
