@@ -86,7 +86,7 @@ namespace Superscrot.Uploaders
         /// <returns>False if the upload should be aborted.</returns>
         private bool FindDuplicateFile(Screenshot screenshot, ref string target, FTP.FtpClient ftp)
         {
-            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return false;
+            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return true;
 
             var handler = DuplicateFileFound;
             if (handler != null)

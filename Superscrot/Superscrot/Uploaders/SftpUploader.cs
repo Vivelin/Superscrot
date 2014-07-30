@@ -123,7 +123,7 @@ namespace Superscrot.Uploaders
         /// <returns>False if the upload should be aborted.</returns>
         private bool FindDuplicateFile(Screenshot screenshot, ref string target, SftpClient c)
         {
-            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return false;
+            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return true;
 
             var handler = DuplicateFileFound;
             if (handler != null)
