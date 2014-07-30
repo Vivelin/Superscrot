@@ -193,6 +193,10 @@ namespace Superscrot.Uploaders
                 WriteLine(e.Data);
             };
             session.Open(sessionOptions);
+            
+            if (!session.Opened)
+                throw new ConnectionFailedException(string.Format("Upload failed: can't connect to \"{0}\"", Program.Config.FtpHostname), Program.Config.FtpHostname);
+
             return session;
         }
     }

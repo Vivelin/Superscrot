@@ -224,17 +224,21 @@ namespace Superscrot
             {
                 var up = GetUploader();
                 up.DuplicateFileFound += HandleDuplicateFileFound;
-                if (up.Upload(screenshot, target))
+
+                up.UploadSucceeded += (s) =>
                 {
-                    History.Push(screenshot);
+                    History.Push(s);
                     System.Media.SystemSounds.Asterisk.Play();
                     WriteLine("[0x{0:X}] Upload succeeded", Thread.CurrentThread.ManagedThreadId);
-                }
-                else
+                };
+
+                up.UploadFailed += (s) =>
                 {
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
                     ReportUploadError(screenshot);
-                }
+                };
+
+                up.Upload(screenshot, target);
             }
             catch (Exception ex)
             {
@@ -350,17 +354,21 @@ namespace Superscrot
             try
             {
                 var up = GetUploader();
-                if (up.UndoUpload(screenshot))
+
+                up.DeleteSucceeded += (s) =>
                 {
                     System.Media.SystemSounds.Asterisk.Play();
                     WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
-                }
-                else
+                };
+
+                up.DeleteFailed += (s) =>
                 {
                     System.Media.SystemSounds.Exclamation.Play();
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Deletion failed!", Thread.CurrentThread.ManagedThreadId);
                     Program.Tray.ShowError("Screenshot could not be deleted", null);
-                }
+                };
+
+                up.UndoUpload(screenshot);
             }
             catch (Exception ex)
             {

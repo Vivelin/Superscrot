@@ -270,7 +270,7 @@ namespace Superscrot
             OverlayForegroundColor = Color.White;
             OverlayOpacity = 0.6;
 
-            CheckForDuplicateFiles = false;
+            CheckForDuplicateFiles = true;
             FailedScreenshotsFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "Superscrot", "Failed");
