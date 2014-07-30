@@ -250,7 +250,7 @@ namespace Superscrot
         private void HandleDuplicateFileFound(object sender, DuplicateFileEventArgs e)
         {
             WriteLine("Duplicate file found: {0}", e.FileName);
-            e.Action = DuplicateFileAction.Ignore;
+            e.Action = DuplicateFileAction.Replace;
         }
 
         /// <summary>

@@ -55,13 +55,9 @@ namespace Superscrot.Uploaders
                 using (var session = GetSession())
                 {
                     var local = screenshot.SaveToFile(); // WinSCP doesn't support uploading streams
-                    
-                    target = CheckDuplicateFile(screenshot, target, session);
-                    if (target == null)
-                    {
-                        // A null reference indicates that the upload should be cancelled
+
+                    if (!FindDuplicateFile(screenshot, ref target, session))
                         return false;
-                    }
                     
                     var transferResult = session.PutFiles(local, target);
                     if (!transferResult.IsSuccess)
@@ -124,16 +120,16 @@ namespace Superscrot.Uploaders
         }
 
         /// <summary>
-        /// Checks if the session contains a duplicate file and returns the new destination file 
-        /// name, <paramref name="target"/>, or <c>null</c> if the upload should be aborted.
+        /// Checks if the session contains a duplicate file and returns 
+        /// whether to continue the upload.
         /// </summary>
         /// <param name="screenshot">The screenshot that is being uploaded.</param>
         /// <param name="target">The target file name.</param>
         /// <param name="session">The session in which the upload is taking place.</param>
-        /// <returns>Depending on user feedback, returns <paramref name="target"/>, a different file path, or <c>null</c>.</returns>
-        private string CheckDuplicateFile(Screenshot screenshot, string target, Session session)
+        /// <returns>False if the upload should be aborted.</returns>
+        private bool FindDuplicateFile(Screenshot screenshot, ref string target, Session session)
         {
-            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return target;
+            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return false;
 
             var handler = DuplicateFileFound;
             if (handler != null)
@@ -153,20 +149,19 @@ namespace Superscrot.Uploaders
                     switch (e.Action)
                     {
                         case DuplicateFileAction.Replace:
-                            WriteLine("New file name: {0}", duplicate.Name);
-                            return Common.UriCombine(directory, duplicate.Name);
+                            target = Common.UriCombine(directory, duplicate.Name);
+                            WriteLine("Changed target to {0}", target);
+                            return true;
                         case DuplicateFileAction.Abort:
-                            WriteLine("Cancelled");
-                            return null;
+                            return false;
                         case DuplicateFileAction.Ignore:
                         default:
-                            WriteLine("Duplicate file {0} ignored", duplicate.Name);
-                            return target;
+                            return true;
                     }
                 }
             }
 
-            return target;
+            return true;
         }
 
         private static void EnsureDirectoryExists(string target, Session session)

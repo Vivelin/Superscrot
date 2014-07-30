@@ -57,6 +57,9 @@ namespace Superscrot.Uploaders
 
             try
             {
+                if (!FindDuplicateFile(screenshot, ref target, c))
+                    return false;
+
                 using (MemoryStream stream = new MemoryStream())
                 {
                     screenshot.SaveToStream(stream);
@@ -108,6 +111,51 @@ namespace Superscrot.Uploaders
                     DeleteFailed(screenshot);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Checks if the session contains a duplicate file and returns 
+        /// whether to continue the upload.
+        /// </summary>
+        /// <param name="screenshot">The screenshot that is being uploaded.</param>
+        /// <param name="target">The target file name.</param>
+        /// <param name="c">The session in which the upload is taking place.</param>
+        /// <returns>False if the upload should be aborted.</returns>
+        private bool FindDuplicateFile(Screenshot screenshot, ref string target, SftpClient c)
+        {
+            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return false;
+
+            var handler = DuplicateFileFound;
+            if (handler != null)
+            {
+                var directory = Path.GetDirectoryName(target).Remove('\\', '/');
+                var listing = c.ListDirectory(directory);
+                var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
+                var duplicate = listing.FirstOrDefault(x =>
+                    x.Name.Contains(name)
+                );
+
+                if (duplicate != null)
+                {
+                    var e = new DuplicateFileEventArgs(screenshot, c.ConnectionInfo.Host, duplicate.Name);
+
+                    handler(this, e);
+                    switch (e.Action)
+                    {
+                        case DuplicateFileAction.Replace:
+                            target = duplicate.FullName;                            
+                            Program.ConsoleWriteLine(ConsoleColor.Magenta, "Changed target to {0}", target);
+                            return true;
+                        case DuplicateFileAction.Abort:
+                            return false;
+                        case DuplicateFileAction.Ignore:
+                        default:
+                            return true;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static void SftpCreateDirectoryRecursive(ref SftpClient c, string path)
