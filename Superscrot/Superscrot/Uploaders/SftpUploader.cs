@@ -128,7 +128,7 @@ namespace Superscrot.Uploaders
             var handler = DuplicateFileFound;
             if (handler != null)
             {
-                var directory = Path.GetDirectoryName(target).Remove('\\', '/');
+                var directory = Path.GetDirectoryName(target).Replace('\\', '/');
                 var listing = c.ListDirectory(directory);
                 var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
                 var duplicate = listing.FirstOrDefault(x =>
