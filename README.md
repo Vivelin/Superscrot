@@ -6,7 +6,8 @@ to use their hosting, which I don't want. Superscrot supports FTP and SFTP.
 Superscrot sits in the system tray and does its work when you press PrintScreen. The system tray icon
 also offers a configuration editor and an option to toggle the developer console.
 
-![Superscrot preview window](http://s.horsedrowner.net/Superscrot-Preview.png)
+![Screenshot preview](http://s.horsedrowner.net/Superscrot/PreviewDialog.png)
+![Duplicate file checking](http://s.horsedrowner.net/Superscrot/DuplicateFile.png)
 
 ## Key bindings
 - <kbd>PrintScr</kbd> takes a single screenshot that spans all monitors
@@ -15,15 +16,14 @@ also offers a configuration editor and an option to toggle the developer console
 - <kbd>Ctrl</kbd>+<kbd>PageUp</kbd> uploads copied images and image files
  
 # Download
-64-bit and 32-bit builds can be found on [http://horsedrowner.net/projects][PROJ]
+Releases can be found on https://github.com/horsedrowner/Superscrot/releases
  
 # More information
-Filename format strings and build version history can be found on the [GitHub project wiki][GHWIKI]. 
+Filename format strings can be found on the [GitHub project wiki][GHWIKI]. 
 
 Superscrot is licensed under [MIT License][MIT].
 RENCI SSH.NET Library is licensed under [New BSD][BSD3] and available at [Codeplex][SSHNET].
  
- [PROJ]: http://horsedrowner.net/projects#superscrot
  [GHWIKI]: https://github.com/horsedrowner/Superscrot/wiki
  [MIT]: http://opensource.org/licenses/MIT
  [BSD3]: http://www.tldrlegal.com/l/BSD3
