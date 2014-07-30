@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using WinSCP;
 
 namespace Superscrot.Uploaders
@@ -37,6 +38,11 @@ namespace Superscrot.Uploaders
         public event UploadEventHandler DeleteFailed;
 
         /// <summary>
+        /// Occurs when a duplicate file was found on the server before the screenshot was uploaded.
+        /// </summary>
+        public event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
+
+        /// <summary>
         /// Uploads a screenshot to the target location on the currently configured server.
         /// </summary>
         /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>
@@ -49,23 +55,16 @@ namespace Superscrot.Uploaders
                 using (var session = GetSession())
                 {
                     var local = screenshot.SaveToFile(); // WinSCP doesn't support uploading streams
-                    var transferResult = session.PutFiles(local, target);
 
-                    /* If the upload failed, it's possible the directory doesn't exist. However, 
-                     * ExecuteCommand seems to always open a new session internally, so only do
-                     * this when it fails 
-                     */
+                    if (Program.Config.CheckForDuplicateFiles && !FindDuplicateFile(screenshot, ref target, session))
+                        return false;
+                    
+                    var transferResult = session.PutFiles(local, target);
                     if (!transferResult.IsSuccess)
                     {
-                        var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
-                        var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
-                        WriteLine(mkdirResult.Output);
-                        WriteLine(mkdirResult.ErrorOutput);
-
-                        // Retry the upload
+                        EnsureDirectoryExists(target, session);
                         transferResult = session.PutFiles(local, target);
                     }
-
                     transferResult.Check(); // Throws if upload failed
 
                     if (screenshot.Source != ScreenshotSource.File)
@@ -120,6 +119,59 @@ namespace Superscrot.Uploaders
             }
         }
 
+        /// <summary>
+        /// Checks if the session contains a duplicate file and returns 
+        /// whether to continue the upload.
+        /// </summary>
+        /// <param name="screenshot">The screenshot that is being uploaded.</param>
+        /// <param name="target">The target file name.</param>
+        /// <param name="session">The session in which the upload is taking place.</param>
+        /// <returns>False if the upload should be aborted.</returns>
+        private bool FindDuplicateFile(Screenshot screenshot, ref string target, Session session)
+        {
+            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return false;
+
+            var handler = DuplicateFileFound;
+            if (handler != null)
+            {
+                var directory = Path.GetDirectoryName(target).Replace('\\', '/');
+                var listing = session.ListDirectory(directory);
+                var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
+                var duplicate = listing.Files.FirstOrDefault(x =>
+                    x.Name.Contains(name)
+                );
+
+                if (duplicate != null)
+                {
+                    var e = new DuplicateFileEventArgs(screenshot, Program.Config.FtpHostname, duplicate.Name);
+
+                    handler(this, e);
+                    switch (e.Action)
+                    {
+                        case DuplicateFileAction.Replace:
+                            target = Common.UriCombine(directory, duplicate.Name);
+                            WriteLine("Changed target to {0}", target);
+                            return true;
+                        case DuplicateFileAction.Abort:
+                            return false;
+                        case DuplicateFileAction.Ignore:
+                        default:
+                            return true;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static void EnsureDirectoryExists(string target, Session session)
+        {
+            var targetDir = Path.GetDirectoryName(target).Replace("\\", "/");
+            var mkdirResult = session.ExecuteCommand("mkdir -p \"" + targetDir + "\"");
+            WriteLine(mkdirResult.Output);
+            WriteLine(mkdirResult.ErrorOutput);
+        }
+
         private Session GetSession()
         {
             var sessionOptions = new SessionOptions
@@ -141,6 +193,10 @@ namespace Superscrot.Uploaders
                 WriteLine(e.Data);
             };
             session.Open(sessionOptions);
+            
+            if (!session.Opened)
+                throw new ConnectionFailedException(string.Format("Upload failed: can't connect to \"{0}\"", Program.Config.FtpHostname), Program.Config.FtpHostname);
+
             return session;
         }
     }

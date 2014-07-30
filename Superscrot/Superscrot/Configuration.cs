@@ -14,9 +14,11 @@ namespace Superscrot
     /// </summary>
     public class Configuration
     {
-        private long _jpegQuality = 90L;
-        private double _overlayOpacity = 0.8;
-        private string _failedScreenshotsFolder;
+        private long jpegQuality = 90L;
+        private double overlayOpacity = 0.8;
+        private string failedScreenshotsFolder;
+        private string ftpServerPath;
+        private string httpBaseUri;
 
         /// <summary>
         /// Determines whether to display a debug console window.
@@ -38,8 +40,20 @@ namespace Superscrot
         /// screenshots to.
         /// </summary>
         [DisplayName("Server path"), Category("FTP settings")]
-        [Description("The path to the directory on the server to save screenshots to. If it doesn't exist, it will be created. Example: public_html/screenshots")]
-        public string FtpServerPath { get; set; }
+        [Description("The path to the directory on the server to save screenshots to. If it doesn't exist, it will be created. Example: public_html/screenshots/")]
+        public string FtpServerPath
+        {
+            get { return ftpServerPath; }
+            set
+            {
+                if (value != ftpServerPath)
+                {
+                    ftpServerPath = value;
+                    if (!ftpServerPath.EndsWith("/"))
+                        ftpServerPath += "/";
+                }
+            }
+        }
 
         /// <summary>
         /// Gets/sets the base URI that leads to the FTP server path. 
@@ -47,14 +61,26 @@ namespace Superscrot
         /// </summary>
         [DisplayName("HTTP base URI"), Category("FTP settings")]
         [Description("The base URI that is copied to the clipboard after uploading. Example: http://www.example.com/screenshots/")]
-        public string HttpBaseUri { get; set; }
+        public string HttpBaseUri
+        {
+            get { return httpBaseUri; }
+            set
+            {
+                if (value != httpBaseUri)
+                {
+                    httpBaseUri = value;
+                    if (!httpBaseUri.EndsWith("/"))
+                        httpBaseUri += "/";
+                }
+            }
+        }
         #endregion
 
         #region FTP settings
         /// <summary>
         /// Gets/sets the hostname or IP address of the server to upload to. 
         /// </summary>
-        [DisplayName("Hostname"), Category("Connection settings")]
+        [DisplayName("Hostname"), Category("Connection")]
         [Description("The hostname or IP address of the server to upload to. Example: ftp.example.com")]
         public string FtpHostname { get; set; }
 
@@ -140,12 +166,12 @@ namespace Superscrot
         [Description("The quality of JPEG compressed images. Supports values 0 - 100. 90 by default.")]
         public long JpegQuality
         {
-            get { return _jpegQuality; }
+            get { return jpegQuality; }
             set
             {
-                if (value > 100) _jpegQuality = 100;
-                if (value < 0) _jpegQuality = 0;
-                else _jpegQuality = value;
+                if (value > 100) jpegQuality = 100;
+                if (value < 0) jpegQuality = 0;
+                else jpegQuality = value;
             }
         }
         #endregion
@@ -197,15 +223,15 @@ namespace Superscrot
         [Description("The opacity of the overlay (0 - 100). If you set a value of 0 or 100 you'll probably have problems though.")]
         public double OverlayOpacity
         {
-            get { return _overlayOpacity; }
+            get { return overlayOpacity; }
             set
             {
                 if (value > 1.0)
-                    _overlayOpacity = 1.0;
+                    overlayOpacity = 1.0;
                 else if (value < 0.0)
-                    _overlayOpacity = 0.0;
+                    overlayOpacity = 0.0;
                 else
-                    _overlayOpacity = value;
+                    overlayOpacity = value;
             }
         }
         #endregion
@@ -231,16 +257,24 @@ namespace Superscrot
         [Description("The location where screenshots that could not be uploaded are saved to.")]
         public string FailedScreenshotsFolder
         {
-            get { return _failedScreenshotsFolder; }
+            get { return failedScreenshotsFolder; }
             set
             {
-                if (value != _failedScreenshotsFolder)
+                if (value != failedScreenshotsFolder)
                 {
-                    _failedScreenshotsFolder = value;
+                    failedScreenshotsFolder = value;
                     EnsureDirectoryExists(value);
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value that determines whether or not to check for 
+        /// duplicate files when uploading a screenshot.
+        /// </summary>
+        [DisplayName("Check for duplicate files"), Category("Misc. settings")]
+        [Description("Set to true to check if a file with the same name already exists on the server.")]
+        public bool CheckForDuplicateFiles { get; set; }
 
         /// <summary>
         /// Loads default values.
@@ -262,6 +296,7 @@ namespace Superscrot
             OverlayForegroundColor = Color.White;
             OverlayOpacity = 0.6;
 
+            CheckForDuplicateFiles = true;
             FailedScreenshotsFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "Superscrot", "Failed");

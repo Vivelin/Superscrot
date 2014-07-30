@@ -44,9 +44,12 @@ namespace Superscrot
             Screenshot capture = Screenshot.FromDesktop();
             if (capture != null)
             {
-                string publicpath = UploadAsync(capture);
-                if (!string.IsNullOrWhiteSpace(publicpath))
-                    Clipboard.SetText(publicpath);
+                capture.Uploaded += (sender, e) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                        Clipboard.SetText(capture.PublicUrl);
+                };
+                UploadAsync(capture);
             }
         }
 
@@ -58,9 +61,12 @@ namespace Superscrot
             Screenshot capture = Screenshot.FromActiveWindow();
             if (capture != null)
             {
-                string publicpath = UploadAsync(capture);
-                if (!string.IsNullOrWhiteSpace(publicpath))
-                    Clipboard.SetText(publicpath);
+                capture.Uploaded += (sender, e) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                        Clipboard.SetText(capture.PublicUrl);
+                };
+                UploadAsync(capture);
             }
         }
 
@@ -72,9 +78,12 @@ namespace Superscrot
             Screenshot capture = Screenshot.FromRegion();
             if (capture != null)
             {
-                string publicpath = UploadAsync(capture);
-                if (!string.IsNullOrWhiteSpace(publicpath))
-                    Clipboard.SetText(publicpath);
+                capture.Uploaded += (sender, e) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                        Clipboard.SetText(capture.PublicUrl);
+                };
+                UploadAsync(capture);
             }
         }
 
@@ -88,9 +97,12 @@ namespace Superscrot
                 Screenshot capture = Screenshot.FromClipboard();
                 if (capture != null)
                 {
-                    string publicpath = UploadAsync(capture);
-                    if (!string.IsNullOrWhiteSpace(publicpath))
-                        Clipboard.SetText(publicpath);
+                    capture.Uploaded += (sender, e) =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                            Clipboard.SetText(capture.PublicUrl);
+                    };
+                    UploadAsync(capture);
                 }
             }
             else if (Clipboard.ContainsFileDropList())
@@ -99,9 +111,6 @@ namespace Superscrot
                 StringBuilder clipText = new StringBuilder();
 
                 System.Collections.Specialized.StringCollection files = Clipboard.GetFileDropList();
-                bool showPreview = (files.Count > 1 ? false : Program.Config.ShowPreviewDialog);
-                if (!showPreview) WriteLine("Skipping preview dialog for multiple files");
-
                 foreach (string file in files)
                 {
                     try
@@ -115,9 +124,11 @@ namespace Superscrot
                         Screenshot capture = Screenshot.FromFile(file);
                         if (capture != null)
                         {
-                            string publicpath = UploadAsync(capture, showPreview);
-                            if (!string.IsNullOrWhiteSpace(publicpath))
-                                clipText.AppendLine(publicpath);
+                            var name = capture.GetFileName();
+                            var target = Common.UriCombine(Program.Config.FtpServerPath, name);
+                            Upload(capture, target);
+                            if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                                clipText.AppendLine(capture.PublicUrl);
                         }
                     }
                     catch (Exception ex)
@@ -160,10 +171,9 @@ namespace Superscrot
         /// Uploads the screenshot in a new thread.
         /// </summary>
         /// <param name="screenshot">The screenshot to upload.</param>
-        /// <returns>The public URL to the uploaded screenshot.</returns>
-        public string UploadAsync(Screenshot screenshot)
+        public void UploadAsync(Screenshot screenshot)
         {
-            return UploadAsync(screenshot, Program.Config.ShowPreviewDialog);
+            UploadAsync(screenshot, Program.Config.ShowPreviewDialog);
         }
 
         /// <summary>
@@ -171,8 +181,7 @@ namespace Superscrot
         /// </summary>
         /// <param name="screenshot">The screenshot to upload.</param>
         /// <param name="showPreview">Whether or not to show a preview before uploading.</param>
-        /// <returns>The public URL to the uploaded screenshot.</returns>
-        public string UploadAsync(Screenshot screenshot, bool showPreview)
+        public void UploadAsync(Screenshot screenshot, bool showPreview)
         {
             try
             {
@@ -187,7 +196,7 @@ namespace Superscrot
                         else
                         {
                             WriteLine("Cancelled");
-                            return null;
+                            return;
                         }
                     }
                 }
@@ -199,17 +208,16 @@ namespace Superscrot
                 {
                     Upload(screenshot, target);
                 });
+                uploadThread.SetApartmentState(ApartmentState.STA);
                 uploadThread.Name = "Upload thread";
                 uploadThread.Start();
 
                 WriteLine("[0x{0:X}] Uploading to {1}...", uploadThread.ManagedThreadId, url);
-                return url;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
                 System.Media.SystemSounds.Exclamation.Play();
-                return null;
             }
         }
 
@@ -223,17 +231,22 @@ namespace Superscrot
             try
             {
                 var up = GetUploader();
-                if (up.Upload(screenshot, target))
+                up.DuplicateFileFound += HandleDuplicateFileFound;
+
+                up.UploadSucceeded += (s) =>
                 {
-                    History.Push(screenshot);
+                    History.Push(s);
                     System.Media.SystemSounds.Asterisk.Play();
-                    WriteLine("[0x{0:X}] Upload succeeded", Thread.CurrentThread.ManagedThreadId);
-                }
-                else
+                    WriteLine("[0x{0:X}] Uploaded successfully to {1}", Thread.CurrentThread.ManagedThreadId, s.PublicUrl);
+                };
+
+                up.UploadFailed += (s) =>
                 {
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
                     ReportUploadError(screenshot);
-                }
+                };
+
+                up.Upload(screenshot, target);
             }
             catch (Exception ex)
             {
@@ -243,6 +256,29 @@ namespace Superscrot
             finally
             {
                 screenshot.Dispose(); //TODO: don't dispose, rather flush to disk or remove local copy from disk
+            }
+        }
+
+        private void HandleDuplicateFileFound(object sender, DuplicateFileEventArgs e)
+        {
+            WriteLine("Duplicate file found: {0}", e.FileName);
+
+            using (var dialog = new Dialogs.DuplicateFileFoundDialog(e.Screenshot, e.FileName))
+            {
+                var result = dialog.ShowDialog();
+                switch (result)
+                {
+                    case DialogResult.Ignore:
+                        e.Action = DuplicateFileAction.Ignore;
+                        break;
+                    case DialogResult.Yes:
+                        e.Action = DuplicateFileAction.Replace;
+                        break;
+                    case DialogResult.Abort:
+                    default:
+                        e.Action = DuplicateFileAction.Abort;
+                        break;
+                }
             }
         }
 
@@ -326,17 +362,21 @@ namespace Superscrot
             try
             {
                 var up = GetUploader();
-                if (up.UndoUpload(screenshot))
+
+                up.DeleteSucceeded += (s) =>
                 {
                     System.Media.SystemSounds.Asterisk.Play();
                     WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
-                }
-                else
+                };
+
+                up.DeleteFailed += (s) =>
                 {
                     System.Media.SystemSounds.Exclamation.Play();
                     Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Deletion failed!", Thread.CurrentThread.ManagedThreadId);
                     Program.Tray.ShowError("Screenshot could not be deleted", null);
-                }
+                };
+
+                up.UndoUpload(screenshot);
             }
             catch (Exception ex)
             {

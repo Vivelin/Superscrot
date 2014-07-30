@@ -49,7 +49,18 @@ namespace Superscrot
         private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, text); }
         private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, format, arg); }
 
-        private Bitmap _bitmap;
+        private Bitmap bitmap;
+        private string serverPath;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Superscrot.Screenshot"/> class.
+        /// </summary>
+        public Screenshot() { }
+
+        /// <summary>
+        /// Occurs when the screenshot has been uploaded or the path on the server has changed.
+        /// </summary>
+        public event EventHandler Uploaded;
 
         /// <summary>
         /// Gets or sets the source of the screenshot.
@@ -61,19 +72,31 @@ namespace Superscrot
         /// </summary>
         public Bitmap Bitmap
         {
-            get { return _bitmap; }
-            set { _bitmap = value; }
+            get { return bitmap; }
+            set { bitmap = value; }
         }
 
         /// <summary>
         /// Gets or sets the path on the server, or null if the screenshot hasn't been uploaded yet.
         /// </summary>
-        public string ServerPath { get; set; }
+        public string ServerPath
+        {
+            get { return serverPath; }
+            set
+            {
+                if (value != serverPath)
+                {
+                    serverPath = value;
+                    PublicUrl = Common.TranslateServerPath(value);
+                    OnUploaded();
+                }
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the public URL to the file on the server, or null if the screenshot hasn't been uploaded yet.
+        /// Gets the public URL to the file on the server, or null if the screenshot hasn't been uploaded yet.
         /// </summary>
-        public string PublicPath { get; set; }
+        public string PublicUrl { get; private set; }
 
         /// <summary>
         /// Gets or sets the title of the window the screenshot was taken of, or null for non-window captures.
@@ -84,14 +107,6 @@ namespace Superscrot
         /// Gets or sets the original filename that the screenshot originates from, or null for non file-based captures.
         /// </summary>
         public string OriginalFileName { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.Screenshot"/> class.
-        /// </summary>
-        public Screenshot()
-        {
-
-        }
 
         /// <summary>
         /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
@@ -110,10 +125,10 @@ namespace Superscrot
         {
             if (disposing)
             {
-                if (_bitmap != null)
+                if (bitmap != null)
                 {
-                    _bitmap.Dispose();
-                    _bitmap = null;
+                    bitmap.Dispose();
+                    bitmap = null;
                 }
             }
         }
@@ -456,6 +471,15 @@ namespace Superscrot
                     SaveToStream(stream);
                     return stream.Length;
                 }
+            }
+        }
+
+        private void OnUploaded()
+        {
+            var handler = Uploaded;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
             }
         }
     }
