@@ -19,14 +19,6 @@ namespace Superscrot
         /// </summary>
         internal const int WM_HOTKEY = 0x0312;
 
-        internal const int ECM_FIRST = 0x1500;
-
-        /// <summary>
-        /// Sets the textual cue, or tip, that is displayed by the edit control to prompt the user 
-        /// for information.
-        /// </summary>
-        internal const int EM_SETCUEBANNER = ECM_FIRST + 1;
-
         /// <summary>
         /// Hides the window and activates another window.
         /// </summary>
@@ -38,31 +30,6 @@ namespace Superscrot
         /// when displaying the window for the first time.
         /// </summary>
         internal const uint SW_SHOWNORMAL = 1;
-
-        /// <summary>
-        /// Creates a command link button that behaves like a BS_PUSHBUTTON 
-        /// style button, but the command link button has a green arrow on the 
-        /// left pointing to the button text. A caption for the button text 
-        /// can be set by sending the BCM_SETNOTE message to the button.
-        /// </summary>
-        internal const int BS_COMMANDLINK = 0x000E;
-
-        /// <summary>
-        /// Creates a command link button that behaves like a BS_PUSHBUTTON 
-        /// style button. If the button is in a dialog box, the user can select
-        /// the command link button by pressing the ENTER key, even when the 
-        /// command link button does not have the input focus. This style is 
-        /// useful for enabling the user to quickly select the most likely 
-        /// (default) option.
-        /// </summary>
-        internal const int BS_DEFCOMMANDLINK = 0x000F;
-
-        internal const int BCM_FIRST = 0x1600;
-
-        /// <summary>
-        /// Sets the text of the note associated with a command link button.
-        /// </summary>
-        internal const int BCM_SETNOTE = (BCM_FIRST + 0x0009);
 
         /// <summary>
         /// The RECT structure defines the coordinates of the upper-left and lower-right corners 

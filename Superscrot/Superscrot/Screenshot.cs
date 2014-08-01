@@ -405,14 +405,25 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Gets a string that contains the filename for this screenshot, formatted using the program settings.
+        /// Gets a string that contains the filename for this screenshot, 
+        /// formatted using the program settings.
         /// </summary>
         public string GetFileName()
+        {
+            return GetFileName(Program.Config.FilenameFormat);
+        }
+
+        /// <summary>
+        /// Gets a string that contains the filename for this screenshot, 
+        /// formatted using the specified format string.
+        /// </summary>
+        /// <param name="format">The composite format string.</param>
+        public string GetFileName(string format)
         {
             string windowTitle = Common.RemoveInvalidFilenameChars(WindowTitle);
             string fileName = Common.RemoveInvalidFilenameChars(Path.GetFileNameWithoutExtension(OriginalFileName));
 
-            string formatted = Program.Config.FilenameFormat;
+            string formatted = format;
             formatted = formatted.Replace("%c", Common.RemoveInvalidFilenameChars(Environment.MachineName));
             formatted = formatted.Replace("%d", DateTime.Now.ToString("yyyyMMddHHmmssffff"));
             formatted = formatted.Replace("%w", Bitmap.Width.ToString());

@@ -148,25 +148,6 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Sets the textual cue, or tip, that is displayed by the textbox to prompt the user for information.
-        /// </summary>
-        /// <param name="textBox">The text box.</param>
-        /// <param name="cue">A string that contains the text to display as the textual cue.</param>
-        public static void SetCue(this TextBox textBox, string cue)
-        {
-            NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, cue);
-        }
-
-        /// <summary>
-        /// Clears the textual cue, or tip, that is displayed by the textbox to prompt the user for information.
-        /// </summary>
-        /// <param name="textBox">The text box</param>
-        public static void ClearCue(this TextBox textBox)
-        {
-            NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, string.Empty);
-        }
-
-        /// <summary>
         /// Converts a numeric value into a string that represents the number expressed as a size 
         /// value in bytes, kilobytes, megabytes, or gigabytes, depending on the size.
         /// </summary>

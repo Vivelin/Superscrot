@@ -36,7 +36,7 @@
             this.UploadButton = new System.Windows.Forms.Button();
             this.MainInstruction = new System.Windows.Forms.Label();
             this.ScreenshotPreview = new System.Windows.Forms.PictureBox();
-            this.FileNameInput = new System.Windows.Forms.TextBox();
+            this.FileNameInput = new Superscrot.Controls.TextBox();
             this.PublicUrlLabel = new System.Windows.Forms.Label();
             this.PublicUrl = new System.Windows.Forms.LinkLabel();
             this.FileSizeLabel = new System.Windows.Forms.Label();
@@ -151,6 +151,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FileNameInput.Location = new System.Drawing.Point(172, 33);
             this.FileNameInput.Name = "FileNameInput";
+            this.FileNameInput.Placeholder = "Enter a file name";
             this.FileNameInput.Size = new System.Drawing.Size(408, 23);
             this.FileNameInput.TabIndex = 1;
             this.FileNameInput.TextChanged += new System.EventHandler(this.FileNameInput_TextChanged);
@@ -233,7 +234,7 @@
         private System.Windows.Forms.Label PublicUrlLabel;
         private System.Windows.Forms.LinkLabel PublicUrl;
         private System.Windows.Forms.CheckBox DontShowAgain;
-        private System.Windows.Forms.TextBox FileNameInput;
+        private Superscrot.Controls.TextBox FileNameInput;
         private System.Windows.Forms.Label FileSizeLabel;
     }
 }

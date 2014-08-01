@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.MainInstruction = new System.Windows.Forms.Label();
-            this.AbortButton = new Superscrot.Dialogs.CommandLink();
-            this.ReplaceButton = new Superscrot.Dialogs.CommandLink();
-            this.IgnoreButton = new Superscrot.Dialogs.CommandLink();
+            this.AbortButton = new Superscrot.Controls.CommandLink();
+            this.ReplaceButton = new Superscrot.Controls.CommandLink();
+            this.IgnoreButton = new Superscrot.Controls.CommandLink();
             this.DetailsPanel = new System.Windows.Forms.Panel();
             this.PreventDialogCheckbox = new System.Windows.Forms.CheckBox();
             this.DetailsPanel.SuspendLayout();
@@ -137,9 +137,9 @@
         #endregion
 
         private System.Windows.Forms.Label MainInstruction;
-        private CommandLink IgnoreButton;
-        private CommandLink ReplaceButton;
-        private CommandLink AbortButton;
+        private Superscrot.Controls.CommandLink IgnoreButton;
+        private Superscrot.Controls.CommandLink ReplaceButton;
+        private Superscrot.Controls.CommandLink AbortButton;
         private System.Windows.Forms.Panel DetailsPanel;
         private System.Windows.Forms.CheckBox PreventDialogCheckbox;
     }
