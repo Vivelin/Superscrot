@@ -21,6 +21,77 @@ namespace Superscrot
         private string httpBaseUri;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Configuration"/> class
+        /// with default values.
+        /// </summary>
+        public Configuration()
+        {
+            ConsoleEnabled = false;
+            EnableLogfile = true;
+            EnableTrayIcon = true;
+            ShowPreviewDialog = true;
+
+            FilenameFormat = "%c\\%s\\%d-%i";
+            FtpPort = 21;
+            UseCompression = true;
+            JpegQuality = 90L;
+            FtpTimeout = 30000;
+
+            OverlayBackgroundColor = Color.Black;
+            OverlayForegroundColor = Color.White;
+            OverlayOpacity = 0.6;
+
+            CheckForDuplicateFiles = true;
+            FailedScreenshotsFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Superscrot", "Failed");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Configuration"/> class
+        /// with values from another instance.
+        /// </summary>
+        /// <param name="that">
+        /// The <see cref="Configuration"/> instance whose values to copy.
+        /// </param>
+        public Configuration(Configuration that)
+        {
+            this.ConsoleEnabled = that.ConsoleEnabled;
+            this.EnableLogfile = that.EnableLogfile;
+
+            // Server
+            this.FtpHostname = that.FtpHostname;
+            this.FtpPort = that.FtpPort;
+            this.UseSSH = that.UseSSH;
+            this.FtpTimeout = that.FtpTimeout;
+
+            // Authentication
+            this.FtpUsername = that.FtpUsername;
+            this.FtpPassword = that.FtpPassword;
+            this.PrivateKeyPath = that.PrivateKeyPath;
+            this.HostKeyFingerprint = that.HostKeyFingerprint;
+
+            // WinSCP
+            this.WinScpPath = that.WinScpPath;
+
+            // Upload
+            this.UseCompression = that.UseCompression;
+            this.JpegQuality = that.JpegQuality;
+            this.FilenameFormat = that.FilenameFormat;
+            this.FtpServerPath = that.FtpServerPath;
+            this.HttpBaseUri = that.HttpBaseUri;
+            this.FailedScreenshotsFolder = that.FailedScreenshotsFolder;
+            this.CheckForDuplicateFiles = that.CheckForDuplicateFiles;
+
+            // UI
+            this.ShowPreviewDialog = that.ShowPreviewDialog;
+            this.OverlayBackgroundColor = that.OverlayBackgroundColor;
+            this.OverlayForegroundColor = that.OverlayForegroundColor;
+            this.OverlayOpacity = that.OverlayOpacity;
+            this.EnableTrayIcon = that.EnableTrayIcon;
+        }
+
+        /// <summary>
         /// Determines whether to display a debug console window.
         /// </summary>
         [DisplayName("Enable developer console"), Category("Debug")]
@@ -275,32 +346,6 @@ namespace Superscrot
         [DisplayName("Check for duplicate files"), Category("Misc. settings")]
         [Description("Set to true to check if a file with the same name already exists on the server.")]
         public bool CheckForDuplicateFiles { get; set; }
-
-        /// <summary>
-        /// Loads default values.
-        /// </summary>
-        public Configuration()
-        {
-            ConsoleEnabled = false;
-            EnableLogfile = true;
-            EnableTrayIcon = true;
-            ShowPreviewDialog = true;
-
-            FilenameFormat = "%c\\%s\\%d-%i";
-            FtpPort = 21;
-            UseCompression = true;
-            JpegQuality = 90L;
-            FtpTimeout = 30000;
-
-            OverlayBackgroundColor = Color.Black;
-            OverlayForegroundColor = Color.White;
-            OverlayOpacity = 0.6;
-
-            CheckForDuplicateFiles = true;
-            FailedScreenshotsFolder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "Superscrot", "Failed");
-        }
 
         /// <summary>
         /// Loads settings from the specified file.

@@ -159,6 +159,12 @@
     <Compile Include="Dialogs\DuplicateFileFoundDialog.Designer.cs">
       <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="History.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -192,6 +198,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\DuplicateFileFoundDialog.resx">
       <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
