@@ -111,35 +111,57 @@ namespace Superscrot
                 StringBuilder clipText = new StringBuilder();
 
                 System.Collections.Specialized.StringCollection files = Clipboard.GetFileDropList();
-                foreach (string file in files)
-                {
-                    try
-                    {
-                        if (!IsImageFile(file))
-                        {
-                            WriteLine("{0} is not recognized by superscrot", file);
-                            continue;
-                        }
 
-                        Screenshot capture = Screenshot.FromFile(file);
-                        if (capture != null)
-                        {
-                            var name = capture.GetFileName();
-                            var target = Common.UriCombine(Program.Config.FtpServerPath, name);
-                            Upload(capture, target);
-                            if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
-                                clipText.AppendLine(capture.PublicUrl);
-                        }
-                    }
-                    catch (Exception ex)
+                if (files.Count == 1)
+                {
+                    Screenshot capture = Screenshot.FromFile(files[0]);
+                    if (capture != null)
                     {
-                        Program.ConsoleException(ex);
-                        System.Media.SystemSounds.Exclamation.Play();
+                        capture.Uploaded += (sender, e) =>
+                        {
+                            if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                                Clipboard.SetText(capture.PublicUrl);
+                        };
+                        UploadAsync(capture);
                     }
                 }
+                else
+                {
+                    var multiUploadThread = new Thread(() =>
+                    {
+                        foreach (string file in files)
+                        {
+                            try
+                            {
+                                if (!IsImageFile(file))
+                                {
+                                    WriteLine("{0} is not recognized by superscrot", file);
+                                    continue;
+                                }
 
-                if (clipText.Length > 0)
-                    Clipboard.SetText(clipText.ToString().Trim());
+                                Screenshot capture = Screenshot.FromFile(file);
+                                if (capture != null)
+                                {
+                                    var name = capture.GetFileName();
+                                    var target = Common.UriCombine(Program.Config.FtpServerPath, name);
+                                    Upload(capture, target);
+                                    if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
+                                        clipText.AppendLine(capture.PublicUrl);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Program.ConsoleException(ex);
+                                System.Media.SystemSounds.Exclamation.Play();
+                            }
+                        }
+
+                        if (clipText.Length > 0)
+                            Clipboard.SetText(clipText.ToString().Trim());
+                    });
+                    multiUploadThread.SetApartmentState(ApartmentState.STA);
+                    multiUploadThread.Start();
+                }
             }
             else
             {
