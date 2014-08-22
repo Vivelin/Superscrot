@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -94,12 +95,15 @@ namespace Superscrot
         /// <exception cref="System.Exception">Throw if GetWindowRect failed</exception>
         public static Rectangle GetActiveWindowDimensions()
         {
-            NativeMethods.RECT rect;
+            NativeMethods.RECT rect = new NativeMethods.RECT();
             IntPtr handle = NativeMethods.GetForegroundWindow();
-            if (!NativeMethods.GetWindowRect(handle, out rect))
-            {
-                throw new System.ComponentModel.Win32Exception();
-            }
+
+            var hresult = NativeMethods.DwmGetWindowAttribute(handle, 
+                NativeMethods.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, 
+                out rect,
+                (uint)Marshal.SizeOf(rect));
+
+            Marshal.ThrowExceptionForHR(hresult);
 
             int width = rect.Right - rect.Left;
             int height = rect.Bottom - rect.Top;

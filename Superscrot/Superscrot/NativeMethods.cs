@@ -67,6 +67,138 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Flags used by the <see cref="DwmGetWindowAttribute"/> and 
+        /// DwmSetWindowAttribute functions to specify window attributes for
+        /// non-client rendering.
+        /// </summary>
+        internal enum DWMWINDOWATTRIBUTE : uint
+        {
+            /// <summary>
+            /// Discovers whether non-client rendering is enabled. The 
+            /// retrieved value is of type BOOL. TRUE if non-client rendering
+            /// is enabled; otherwise, FALSE.
+            /// </summary>
+            DWMWA_NCRENDERING_ENABLED = 1,
+
+            /// <summary>
+            /// Sets the non-client rendering policy. The pvAttribute parameter
+            /// points to a value from the DWMNCRENDERINGPOLICY enumeration.
+            /// </summary>
+            DWMWA_NCRENDERING_POLICY,
+
+            /// <summary>
+            /// Enables or forcibly disables DWM transitions. The pvAttribute 
+            /// parameter points to a value of TRUE to disable transitions or 
+            /// FALSE to enable transitions.
+            /// </summary>
+            DWMWA_TRANSITIONS_FORCEDISABLED,
+
+            /// <summary>
+            /// Enables content rendered in the non-client area to be visible
+            /// on the frame drawn by DWM. The pvAttribute parameter points to
+            /// a value of TRUE to enable content rendered in the non-client 
+            /// area to be visible on the frame; otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_ALLOW_NCPAINT,
+
+            /// <summary>
+            /// Retrieves the bounds of the caption button area in the 
+            /// window-relative space. The retrieved value is of type RECT.
+            /// </summary>
+            DWMWA_CAPTION_BUTTON_BOUNDS,
+
+            /// <summary>
+            /// Specifies whether non-client content is right-to-left (RTL)
+            /// mirrored. The pvAttribute parameter points to a value of TRUE
+            /// if the non-client content is right-to-left (RTL) mirrored; 
+            /// otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_NONCLIENT_RTL_LAYOUT,
+
+            /// <summary>
+            /// Forces the window to display an iconic thumbnail or peek 
+            /// representation (a static bitmap), even if a live or snapshot 
+            /// representation of the window is available. This value normally 
+            /// is set during a window's creation and not changed throughout 
+            /// the window's lifetime. Some scenarios, however, might require 
+            /// the value to change over time. The pvAttribute parameter points
+            /// to a value of TRUE to require a iconic thumbnail or peek 
+            /// representation; otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_FORCE_ICONIC_REPRESENTATION,
+
+            /// <summary>
+            /// Sets how Flip3D treats the window. The pvAttribute parameter 
+            /// points to a value from the DWMFLIP3DWINDOWPOLICY enumeration.
+            /// </summary>
+            DWMWA_FLIP3D_POLICY,
+
+            /// <summary>
+            /// Retrieves the extended frame bounds rectangle in screen space. 
+            /// The retrieved value is of type RECT.
+            /// </summary>
+            DWMWA_EXTENDED_FRAME_BOUNDS,
+
+            /// <summary>
+            /// The window will provide a bitmap for use by DWM as an iconic 
+            /// thumbnail or peek representation (a static bitmap) for the 
+            /// window. DWMWA_HAS_ICONIC_BITMAP can be specified with 
+            /// DWMWA_FORCE_ICONIC_REPRESENTATION. DWMWA_HAS_ICONIC_BITMAP 
+            /// normally is set during a window's creation and not changed 
+            /// throughout the window's lifetime. Some scenarios, however, 
+            /// might require the value to change over time. The pvAttribute 
+            /// parameter points to a value of TRUE to inform DWM that the 
+            /// window will provide an iconic thumbnail or peek representation;
+            /// otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_HAS_ICONIC_BITMAP,
+
+            /// <summary>
+            /// Do not show peek preview for the window. The peek view shows a 
+            /// full-sized preview of the window when the mouse hovers over the
+            /// window's thumbnail in the taskbar. If this attribute is set, 
+            /// hovering the mouse pointer over the window's thumbnail 
+            /// dismisses peek (in case another window in the group has a peek
+            /// preview showing). The pvAttribute parameter points to a value 
+            /// of TRUE to prevent peek functionality or FALSE to allow it.
+            /// </summary>
+            DWMWA_DISALLOW_PEEK,
+
+            /// <summary>
+            /// Prevents a window from fading to a glass sheet when peek is 
+            /// invoked. The pvAttribute parameter points to a value of TRUE to
+            /// prevent the window from fading during another window's peek or 
+            /// FALSE for normal behavior.
+            /// </summary>
+            DWMWA_EXCLUDED_FROM_PEEK,
+
+            /// <summary>
+            /// Cloaks the window such that it is not visible to the user. The 
+            /// window is still composed by DWM.
+            /// </summary>
+            DWMWA_CLOAK,
+
+            /// <summary>
+            /// If the window is cloaked, provides one of the following values 
+            /// explaining why: 
+            /// </summary>
+            DWMWA_CLOAKED,
+
+            /// <summary>
+            /// Freeze the window's thumbnail image with its current visuals. 
+            /// Do no further live updates on the thumbnail image to match the 
+            /// window's contents.
+            /// </summary>
+            DWMWA_FREEZE_REPRESENTATION,
+
+            /// <summary>
+            /// The maximum recognized DWMWINDOWATTRIBUTE value, used for 
+            /// validation purposes.
+            /// </summary>
+            DWMWA_LAST
+        }
+
+        /// <summary>
         /// Defines a system-wide hot key.
         /// </summary>
         /// <param name="hWnd">
@@ -88,7 +220,7 @@ namespace Superscrot
         /// If the function succeeds, the return value is nonzero. If the function fails, the 
         /// return value is zero. To get extended error information, call GetLastError.
         /// </returns>
-        [DllImport("user32.dll", SetLastError=true)]
+        [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
         /// <summary>
@@ -158,6 +290,31 @@ namespace Superscrot
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
+        /// <summary>
+        /// Retrieves the current value of a specified attribute applied to a 
+        /// window.
+        /// </summary>
+        /// <param name="hwnd">
+        /// The handle to the window from which the attribute data is retrieved.
+        /// </param>
+        /// <param name="dwAttribute">
+        /// The attribute to retrieve, specified as a <see cref="DWMWINDOWATTRIBUTE"/> value.
+        /// </param>
+        /// <param name="pvAttribute">
+        /// A pointer to a value that, when this function returns successfully,
+        /// receives the current value of the attribute. The type of the 
+        /// retrieved value depends on the value of the 
+        /// <paramref name="dwAttribute"/> parameter.
+        /// </param>
+        /// <param name="cbAttribute">
+        /// The size of the <see cref="DWMWINDOWATTRIBUTE"/> value being 
+        /// retrieved. The size is dependent on the type of the pvAttribute 
+        /// parameter.
+        /// </param>
+        /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
+        [DllImport("dwmapi.dll", SetLastError = false)]
+        internal static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT pvAttribute, uint cbAttribute);
 
         /// <summary>
         /// Copies the text of the specified window's title bar (if it has one) into a buffer. If 
