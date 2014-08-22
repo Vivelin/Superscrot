@@ -89,63 +89,6 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Retrieves the location and size of the active window.
-        /// </summary>
-        /// <returns>A rectangle with the location and size of the active window.</returns>
-        /// <exception cref="System.Exception">Throw if GetWindowRect failed</exception>
-        public static Rectangle GetActiveWindowDimensions()
-        {
-            NativeMethods.RECT rect = new NativeMethods.RECT();
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-
-            /* Make a call to the window manager to get the proper window 
-             * dimensions. GetWindowRect doesn't return an accurate rectangle
-             * on certain window types */
-            var hresult = NativeMethods.DwmGetWindowAttribute(handle, 
-                NativeMethods.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, 
-                out rect,
-                (uint)Marshal.SizeOf(rect));
-
-            Marshal.ThrowExceptionForHR(hresult);
-
-            if (IsWindowMaximized(handle))
-            {
-                /* Sadly, DwmGetWindowAttribute still doesn't return an 
-                 * accurate rectangle if the window is maximized. Or more 
-                 * precisely, it is TOO accurate, as the window's borders are
-                 * included but not visible on the screen... */
-                var info = new NativeMethods.WINDOWINFO();
-                info.cbSize = (uint)Marshal.SizeOf(info);
-
-                if (!NativeMethods.GetWindowInfo(handle, ref info))
-                    throw new System.ComponentModel.Win32Exception();
-
-                int left = rect.Left + (int)info.cxWindowBorders;
-                int top = rect.Top + (int)info.cyWindowBorders;
-                int width = rect.Right - rect.Left - (int)(2 * info.cxWindowBorders);
-                int height = rect.Bottom - rect.Top - (int)(2 * info.cyWindowBorders);
-                return new Rectangle(left, top, width, height);
-            }
-            else
-            {
-                int width = rect.Right - rect.Left;
-                int height = rect.Bottom - rect.Top;
-                return new Rectangle(rect.Left, rect.Top, width, height);
-            }
-        }
-
-        private static bool IsWindowMaximized(IntPtr handle)
-        {
-            var wndpl = new NativeMethods.WINDOWPLACEMENT();
-            wndpl.length = (uint)Marshal.SizeOf(wndpl);
-
-            if (!NativeMethods.GetWindowPlacement(handle, out wndpl))
-                throw new System.ComponentModel.Win32Exception();
-
-            return (wndpl.showCmd == NativeMethods.SHOWCMD.SW_SHOWMAXIMIZED);
-        }
-
-        /// <summary>
         /// Returns the coordinates of the left-most, top-most, right-most and bottom-most edges of all screens.
         /// </summary>
         /// <param name="left">The X-coordinate of the left-most edge on the left-most screen.</param>
@@ -165,24 +108,6 @@ namespace Superscrot
                 if (s.Bounds.Right > right) right = s.Bounds.Right;
                 if (s.Bounds.Bottom > bottom) bottom = s.Bounds.Bottom;
             }
-        }
-
-        /// <summary>
-        /// Retrieves the caption of the active window.
-        /// </summary>
-        /// <returns>The caption of the active window, or null.</returns>
-        public static string GetActiveWindowCaption()
-        {
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-            int length = NativeMethods.GetWindowTextLength(handle);
-            if (length <= 0)
-            {
-                return null;
-            }
-
-            StringBuilder sb = new StringBuilder(length + 1);
-            NativeMethods.GetWindowText(handle, sb, sb.Capacity);
-            return sb.ToString();
         }
 
         /// <summary>

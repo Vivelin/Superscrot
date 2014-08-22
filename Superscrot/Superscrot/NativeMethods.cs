@@ -82,6 +82,34 @@ namespace Superscrot
             /// The y-coordinate of the point.
             /// </summary>
             public int y;
+
+            /// <summary>
+            /// Converts the specified <see cref="POINT"/> instance to a new
+            /// instance of the <see cref="System.Drawing.Point"/> class.
+            /// </summary>
+            /// <param name="value">
+            /// The <see cref="POINT"/> instance to convert from.
+            /// </param>
+            /// <returns>
+            /// A new <see cref="System.Drawing.Point"/> instance.
+            /// </returns>
+            public static implicit operator System.Drawing.Point(POINT value)
+            {
+                return new System.Drawing.Point(value.x, value.y);
+            }
+            
+            /// <summary>
+            /// Converts the specified <see cref="System.Drawing.Point"/> 
+            /// instance to a new instance of the <see cref="POINT"/> class.
+            /// </summary>
+            /// <param name="value">
+            /// The <see cref="System.Drawing.Point"/> instance to convert from.
+            /// </param>
+            /// <returns>A new <see cref="POINT"/> instance.</returns>
+            public static implicit operator POINT(System.Drawing.Point value)
+            {
+                return new POINT { x = value.X, y = value.Y };
+            }
         }
 
         /// <summary>
@@ -144,18 +172,64 @@ namespace Superscrot
             public RECT rcNormalPosition;
         }
 
+        /// <summary>
+        /// Contains window information.
+        /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct WINDOWINFO
         {
+            /// <summary>
+            /// The size of the structure, in bytes. The caller must set this 
+            /// member to sizeof(<see cref="WINDOWINFO"/>). 
+            /// </summary>
             public uint cbSize;
+
+            /// <summary>
+            /// The coordinates of the window. 
+            /// </summary>
             public RECT rcWindow;
+
+            /// <summary>
+            /// The coordinates of the client area. 
+            /// </summary>
             public RECT rcClient;
+
+            /// <summary>
+            /// The window styles. For a table of window styles, see Window 
+            /// Styles. 
+            /// </summary>
             public uint dwStyle;
+
+            /// <summary>
+            /// The extended window styles. For a table of extended window 
+            /// styles, see Extended Window Styles. 
+            /// </summary>
             public uint dwExStyle;
+
+            /// <summary>
+            /// The window status. If this member is WS_ACTIVECAPTION (0x0001),
+            /// the window is active. Otherwise, this member is zero. 
+            /// </summary>
             public uint dwWindowStatus;
+
+            /// <summary>
+            /// The width of the window border, in pixels. 
+            /// </summary>
             public uint cxWindowBorders;
+
+            /// <summary>
+            /// The height of the window border, in pixels. 
+            /// </summary>
             public uint cyWindowBorders;
+
+            /// <summary>
+            /// The window class atom (see RegisterClass). 
+            /// </summary>
             public ushort atomWindowType;
+
+            /// <summary>
+            /// The Windows version of the application that created the window.
+            /// </summary>
             public ushort wCreatorVersion;
         }
 
@@ -459,6 +533,22 @@ namespace Superscrot
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
+        /// <summary>
+        /// Retrieves information about the specified window.
+        /// </summary>
+        /// <param name="hwnd">
+        /// A handle to the window whose information is to be retrieved.
+        /// </param>
+        /// <param name="pwi">
+        /// A pointer to a <see cref="WINDOWINFO"/> structure to receive the 
+        /// information. Note that you must set the <c>cbSize</c> member to 
+        /// sizeof(<see cref="WINDOWINFO"/>) before calling this function. 
+        /// </param>
+        /// <returns>
+        /// If the function succeeds, the return value is nonzero. If the 
+        /// function fails, the return value is zero. To get extended error 
+        /// information, call GetLastError.
+        /// </returns>
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool GetWindowInfo(IntPtr hwnd, ref WINDOWINFO pwi);
@@ -483,9 +573,9 @@ namespace Superscrot
         /// <remarks>
         /// The flags member of <see cref="WINDOWPLACEMENT"/> retrieved by this
         /// function is always zero. If the window identified by the <paramref 
-        /// name="hWnd"/> parameter is maximized, the showCmd member is <see 
-        /// cref="SW_SHOWMAXIMIZED"/>. If the window is minimized, showCmd is 
-        /// <see cref="SW_SHOWMINIMIZED"/>. Otherwise, it is <see 
+        /// name="hWnd"/> parameter is maximized, the showCmd member is 
+        /// SW_SHOWMAXIMIZED. If the window is minimized, showCmd is 
+        /// SW_SHOWMINIMIZED. Otherwise, it is <see 
         /// cref="SW_SHOWNORMAL"/>. 
         /// 
         /// The length member of <see cref="WINDOWPLACEMENT"/> must be set to 

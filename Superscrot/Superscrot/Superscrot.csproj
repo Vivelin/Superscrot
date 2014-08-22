@@ -174,6 +174,7 @@
     <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="History.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="NativeWindow.cs" />
     <Compile Include="PreviewDialog.cs">
       <SubType>Form</SubType>
     </Compile>

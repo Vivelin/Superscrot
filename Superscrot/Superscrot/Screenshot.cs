@@ -202,22 +202,25 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an image with the contents of the active window.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> with the active window capture.</returns>
+        /// <returns>A <see cref="Screenshot"/> with the active window capture.</returns>
         public static Screenshot FromActiveWindow()
         {
             try
             {
                 Screenshot screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.WindowCapture;
-                Rectangle rectWindow = Common.GetActiveWindowDimensions();
-                Size sizeWindow = new Size(rectWindow.Width, rectWindow.Height);
-                screenshot.WindowTitle = Common.GetActiveWindowCaption();
-                WriteLine("Found a {0}x{1} window at ({2}, {3}) titled {4}", rectWindow.Width, rectWindow.Height, rectWindow.X, rectWindow.Y, screenshot.WindowTitle);
 
-                screenshot.Bitmap = new Bitmap(rectWindow.Width, rectWindow.Height, DefaultPixelFormat);
+                var window = NativeWindow.ForegroundWindow();
+                screenshot.WindowTitle = window.Caption;
+
+                WriteLine("Found a {0} window at {1} titled {2}",
+                    window.Size, window.Location, window.Caption);
+
+                screenshot.Bitmap = new Bitmap(window.Width, window.Height, 
+                    DefaultPixelFormat);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
-                    g.CopyFromScreen(rectWindow.X, rectWindow.Y, 0, 0, sizeWindow, CopyPixelOperation.SourceCopy);
+                    g.CopyFromScreen(window.Location, Point.Empty, window.Size, CopyPixelOperation.SourceCopy);
                 }
                 return screenshot;
             }
