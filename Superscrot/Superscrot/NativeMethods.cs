@@ -66,6 +66,99 @@ namespace Superscrot
             public int Bottom;
         }
 
+
+        /// <summary>
+        /// The POINT structure defines the x- and y- coordinates of a point.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct POINT
+        {
+            /// <summary>
+            /// The x-coordinate of the point.
+            /// </summary>
+            public int x;
+
+            /// <summary>
+            /// The y-coordinate of the point.
+            /// </summary>
+            public int y;
+        }
+
+        /// <summary>
+        /// Contains information about the placement of a window on the screen. 
+        /// </summary>
+        /// <remarks>
+        /// If the window is a top-level window that does not have the 
+        /// WS_EX_TOOLWINDOW window style, then the coordinates represented by 
+        /// the following members are in workspace coordinates: ptMinPosition, 
+        /// ptMaxPosition, and rcNormalPosition. Otherwise, these members are 
+        /// in screen coordinates.
+        /// 
+        /// Workspace coordinates differ from screen coordinates in that they 
+        /// take the locations and sizes of application toolbars (including the
+        /// taskbar) into account. Workspace coordinate (0,0) is the upper-left
+        /// corner of the workspace area, the area of the screen not being used
+        /// by application toolbars.
+        /// </remarks>
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct WINDOWPLACEMENT
+        {
+            /// <summary>
+            /// The length of the structure, in bytes. Before calling the 
+            /// <see cref="GetWindowPlacement"/> or SetWindowPlacement 
+            /// functions, set this member to 
+            /// sizeof(<see cref="WINDOWPLACEMENT"/>). GetWindowPlacement and 
+            /// SetWindowPlacement fail if this member is not set correctly.
+            /// </summary>
+            public uint length;
+
+            /// <summary>
+            /// The flags that control the position of the minimized window and
+            /// the method by which the window is restored. This member can be 
+            /// one or more of the following values. 
+            /// </summary>
+            public uint flags;
+
+            /// <summary>
+            /// The current show state of the window. This member can be one of
+            /// the following values. 
+            /// </summary>
+            public SHOWCMD showCmd;
+            
+            /// <summary>
+            /// The coordinates of the window's upper-left corner when the 
+            /// window is minimized. 
+            /// </summary>
+            public POINT ptMinPosition;
+
+            /// <summary>
+            /// The coordinates of the window's upper-left corner when the 
+            /// window is maximized. 
+            /// </summary>
+            public POINT ptMaxPosition;
+
+            /// <summary>
+            /// The window's coordinates when the window is in the restored 
+            /// position. 
+            /// </summary>
+            public RECT rcNormalPosition;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct WINDOWINFO
+        {
+            public uint cbSize;
+            public RECT rcWindow;
+            public RECT rcClient;
+            public uint dwStyle;
+            public uint dwExStyle;
+            public uint dwWindowStatus;
+            public uint cxWindowBorders;
+            public uint cyWindowBorders;
+            public ushort atomWindowType;
+            public ushort wCreatorVersion;
+        }
+
         /// <summary>
         /// Flags used by the <see cref="DwmGetWindowAttribute"/> and 
         /// DwmSetWindowAttribute functions to specify window attributes for
@@ -199,6 +292,81 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// The current show state of the window. 
+        /// </summary>
+        internal enum SHOWCMD : uint
+        {
+            /// <summary>
+            /// Hides the window and activates another window.
+            /// </summary>
+            SW_HIDE = 0,
+
+            /// <summary>
+            /// Maximizes the specified window.
+            /// </summary>
+            SW_MAXIMIZE = 3,
+
+            /// <summary>
+            /// Minimizes the specified window and activates the next top-level
+            /// window in the z-order.
+            /// </summary>
+            SW_MINIMIZE = 6,
+
+            /// <summary>
+            /// Activates and displays the window. If the window is minimized 
+            /// or maximized, the system restores it to its original size and 
+            /// position. An application should specify this flag when 
+            /// restoring a minimized window.
+            /// </summary>
+            SW_RESTORE = 9,
+
+            /// <summary>
+            /// Activates the window and displays it in its current size and 
+            /// position. 
+            /// </summary>
+            SW_SHOW = 5,
+
+            /// <summary>
+            /// Activates the window and displays it as a maximized window.
+            /// </summary>
+            SW_SHOWMAXIMIZED = 3,
+
+            /// <summary>
+            /// Activates the window and displays it as a minimized window.
+            /// </summary>
+            SW_SHOWMINIMIZED = 2,
+
+            /// <summary>
+            /// Displays the window as a minimized window. This value is 
+            /// similar to <see cref="SW_SHOWMINIMIZED"/>, except the window is
+            /// not activated.
+            /// </summary>
+            SW_SHOWMINNOACTIVE = 7,
+
+            /// <summary>
+            /// Displays the window in its current size and position. This 
+            /// value is similar to <see cref="SW_SHOW"/>, except the window is
+            /// not activated.
+            /// </summary>
+            SW_SHOWNA = 8,
+
+            /// <summary>
+            /// Displays a window in its most recent size and position. This 
+            /// value is similar to <see cref="SW_SHOWNORMAL"/>, except the 
+            /// window is not activated.
+            /// </summary>
+            SW_SHOWNOACTIVATE = 4,
+
+            /// <summary>
+            /// Activates and displays a window. If the window is minimized or 
+            /// maximized, the system restores it to its original size and 
+            /// position. An application should specify this flag when 
+            /// displaying the window for the first time.
+            /// </summary>
+            SW_SHOWNORMAL = 1
+        }
+
+        /// <summary>
         /// Defines a system-wide hot key.
         /// </summary>
         /// <param name="hWnd">
@@ -290,6 +458,45 @@ namespace Superscrot
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetWindowInfo(IntPtr hwnd, ref WINDOWINFO pwi);
+
+        /// <summary>
+        /// Retrieves the show state and the restored, minimized, and maximized
+        /// positions of the specified window. 
+        /// </summary>
+        /// <param name="hWnd">A handle to the window.</param>
+        /// <param name="lpwndpl">
+        /// A pointer to the <see cref="WINDOWPLACEMENT"/> structure that 
+        /// receives the show state and position information. Before calling 
+        /// GetWindowPlacement, set the length member to 
+        /// sizeof(<see cref="WINDOWPLACEMENT"/>). GetWindowPlacement fails if 
+        /// <paramref name="lpwndpl"/>->length is not set correctly.
+        /// </param>
+        /// <returns>
+        /// If the function succeeds, the return value is nonzero. If the 
+        /// function fails, the return value is zero. To get extended error 
+        /// information, call GetLastError. 
+        /// </returns>
+        /// <remarks>
+        /// The flags member of <see cref="WINDOWPLACEMENT"/> retrieved by this
+        /// function is always zero. If the window identified by the <paramref 
+        /// name="hWnd"/> parameter is maximized, the showCmd member is <see 
+        /// cref="SW_SHOWMAXIMIZED"/>. If the window is minimized, showCmd is 
+        /// <see cref="SW_SHOWMINIMIZED"/>. Otherwise, it is <see 
+        /// cref="SW_SHOWNORMAL"/>. 
+        /// 
+        /// The length member of <see cref="WINDOWPLACEMENT"/> must be set to 
+        /// sizeof(<see cref="WINDOWPLACEMENT"/>). If this member is not set 
+        /// correctly, the function returns FALSE. For additional remarks on 
+        /// the proper use of window placement coordinates, see <see 
+        /// cref="WINDOWPLACEMENT"/>. 
+        /// </remarks>
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetWindowPlacement(IntPtr hWnd, out WINDOWPLACEMENT lpwndpl);
 
         /// <summary>
         /// Retrieves the current value of a specified attribute applied to a 

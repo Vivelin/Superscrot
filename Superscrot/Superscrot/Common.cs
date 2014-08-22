@@ -98,6 +98,9 @@ namespace Superscrot
             NativeMethods.RECT rect = new NativeMethods.RECT();
             IntPtr handle = NativeMethods.GetForegroundWindow();
 
+            /* Make a call to the window manager to get the proper window 
+             * dimensions. GetWindowRect doesn't return an accurate rectangle
+             * on certain window types */
             var hresult = NativeMethods.DwmGetWindowAttribute(handle, 
                 NativeMethods.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, 
                 out rect,
@@ -105,11 +108,42 @@ namespace Superscrot
 
             Marshal.ThrowExceptionForHR(hresult);
 
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
-            return new Rectangle(rect.Left, rect.Top, width, height);
+            if (IsWindowMaximized(handle))
+            {
+                /* Sadly, DwmGetWindowAttribute still doesn't return an 
+                 * accurate rectangle if the window is maximized. Or more 
+                 * precisely, it is TOO accurate, as the window's borders are
+                 * included but not visible on the screen... */
+                var info = new NativeMethods.WINDOWINFO();
+                info.cbSize = (uint)Marshal.SizeOf(info);
+
+                if (!NativeMethods.GetWindowInfo(handle, ref info))
+                    throw new System.ComponentModel.Win32Exception();
+
+                int left = rect.Left + (int)info.cxWindowBorders;
+                int top = rect.Top + (int)info.cyWindowBorders;
+                int width = rect.Right - rect.Left - (int)(2 * info.cxWindowBorders);
+                int height = rect.Bottom - rect.Top - (int)(2 * info.cyWindowBorders);
+                return new Rectangle(left, top, width, height);
+            }
+            else
+            {
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
+                return new Rectangle(rect.Left, rect.Top, width, height);
+            }
         }
 
+        private static bool IsWindowMaximized(IntPtr handle)
+        {
+            var wndpl = new NativeMethods.WINDOWPLACEMENT();
+            wndpl.length = (uint)Marshal.SizeOf(wndpl);
+
+            if (!NativeMethods.GetWindowPlacement(handle, out wndpl))
+                throw new System.ComponentModel.Win32Exception();
+
+            return (wndpl.showCmd == NativeMethods.SHOWCMD.SW_SHOWMAXIMIZED);
+        }
 
         /// <summary>
         /// Returns the coordinates of the left-most, top-most, right-most and bottom-most edges of all screens.
