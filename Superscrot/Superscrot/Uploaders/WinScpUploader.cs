@@ -187,6 +187,7 @@ namespace Superscrot.Uploaders
             };
 
             var session = new Session();
+            session.DisableVersionCheck = true;
             session.ExecutablePath = Program.Config.WinScpPath;
             session.OutputDataReceived += (sender, e) =>
             {

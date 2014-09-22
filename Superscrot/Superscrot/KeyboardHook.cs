@@ -11,7 +11,7 @@ namespace Superscrot
         /// <summary>
         /// Represents the window that is used internally to get the messages.
         /// </summary>
-        private sealed class Window : NativeWindow, IDisposable
+        private sealed class Window : System.Windows.Forms.NativeWindow, IDisposable
         {
             public Window()
             {

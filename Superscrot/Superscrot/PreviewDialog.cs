@@ -56,7 +56,6 @@ namespace Superscrot
             _screenshot = s;
 
             InitializeComponent();
-            FileNameInput.SetCue("Enter a filename");
             FileSizeLabel.Text = string.Format(new FileSizeFormatProvider(), "Size: {0}", s.CalculateSize());
 
             if (s.Source == ScreenshotSource.File)

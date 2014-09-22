@@ -48,7 +48,7 @@ namespace Superscrot
                 Tray.Icon = System.Drawing.SystemIcons.Application; //PLACEHOLDER
                 Tray.Text = Application.ProductName;
                 Tray.ContextMenuStrip = new ContextMenuStrip();
-                Tray.ContextMenuStrip.Items.Add("Configure...", Properties.Resources.Configure, new EventHandler(OnTrayConfigure));
+                Tray.ContextMenuStrip.Items.Add("Settings", Properties.Resources.Configure, new EventHandler(OnTrayConfigure));
                 Tray.ContextMenuStrip.Items.Add("Toggle Developer Console", Properties.Resources.Console, new EventHandler(OnTrayShowConsole));
                 Tray.ContextMenuStrip.Items.Add("Exit", Properties.Resources.Exit, new EventHandler(OnTrayExit));
                 Tray.Visible = true;

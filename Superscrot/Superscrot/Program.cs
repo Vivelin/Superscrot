@@ -60,7 +60,14 @@ namespace Superscrot
         public static Configuration Config
         {
             get { return _config; }
-            internal set { _config = value; }
+            internal set 
+            {
+                if (value != _config)
+                {
+                    _config = value;
+                    ConsoleWriteLine(ConsoleColor.Gray, "Switched configuration");
+                }
+            }
         }
 
         private static Manager _manager = null;
@@ -177,8 +184,11 @@ namespace Superscrot
         /// </summary>
         public static void ShowConfigEditor()
         {
-            ConfigEditor ce = new ConfigEditor();
-            ce.ShowDialog();
+            using (var settings = new Dialogs.Settings())
+            {
+                settings.Configuration = new Configuration(Program.Config);
+                settings.ShowDialog();
+            }
         }
 
         /// <summary>

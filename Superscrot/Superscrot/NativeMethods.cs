@@ -19,14 +19,6 @@ namespace Superscrot
         /// </summary>
         internal const int WM_HOTKEY = 0x0312;
 
-        internal const int ECM_FIRST = 0x1500;
-
-        /// <summary>
-        /// Sets the textual cue, or tip, that is displayed by the edit control to prompt the user 
-        /// for information.
-        /// </summary>
-        internal const int EM_SETCUEBANNER = ECM_FIRST + 1;
-
         /// <summary>
         /// Hides the window and activates another window.
         /// </summary>
@@ -38,31 +30,6 @@ namespace Superscrot
         /// when displaying the window for the first time.
         /// </summary>
         internal const uint SW_SHOWNORMAL = 1;
-
-        /// <summary>
-        /// Creates a command link button that behaves like a BS_PUSHBUTTON 
-        /// style button, but the command link button has a green arrow on the 
-        /// left pointing to the button text. A caption for the button text 
-        /// can be set by sending the BCM_SETNOTE message to the button.
-        /// </summary>
-        internal const int BS_COMMANDLINK = 0x000E;
-
-        /// <summary>
-        /// Creates a command link button that behaves like a BS_PUSHBUTTON 
-        /// style button. If the button is in a dialog box, the user can select
-        /// the command link button by pressing the ENTER key, even when the 
-        /// command link button does not have the input focus. This style is 
-        /// useful for enabling the user to quickly select the most likely 
-        /// (default) option.
-        /// </summary>
-        internal const int BS_DEFCOMMANDLINK = 0x000F;
-
-        internal const int BCM_FIRST = 0x1600;
-
-        /// <summary>
-        /// Sets the text of the note associated with a command link button.
-        /// </summary>
-        internal const int BCM_SETNOTE = (BCM_FIRST + 0x0009);
 
         /// <summary>
         /// The RECT structure defines the coordinates of the upper-left and lower-right corners 
@@ -99,6 +66,380 @@ namespace Superscrot
             public int Bottom;
         }
 
+
+        /// <summary>
+        /// The POINT structure defines the x- and y- coordinates of a point.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct POINT
+        {
+            /// <summary>
+            /// The x-coordinate of the point.
+            /// </summary>
+            public int x;
+
+            /// <summary>
+            /// The y-coordinate of the point.
+            /// </summary>
+            public int y;
+
+            /// <summary>
+            /// Converts the specified <see cref="POINT"/> instance to a new
+            /// instance of the <see cref="System.Drawing.Point"/> class.
+            /// </summary>
+            /// <param name="value">
+            /// The <see cref="POINT"/> instance to convert from.
+            /// </param>
+            /// <returns>
+            /// A new <see cref="System.Drawing.Point"/> instance.
+            /// </returns>
+            public static implicit operator System.Drawing.Point(POINT value)
+            {
+                return new System.Drawing.Point(value.x, value.y);
+            }
+            
+            /// <summary>
+            /// Converts the specified <see cref="System.Drawing.Point"/> 
+            /// instance to a new instance of the <see cref="POINT"/> class.
+            /// </summary>
+            /// <param name="value">
+            /// The <see cref="System.Drawing.Point"/> instance to convert from.
+            /// </param>
+            /// <returns>A new <see cref="POINT"/> instance.</returns>
+            public static implicit operator POINT(System.Drawing.Point value)
+            {
+                return new POINT { x = value.X, y = value.Y };
+            }
+        }
+
+        /// <summary>
+        /// Contains information about the placement of a window on the screen. 
+        /// </summary>
+        /// <remarks>
+        /// If the window is a top-level window that does not have the 
+        /// WS_EX_TOOLWINDOW window style, then the coordinates represented by 
+        /// the following members are in workspace coordinates: ptMinPosition, 
+        /// ptMaxPosition, and rcNormalPosition. Otherwise, these members are 
+        /// in screen coordinates.
+        /// 
+        /// Workspace coordinates differ from screen coordinates in that they 
+        /// take the locations and sizes of application toolbars (including the
+        /// taskbar) into account. Workspace coordinate (0,0) is the upper-left
+        /// corner of the workspace area, the area of the screen not being used
+        /// by application toolbars.
+        /// </remarks>
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct WINDOWPLACEMENT
+        {
+            /// <summary>
+            /// The length of the structure, in bytes. Before calling the 
+            /// <see cref="GetWindowPlacement"/> or SetWindowPlacement 
+            /// functions, set this member to 
+            /// sizeof(<see cref="WINDOWPLACEMENT"/>). GetWindowPlacement and 
+            /// SetWindowPlacement fail if this member is not set correctly.
+            /// </summary>
+            public uint length;
+
+            /// <summary>
+            /// The flags that control the position of the minimized window and
+            /// the method by which the window is restored. This member can be 
+            /// one or more of the following values. 
+            /// </summary>
+            public uint flags;
+
+            /// <summary>
+            /// The current show state of the window. This member can be one of
+            /// the following values. 
+            /// </summary>
+            public SHOWCMD showCmd;
+            
+            /// <summary>
+            /// The coordinates of the window's upper-left corner when the 
+            /// window is minimized. 
+            /// </summary>
+            public POINT ptMinPosition;
+
+            /// <summary>
+            /// The coordinates of the window's upper-left corner when the 
+            /// window is maximized. 
+            /// </summary>
+            public POINT ptMaxPosition;
+
+            /// <summary>
+            /// The window's coordinates when the window is in the restored 
+            /// position. 
+            /// </summary>
+            public RECT rcNormalPosition;
+        }
+
+        /// <summary>
+        /// Contains window information.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct WINDOWINFO
+        {
+            /// <summary>
+            /// The size of the structure, in bytes. The caller must set this 
+            /// member to sizeof(<see cref="WINDOWINFO"/>). 
+            /// </summary>
+            public uint cbSize;
+
+            /// <summary>
+            /// The coordinates of the window. 
+            /// </summary>
+            public RECT rcWindow;
+
+            /// <summary>
+            /// The coordinates of the client area. 
+            /// </summary>
+            public RECT rcClient;
+
+            /// <summary>
+            /// The window styles. For a table of window styles, see Window 
+            /// Styles. 
+            /// </summary>
+            public uint dwStyle;
+
+            /// <summary>
+            /// The extended window styles. For a table of extended window 
+            /// styles, see Extended Window Styles. 
+            /// </summary>
+            public uint dwExStyle;
+
+            /// <summary>
+            /// The window status. If this member is WS_ACTIVECAPTION (0x0001),
+            /// the window is active. Otherwise, this member is zero. 
+            /// </summary>
+            public uint dwWindowStatus;
+
+            /// <summary>
+            /// The width of the window border, in pixels. 
+            /// </summary>
+            public uint cxWindowBorders;
+
+            /// <summary>
+            /// The height of the window border, in pixels. 
+            /// </summary>
+            public uint cyWindowBorders;
+
+            /// <summary>
+            /// The window class atom (see RegisterClass). 
+            /// </summary>
+            public ushort atomWindowType;
+
+            /// <summary>
+            /// The Windows version of the application that created the window.
+            /// </summary>
+            public ushort wCreatorVersion;
+        }
+
+        /// <summary>
+        /// Flags used by the <see cref="DwmGetWindowAttribute"/> and 
+        /// DwmSetWindowAttribute functions to specify window attributes for
+        /// non-client rendering.
+        /// </summary>
+        internal enum DWMWINDOWATTRIBUTE : uint
+        {
+            /// <summary>
+            /// Discovers whether non-client rendering is enabled. The 
+            /// retrieved value is of type BOOL. TRUE if non-client rendering
+            /// is enabled; otherwise, FALSE.
+            /// </summary>
+            DWMWA_NCRENDERING_ENABLED = 1,
+
+            /// <summary>
+            /// Sets the non-client rendering policy. The pvAttribute parameter
+            /// points to a value from the DWMNCRENDERINGPOLICY enumeration.
+            /// </summary>
+            DWMWA_NCRENDERING_POLICY,
+
+            /// <summary>
+            /// Enables or forcibly disables DWM transitions. The pvAttribute 
+            /// parameter points to a value of TRUE to disable transitions or 
+            /// FALSE to enable transitions.
+            /// </summary>
+            DWMWA_TRANSITIONS_FORCEDISABLED,
+
+            /// <summary>
+            /// Enables content rendered in the non-client area to be visible
+            /// on the frame drawn by DWM. The pvAttribute parameter points to
+            /// a value of TRUE to enable content rendered in the non-client 
+            /// area to be visible on the frame; otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_ALLOW_NCPAINT,
+
+            /// <summary>
+            /// Retrieves the bounds of the caption button area in the 
+            /// window-relative space. The retrieved value is of type RECT.
+            /// </summary>
+            DWMWA_CAPTION_BUTTON_BOUNDS,
+
+            /// <summary>
+            /// Specifies whether non-client content is right-to-left (RTL)
+            /// mirrored. The pvAttribute parameter points to a value of TRUE
+            /// if the non-client content is right-to-left (RTL) mirrored; 
+            /// otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_NONCLIENT_RTL_LAYOUT,
+
+            /// <summary>
+            /// Forces the window to display an iconic thumbnail or peek 
+            /// representation (a static bitmap), even if a live or snapshot 
+            /// representation of the window is available. This value normally 
+            /// is set during a window's creation and not changed throughout 
+            /// the window's lifetime. Some scenarios, however, might require 
+            /// the value to change over time. The pvAttribute parameter points
+            /// to a value of TRUE to require a iconic thumbnail or peek 
+            /// representation; otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_FORCE_ICONIC_REPRESENTATION,
+
+            /// <summary>
+            /// Sets how Flip3D treats the window. The pvAttribute parameter 
+            /// points to a value from the DWMFLIP3DWINDOWPOLICY enumeration.
+            /// </summary>
+            DWMWA_FLIP3D_POLICY,
+
+            /// <summary>
+            /// Retrieves the extended frame bounds rectangle in screen space. 
+            /// The retrieved value is of type RECT.
+            /// </summary>
+            DWMWA_EXTENDED_FRAME_BOUNDS,
+
+            /// <summary>
+            /// The window will provide a bitmap for use by DWM as an iconic 
+            /// thumbnail or peek representation (a static bitmap) for the 
+            /// window. DWMWA_HAS_ICONIC_BITMAP can be specified with 
+            /// DWMWA_FORCE_ICONIC_REPRESENTATION. DWMWA_HAS_ICONIC_BITMAP 
+            /// normally is set during a window's creation and not changed 
+            /// throughout the window's lifetime. Some scenarios, however, 
+            /// might require the value to change over time. The pvAttribute 
+            /// parameter points to a value of TRUE to inform DWM that the 
+            /// window will provide an iconic thumbnail or peek representation;
+            /// otherwise, it points to FALSE.
+            /// </summary>
+            DWMWA_HAS_ICONIC_BITMAP,
+
+            /// <summary>
+            /// Do not show peek preview for the window. The peek view shows a 
+            /// full-sized preview of the window when the mouse hovers over the
+            /// window's thumbnail in the taskbar. If this attribute is set, 
+            /// hovering the mouse pointer over the window's thumbnail 
+            /// dismisses peek (in case another window in the group has a peek
+            /// preview showing). The pvAttribute parameter points to a value 
+            /// of TRUE to prevent peek functionality or FALSE to allow it.
+            /// </summary>
+            DWMWA_DISALLOW_PEEK,
+
+            /// <summary>
+            /// Prevents a window from fading to a glass sheet when peek is 
+            /// invoked. The pvAttribute parameter points to a value of TRUE to
+            /// prevent the window from fading during another window's peek or 
+            /// FALSE for normal behavior.
+            /// </summary>
+            DWMWA_EXCLUDED_FROM_PEEK,
+
+            /// <summary>
+            /// Cloaks the window such that it is not visible to the user. The 
+            /// window is still composed by DWM.
+            /// </summary>
+            DWMWA_CLOAK,
+
+            /// <summary>
+            /// If the window is cloaked, provides one of the following values 
+            /// explaining why: 
+            /// </summary>
+            DWMWA_CLOAKED,
+
+            /// <summary>
+            /// Freeze the window's thumbnail image with its current visuals. 
+            /// Do no further live updates on the thumbnail image to match the 
+            /// window's contents.
+            /// </summary>
+            DWMWA_FREEZE_REPRESENTATION,
+
+            /// <summary>
+            /// The maximum recognized DWMWINDOWATTRIBUTE value, used for 
+            /// validation purposes.
+            /// </summary>
+            DWMWA_LAST
+        }
+
+        /// <summary>
+        /// The current show state of the window. 
+        /// </summary>
+        internal enum SHOWCMD : uint
+        {
+            /// <summary>
+            /// Hides the window and activates another window.
+            /// </summary>
+            SW_HIDE = 0,
+
+            /// <summary>
+            /// Maximizes the specified window.
+            /// </summary>
+            SW_MAXIMIZE = 3,
+
+            /// <summary>
+            /// Minimizes the specified window and activates the next top-level
+            /// window in the z-order.
+            /// </summary>
+            SW_MINIMIZE = 6,
+
+            /// <summary>
+            /// Activates and displays the window. If the window is minimized 
+            /// or maximized, the system restores it to its original size and 
+            /// position. An application should specify this flag when 
+            /// restoring a minimized window.
+            /// </summary>
+            SW_RESTORE = 9,
+
+            /// <summary>
+            /// Activates the window and displays it in its current size and 
+            /// position. 
+            /// </summary>
+            SW_SHOW = 5,
+
+            /// <summary>
+            /// Activates the window and displays it as a maximized window.
+            /// </summary>
+            SW_SHOWMAXIMIZED = 3,
+
+            /// <summary>
+            /// Activates the window and displays it as a minimized window.
+            /// </summary>
+            SW_SHOWMINIMIZED = 2,
+
+            /// <summary>
+            /// Displays the window as a minimized window. This value is 
+            /// similar to <see cref="SW_SHOWMINIMIZED"/>, except the window is
+            /// not activated.
+            /// </summary>
+            SW_SHOWMINNOACTIVE = 7,
+
+            /// <summary>
+            /// Displays the window in its current size and position. This 
+            /// value is similar to <see cref="SW_SHOW"/>, except the window is
+            /// not activated.
+            /// </summary>
+            SW_SHOWNA = 8,
+
+            /// <summary>
+            /// Displays a window in its most recent size and position. This 
+            /// value is similar to <see cref="SW_SHOWNORMAL"/>, except the 
+            /// window is not activated.
+            /// </summary>
+            SW_SHOWNOACTIVATE = 4,
+
+            /// <summary>
+            /// Activates and displays a window. If the window is minimized or 
+            /// maximized, the system restores it to its original size and 
+            /// position. An application should specify this flag when 
+            /// displaying the window for the first time.
+            /// </summary>
+            SW_SHOWNORMAL = 1
+        }
+
         /// <summary>
         /// Defines a system-wide hot key.
         /// </summary>
@@ -121,7 +462,7 @@ namespace Superscrot
         /// If the function succeeds, the return value is nonzero. If the function fails, the 
         /// return value is zero. To get extended error information, call GetLastError.
         /// </returns>
-        [DllImport("user32.dll", SetLastError=true)]
+        [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
         /// <summary>
@@ -191,6 +532,86 @@ namespace Superscrot
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
+        /// <summary>
+        /// Retrieves information about the specified window.
+        /// </summary>
+        /// <param name="hwnd">
+        /// A handle to the window whose information is to be retrieved.
+        /// </param>
+        /// <param name="pwi">
+        /// A pointer to a <see cref="WINDOWINFO"/> structure to receive the 
+        /// information. Note that you must set the <c>cbSize</c> member to 
+        /// sizeof(<see cref="WINDOWINFO"/>) before calling this function. 
+        /// </param>
+        /// <returns>
+        /// If the function succeeds, the return value is nonzero. If the 
+        /// function fails, the return value is zero. To get extended error 
+        /// information, call GetLastError.
+        /// </returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetWindowInfo(IntPtr hwnd, ref WINDOWINFO pwi);
+
+        /// <summary>
+        /// Retrieves the show state and the restored, minimized, and maximized
+        /// positions of the specified window. 
+        /// </summary>
+        /// <param name="hWnd">A handle to the window.</param>
+        /// <param name="lpwndpl">
+        /// A pointer to the <see cref="WINDOWPLACEMENT"/> structure that 
+        /// receives the show state and position information. Before calling 
+        /// GetWindowPlacement, set the length member to 
+        /// sizeof(<see cref="WINDOWPLACEMENT"/>). GetWindowPlacement fails if 
+        /// <paramref name="lpwndpl"/>->length is not set correctly.
+        /// </param>
+        /// <returns>
+        /// If the function succeeds, the return value is nonzero. If the 
+        /// function fails, the return value is zero. To get extended error 
+        /// information, call GetLastError. 
+        /// </returns>
+        /// <remarks>
+        /// The flags member of <see cref="WINDOWPLACEMENT"/> retrieved by this
+        /// function is always zero. If the window identified by the <paramref 
+        /// name="hWnd"/> parameter is maximized, the showCmd member is 
+        /// SW_SHOWMAXIMIZED. If the window is minimized, showCmd is 
+        /// SW_SHOWMINIMIZED. Otherwise, it is <see 
+        /// cref="SW_SHOWNORMAL"/>. 
+        /// 
+        /// The length member of <see cref="WINDOWPLACEMENT"/> must be set to 
+        /// sizeof(<see cref="WINDOWPLACEMENT"/>). If this member is not set 
+        /// correctly, the function returns FALSE. For additional remarks on 
+        /// the proper use of window placement coordinates, see <see 
+        /// cref="WINDOWPLACEMENT"/>. 
+        /// </remarks>
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetWindowPlacement(IntPtr hWnd, out WINDOWPLACEMENT lpwndpl);
+
+        /// <summary>
+        /// Retrieves the current value of a specified attribute applied to a 
+        /// window.
+        /// </summary>
+        /// <param name="hwnd">
+        /// The handle to the window from which the attribute data is retrieved.
+        /// </param>
+        /// <param name="dwAttribute">
+        /// The attribute to retrieve, specified as a <see cref="DWMWINDOWATTRIBUTE"/> value.
+        /// </param>
+        /// <param name="pvAttribute">
+        /// A pointer to a value that, when this function returns successfully,
+        /// receives the current value of the attribute. The type of the 
+        /// retrieved value depends on the value of the 
+        /// <paramref name="dwAttribute"/> parameter.
+        /// </param>
+        /// <param name="cbAttribute">
+        /// The size of the <see cref="DWMWINDOWATTRIBUTE"/> value being 
+        /// retrieved. The size is dependent on the type of the pvAttribute 
+        /// parameter.
+        /// </param>
+        /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
+        [DllImport("dwmapi.dll", SetLastError = false)]
+        internal static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT pvAttribute, uint cbAttribute);
 
         /// <summary>
         /// Copies the text of the specified window's title bar (if it has one) into a buffer. If 

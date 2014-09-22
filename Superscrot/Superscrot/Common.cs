@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -88,26 +89,6 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Retrieves the location and size of the active window.
-        /// </summary>
-        /// <returns>A rectangle with the location and size of the active window.</returns>
-        /// <exception cref="System.Exception">Throw if GetWindowRect failed</exception>
-        public static Rectangle GetActiveWindowDimensions()
-        {
-            NativeMethods.RECT rect;
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-            if (!NativeMethods.GetWindowRect(handle, out rect))
-            {
-                throw new System.ComponentModel.Win32Exception();
-            }
-
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
-            return new Rectangle(rect.Left, rect.Top, width, height);
-        }
-
-
-        /// <summary>
         /// Returns the coordinates of the left-most, top-most, right-most and bottom-most edges of all screens.
         /// </summary>
         /// <param name="left">The X-coordinate of the left-most edge on the left-most screen.</param>
@@ -127,43 +108,6 @@ namespace Superscrot
                 if (s.Bounds.Right > right) right = s.Bounds.Right;
                 if (s.Bounds.Bottom > bottom) bottom = s.Bounds.Bottom;
             }
-        }
-
-        /// <summary>
-        /// Retrieves the caption of the active window.
-        /// </summary>
-        /// <returns>The caption of the active window, or null.</returns>
-        public static string GetActiveWindowCaption()
-        {
-            IntPtr handle = NativeMethods.GetForegroundWindow();
-            int length = NativeMethods.GetWindowTextLength(handle);
-            if (length <= 0)
-            {
-                return null;
-            }
-
-            StringBuilder sb = new StringBuilder(length + 1);
-            NativeMethods.GetWindowText(handle, sb, sb.Capacity);
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Sets the textual cue, or tip, that is displayed by the textbox to prompt the user for information.
-        /// </summary>
-        /// <param name="textBox">The text box.</param>
-        /// <param name="cue">A string that contains the text to display as the textual cue.</param>
-        public static void SetCue(this TextBox textBox, string cue)
-        {
-            NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, cue);
-        }
-
-        /// <summary>
-        /// Clears the textual cue, or tip, that is displayed by the textbox to prompt the user for information.
-        /// </summary>
-        /// <param name="textBox">The text box</param>
-        public static void ClearCue(this TextBox textBox)
-        {
-            NativeMethods.SendMessage(textBox.Handle, NativeMethods.EM_SETCUEBANNER, IntPtr.Zero, string.Empty);
         }
 
         /// <summary>
