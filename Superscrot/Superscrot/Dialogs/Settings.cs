@@ -91,7 +91,7 @@ namespace Superscrot.Dialogs
 
             // WinSCP
             scpText.Text = Configuration.WinScpPath;
-            
+
             // Interface
             showPreview.Checked = Configuration.ShowPreviewDialog;
             backgroundColor.Color = Configuration.OverlayBackgroundColor;
@@ -284,8 +284,12 @@ namespace Superscrot.Dialogs
         {
             using (var dialog = new OpenFileDialog())
             {
-                dialog.InitialDirectory = System.IO.Path.GetDirectoryName(keyText.Text);
-                dialog.FileName = System.IO.Path.GetFileName(keyText.Text); ;
+                if (!string.IsNullOrWhiteSpace(keyText.Text))
+                {
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(keyText.Text);
+                    dialog.FileName = System.IO.Path.GetFileName(keyText.Text);
+                }
+
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     keyText.Text = dialog.FileName;
@@ -298,8 +302,12 @@ namespace Superscrot.Dialogs
         {
             using (var dialog = new OpenFileDialog())
             {
-                dialog.InitialDirectory = System.IO.Path.GetDirectoryName(scpText.Text);
-                dialog.FileName = System.IO.Path.GetFileName(scpText.Text);
+                if (!string.IsNullOrWhiteSpace(scpText.Text))
+                {
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(scpText.Text);
+                    dialog.FileName = System.IO.Path.GetFileName(scpText.Text);
+                }
+
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     scpText.Text = dialog.FileName;
