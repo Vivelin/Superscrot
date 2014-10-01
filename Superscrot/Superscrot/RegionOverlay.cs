@@ -96,7 +96,6 @@ namespace Superscrot
                 {
                     g.Clear(this.BackColor);
                     g.FillRectangle(b, rect);
-                    g.DrawRectangle(p, rect);
                     g.Flush();
                 }
             }
@@ -135,7 +134,10 @@ namespace Superscrot
                     bottom = _start.Y;
                 }
 
-                return Rectangle.FromLTRB(left, top, right, bottom);
+                // Include the end-point so that selecting the whole screen
+                // actually selects the whole screen, and not everything except
+                // one pixel on each axis.
+                return Rectangle.FromLTRB(left, top, right + 1, bottom + 1); 
             }
             return Rectangle.Empty;
         }
