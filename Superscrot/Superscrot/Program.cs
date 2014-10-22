@@ -146,7 +146,7 @@ namespace Superscrot
                     Exit();
                     return;
                 }
-                Tray.InitializeTrayIcon();
+                Tray.Show();
                 ConsoleWriteLine(ConsoleColor.Gray, "Do not exit the console by closing the window! Use the tray menu option!");
                 Application.Run();
             }

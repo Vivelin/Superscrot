@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -18,7 +19,30 @@ namespace Superscrot
 
         private static TrayIcon _instance = null;
 
-        private NotifyIcon Tray { get; set; }
+        private NotifyIcon trayIcon;
+        private ToolStripItem toggleEnableItem;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TrayIcon"/> class.
+        /// </summary>
+        public TrayIcon()
+        {
+            Program.Manager.EnabledChanged += Manager_EnabledChanged;
+
+            toggleEnableItem = new ToolStripMenuItem("Suspend", 
+                Properties.Resources.Pause, new EventHandler(OnTrayDisable));
+
+            trayIcon = new NotifyIcon();
+            trayIcon.Text = Application.ProductName;
+            SetIcon(Properties.Resources.IconImage);
+
+            trayIcon.ContextMenuStrip = new ContextMenuStrip();
+            trayIcon.ContextMenuStrip.Items.Add(toggleEnableItem);
+            trayIcon.ContextMenuStrip.Items.Add("-");
+            trayIcon.ContextMenuStrip.Items.Add("Settings", Properties.Resources.Configure, new EventHandler(OnTrayConfigure));
+            trayIcon.ContextMenuStrip.Items.Add("Toggle Developer Console", Properties.Resources.Console, new EventHandler(OnTrayShowConsole));
+            trayIcon.ContextMenuStrip.Items.Add("Exit", Properties.Resources.Exit, new EventHandler(OnTrayExit));
+        }
 
         /// <summary>
         /// Gets a reference to the current tray icon, or null if it is disabled.
@@ -36,27 +60,13 @@ namespace Superscrot
                 return null;
             }
         }
-        
+
         /// <summary>
-        /// Initializes the tray icon.
+        /// Shows the tray icon.
         /// </summary>
-        public void InitializeTrayIcon()
+        public void Show()
         {
-            try
-            {
-                Tray = new NotifyIcon();
-                Tray.Icon = System.Drawing.SystemIcons.Application; //PLACEHOLDER
-                Tray.Text = Application.ProductName;
-                Tray.ContextMenuStrip = new ContextMenuStrip();
-                Tray.ContextMenuStrip.Items.Add("Settings", Properties.Resources.Configure, new EventHandler(OnTrayConfigure));
-                Tray.ContextMenuStrip.Items.Add("Toggle Developer Console", Properties.Resources.Console, new EventHandler(OnTrayShowConsole));
-                Tray.ContextMenuStrip.Items.Add("Exit", Properties.Resources.Exit, new EventHandler(OnTrayExit));
-                Tray.Visible = true;
-            }
-            catch (Exception ex)
-            {
-                Program.ConsoleException(ex);
-            }
+            trayIcon.Visible = true;
         }
 
         /// <summary>
@@ -64,23 +74,7 @@ namespace Superscrot
         /// </summary>
         public void Hide()
         {
-            if (Tray != null) Tray.Visible = false;
-        }
-
-        /// <summary>
-        /// Changes the tray icon.
-        /// </summary>
-        /// <param name="icon">The <see cref="System.Drawing.Icon"/> to set as the new icon.</param>
-        public void ChangeIcon(System.Drawing.Icon icon)
-        {
-            if (icon != null)
-            {
-                Tray.Icon = icon;
-            }
-            else
-            {
-                Tray.Icon = System.Drawing.SystemIcons.Application; //PLACEHOLDER
-            }
+            trayIcon.Visible = false;
         }
 
         /// <summary>
@@ -101,32 +95,7 @@ namespace Superscrot
         /// <param name="icon">The icon to display with the message.</param>
         public void ShowMessage(string title, string message, System.Windows.Forms.ToolTipIcon icon = ToolTipIcon.None)
         {
-            Tray.ShowBalloonTip(10000, title, message, icon);
-        }
-
-        /// <summary>
-        /// Shows the config editor.
-        /// </summary>
-        private void OnTrayConfigure(object sender, EventArgs e)
-        {
-            Program.ShowConfigEditor();
-        }
-
-        /// <summary>
-        /// Shows or hides the console.
-        /// </summary>
-        private void OnTrayShowConsole(object sender, EventArgs e)
-        {
-            Program.ToggleConsole();
-        }
-
-        /// <summary>
-        /// Exits the application when the user clicks Exit.
-        /// </summary>
-        private void OnTrayExit(object sender, EventArgs e)
-        {
-            this.Hide();
-            Program.Exit();
+            trayIcon.ShowBalloonTip(10000, title, message, icon);
         }
 
         /// <summary>
@@ -146,12 +115,94 @@ namespace Superscrot
         {
             if (disposing)
             {
-                if (Tray != null)
+                if (trayIcon != null)
                 {
-                    Tray.Visible = false;
-                    Tray.Dispose();
-                    Tray = null;
+                    trayIcon.Visible = false;
+                    trayIcon.Dispose();
+                    trayIcon = null;
                 }
+                if (toggleEnableItem != null)
+                {
+                    toggleEnableItem.Dispose();
+                    toggleEnableItem = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Suspends or resumes Superscrot.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnTrayDisable(object sender, EventArgs e)
+        {
+            Program.Manager.Enabled = !Program.Manager.Enabled;
+        }
+
+        /// <summary>
+        /// Shows the config editor.
+        /// </summary>
+        protected virtual void OnTrayConfigure(object sender, EventArgs e)
+        {
+            Program.ShowConfigEditor();
+        }
+
+        /// <summary>
+        /// Shows or hides the console.
+        /// </summary>
+        protected virtual void OnTrayShowConsole(object sender, EventArgs e)
+        {
+            Program.ToggleConsole();
+        }
+
+        /// <summary>
+        /// Exits the application when the user clicks Exit.
+        /// </summary>
+        protected virtual void OnTrayExit(object sender, EventArgs e)
+        {
+            this.Hide();
+            Program.Exit();
+        }
+
+        /// <summary>
+        /// Sets the tray icon's image to the specified <see cref="Bitmap"/>.
+        /// </summary>
+        /// <param name="image">A <see cref="Bitmap"/> image to set as icon.
+        /// </param>
+        protected void SetIcon(Bitmap image)
+        {
+            trayIcon.Icon = Icon.FromHandle(image.GetHicon());
+        }
+
+        /// <summary>
+        /// Draws the specified <see cref="Image"/> over the tray icon's image.
+        /// </summary>
+        /// <param name="overlayImage">An <see cref="Image"/> to draw on top of 
+        /// the tray icon's image.</param>
+        protected void DrawOverlay(Image overlayImage)
+        {
+            var image = Properties.Resources.IconImage;
+            using (var g = Graphics.FromImage(image))
+            {
+                g.DrawImage(overlayImage, 0, 0);
+            }
+
+            SetIcon(image);
+        }
+
+        private void Manager_EnabledChanged(object sender, EventArgs e)
+        {
+            if (Program.Manager.Enabled)
+            {
+                toggleEnableItem.Text = "Suspend";
+                toggleEnableItem.Image = Properties.Resources.Pause;
+                SetIcon(Properties.Resources.IconImage);
+            }
+            else
+            {
+                toggleEnableItem.Text = "Resume";
+                toggleEnableItem.Image = Properties.Resources.Start;
+                DrawOverlay(Properties.Resources.StoppedOverlay);
             }
         }
     }

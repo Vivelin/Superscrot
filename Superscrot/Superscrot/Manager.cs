@@ -18,8 +18,32 @@ namespace Superscrot
         private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.Cyan, text); }
         private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.Cyan, format, arg); }
 
-        private KeyboardHook _hook = null;
-        private History _history = null;
+        private KeyboardHook hook = null;
+        private History history = null;
+        private bool enabled = true;
+
+        /// <summary>
+        /// Occurs when the <see cref="Enabled"/> property changes.
+        /// </summary>
+        public event EventHandler EnabledChanged;
+
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="Manager"/> 
+        /// will respond to keyboard input or not.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return enabled; }
+            set
+            {
+                if (value != enabled)
+                {
+                    enabled = value;
+                    OnEnabledChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Provides information about taken screenshots.
@@ -28,12 +52,48 @@ namespace Superscrot
         {
             get
             {
-                if (_history == null)
+                if (history == null)
                 {
-                    _history = new History();
+                    history = new History();
                 }
-                return _history;
+                return history;
             }
+        }
+
+        /// <summary>
+        /// Initializes the global keyboard hook.
+        /// </summary>
+        public bool InitializeKeyboardHook()
+        {
+            try
+            {
+                hook = new KeyboardHook();
+                hook.KeyPressed += new EventHandler<KeyPressedEventArgs>(KeyPressed);
+                hook.RegisterHotKey(ModifierKeys.None, Keys.PrintScreen);      //desktop screenshot
+                hook.RegisterHotKey(ModifierKeys.Alt, Keys.PrintScreen);       //active window
+                hook.RegisterHotKey(ModifierKeys.Control, Keys.PrintScreen);   //region
+                hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift, Keys.PrintScreen); //undo last
+                hook.RegisterHotKey(ModifierKeys.Control, Keys.PageUp); //clipboard
+                return true;
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Program.ConsoleFatal(ex);
+                MessageBox.Show("Superscrot can't start because the hotkey is already registered."
+                    + "\n\nIf Windows needs to restart to apply updates, please try rebooting."
+                    + "\n\nError code: 0x" + ex.NativeErrorCode.ToString("X"),
+                    "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -170,26 +230,6 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Returns whether the specified file is an image file.
-        /// </summary>
-        /// <param name="file">The name of the file.</param>
-        /// <returns>True if the specified file is a supported image file, otherwise false.</returns>
-        private static bool IsImageFile(string file)
-        {
-            string ext = Path.GetExtension(file);
-            string[] recognizedExtensions = { ".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".gif" };
-            foreach (string recognizedExtension in recognizedExtensions)
-            {
-                if (string.Compare(ext, recognizedExtension, true) == 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Uploads the screenshot in a new thread.
         /// </summary>
         /// <param name="screenshot">The screenshot to upload.</param>
@@ -241,6 +281,84 @@ namespace Superscrot
                 Program.ConsoleException(ex);
                 System.Media.SystemSounds.Exclamation.Play();
             }
+        }
+
+        /// <summary>
+        /// Deletes the last uploaded file. Can be called multiple times consecutively.
+        /// </summary>
+        public void UndoUploadAsync()
+        {
+            try
+            {
+                if (History.Count == 0)
+                {
+                    WriteLine("Nothing to undo");
+                    return;
+                }
+
+                Screenshot screenshot = History.Pop();
+
+                Thread deleteThread = new Thread(() =>
+                {
+                    UndoUpload(screenshot);
+                });
+                deleteThread.Name = "Delete thread";
+                deleteThread.Start();
+
+                WriteLine("[0x{1:X}] Removing {0} from server...", screenshot.ServerPath, deleteThread.ManagedThreadId);
+            }
+            catch (Exception ex)
+            {
+                Program.ConsoleException(ex);
+                System.Media.SystemSounds.Exclamation.Play();
+            }
+        }
+
+        /// <summary>
+        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// </summary>
+        /// <param name="disposing">True to release managed resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Free managed resources
+                if (hook != null)
+                {
+                    hook.Dispose();
+                    hook = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="EnabledChanged"/> event.
+        /// </summary>
+        protected virtual void OnEnabledChanged()
+        {
+            var handler = EnabledChanged;
+            if (handler != null)
+                handler(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Returns whether the specified file is an image file.
+        /// </summary>
+        /// <param name="file">The name of the file.</param>
+        /// <returns>True if the specified file is a supported image file, otherwise false.</returns>
+        private static bool IsImageFile(string file)
+        {
+            string ext = Path.GetExtension(file);
+            string[] recognizedExtensions = { ".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".gif" };
+            foreach (string recognizedExtension in recognizedExtensions)
+            {
+                if (string.Compare(ext, recognizedExtension, true) == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -327,37 +445,6 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Deletes the last uploaded file. Can be called multiple times consecutively.
-        /// </summary>
-        public void UndoUploadAsync()
-        {
-            try
-            {
-                if (History.Count == 0)
-                {
-                    WriteLine("Nothing to undo");
-                    return;
-                }
-
-                Screenshot screenshot = History.Pop();
-
-                Thread deleteThread = new Thread(() =>
-                {
-                    UndoUpload(screenshot);
-                });
-                deleteThread.Name = "Delete thread";
-                deleteThread.Start();
-
-                WriteLine("[0x{1:X}] Removing {0} from server...", screenshot.ServerPath, deleteThread.ManagedThreadId);
-            }
-            catch (Exception ex)
-            {
-                Program.ConsoleException(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-            }
-        }
-
-        /// <summary>
         /// Returns an uploader for the current configuration.
         /// </summary>
         /// <returns>Returns a newly created <see cref="Superscrot.Uploaders.IUploader"/> instance.</returns>
@@ -409,63 +496,16 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Initializes the global keyboard hook.
-        /// </summary>
-        public bool InitializeKeyboardHook()
-        {
-            try
-            {
-                _hook = new KeyboardHook();
-                _hook.KeyPressed += new EventHandler<KeyPressedEventArgs>(KeyPressed);
-                _hook.RegisterHotKey(ModifierKeys.None, Keys.PrintScreen);      //desktop screenshot
-                _hook.RegisterHotKey(ModifierKeys.Alt, Keys.PrintScreen);       //active window
-                _hook.RegisterHotKey(ModifierKeys.Control, Keys.PrintScreen);   //region
-                _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift, Keys.PrintScreen); //undo last
-                _hook.RegisterHotKey(ModifierKeys.Control, Keys.PageUp); //clipboard
-                return true;
-            }
-            catch (System.ComponentModel.Win32Exception ex)
-            {
-                Program.ConsoleFatal(ex);
-                MessageBox.Show("Superscrot can't start because the hotkey is already registered."
-                    + "\n\nIf Windows needs to restart to apply updates, please try rebooting."
-                    + "\n\nError code: 0x" + ex.NativeErrorCode.ToString("X"),
-                    "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
-        /// </summary>
-        /// <param name="disposing">True to release managed resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                // Free managed resources
-                if (_hook != null)
-                {
-                    _hook.Dispose();
-                    _hook = null;
-                }
-            }
-        }
-
-        /// <summary>
         /// Handles keyboard input.
         /// </summary>
         private void KeyPressed(object sender, KeyPressedEventArgs e)
         {
+            if (!Enabled)
+            {
+                WriteLine("Superscrot is suspended, key suppressed");
+                return;
+            }
+
             Write("Pressed ");
             if (e.Modifier != ModifierKeys.None) Write(e.Modifier.ToString() + " + ");
             WriteLine(e.Key.ToString());

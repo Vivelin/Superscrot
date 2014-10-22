@@ -70,6 +70,7 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <DocumentationFile>bin\Debug\Superscrot.xml</DocumentationFile>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\Release x64\</OutputPath>
@@ -152,12 +153,6 @@
   <ItemGroup>
     <Compile Include="CommandlineParser.cs" />
     <Compile Include="Common.cs" />
-    <Compile Include="ConfigEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConfigEditor.Designer.cs">
-      <DependentUpon>ConfigEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="Configuration.cs" />
     <Compile Include="Dialogs\DuplicateFileFoundDialog.cs">
       <SubType>Form</SubType>
@@ -200,9 +195,6 @@
     <Compile Include="Uploaders\SftpUploader.cs" />
     <Compile Include="Uploaders\WinScpUploader.cs" />
     <Compile Include="XmlColor.cs" />
-    <EmbeddedResource Include="ConfigEditor.resx">
-      <DependentUpon>ConfigEditor.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\DuplicateFileFoundDialog.resx">
       <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -254,21 +246,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\disk.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\arrow_rotate_anticlockwise.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\door_out.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\application_xp_terminal.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wrench_orange.png" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
@@ -289,6 +266,33 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Console.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Property_501.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Close_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Offline_16xSM.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\StatusAnnotations_Stop_16xSM_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\WindowsForm_817_16x.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
