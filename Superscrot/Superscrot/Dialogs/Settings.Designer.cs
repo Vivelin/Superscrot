@@ -44,6 +44,7 @@
             this.baseUrlLabel = new System.Windows.Forms.Label();
             this.serverPathLabel = new System.Windows.Forms.Label();
             this.imageGroup = new System.Windows.Forms.GroupBox();
+            this.qualitySlider = new Superscrot.Controls.Slider();
             this.jpegQualityLabel = new System.Windows.Forms.Label();
             this.useJpeg = new System.Windows.Forms.CheckBox();
             this.connectionTab = new System.Windows.Forms.TabPage();
@@ -53,6 +54,7 @@
             this.scpText = new System.Windows.Forms.TextBox();
             this.scpLabel = new System.Windows.Forms.Label();
             this.authGroup = new System.Windows.Forms.GroupBox();
+            this.fingerprintText = new Superscrot.Controls.TextBox();
             this.fingerprintLabel = new System.Windows.Forms.Label();
             this.browseKeyButton = new System.Windows.Forms.Button();
             this.keyText = new System.Windows.Forms.TextBox();
@@ -69,20 +71,18 @@
             this.addressText = new System.Windows.Forms.TextBox();
             this.addressLabel = new System.Windows.Forms.Label();
             this.interfaceTab = new System.Windows.Forms.TabPage();
+            this.overlayGroup = new System.Windows.Forms.GroupBox();
+            this.opacitySlider = new Superscrot.Controls.Slider();
+            this.opacityLabel = new System.Windows.Forms.Label();
+            this.selectionColor = new Superscrot.Controls.ColorPickerButton();
+            this.selectionLabel = new System.Windows.Forms.Label();
+            this.backgroundColor = new Superscrot.Controls.ColorPickerButton();
+            this.backgroundLabel = new System.Windows.Forms.Label();
+            this.showPreview = new System.Windows.Forms.CheckBox();
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.helpLink = new System.Windows.Forms.LinkLabel();
-            this.showPreview = new System.Windows.Forms.CheckBox();
-            this.overlayGroup = new System.Windows.Forms.GroupBox();
-            this.backgroundLabel = new System.Windows.Forms.Label();
-            this.selectionLabel = new System.Windows.Forms.Label();
-            this.opacityLabel = new System.Windows.Forms.Label();
-            this.qualitySlider = new Superscrot.Controls.Slider();
-            this.fingerprintText = new Superscrot.Controls.TextBox();
-            this.opacitySlider = new Superscrot.Controls.Slider();
-            this.selectionColor = new Superscrot.Controls.ColorPickerButton();
-            this.backgroundColor = new Superscrot.Controls.ColorPickerButton();
             this.tabControl.SuspendLayout();
             this.uploadTab.SuspendLayout();
             this.filenameGroup.SuspendLayout();
@@ -134,7 +134,7 @@
             this.filenameGroup.Controls.Add(this.formatLabel);
             this.filenameGroup.Location = new System.Drawing.Point(6, 143);
             this.filenameGroup.Name = "filenameGroup";
-            this.filenameGroup.Size = new System.Drawing.Size(415, 116);
+            this.filenameGroup.Size = new System.Drawing.Size(421, 116);
             this.filenameGroup.TabIndex = 2;
             this.filenameGroup.TabStop = false;
             this.filenameGroup.Text = "File name";
@@ -170,7 +170,7 @@
             "%d-%i"});
             this.formatDropdown.Location = new System.Drawing.Point(65, 22);
             this.formatDropdown.Name = "formatDropdown";
-            this.formatDropdown.Size = new System.Drawing.Size(269, 23);
+            this.formatDropdown.Size = new System.Drawing.Size(275, 23);
             this.formatDropdown.TabIndex = 6;
             this.formatDropdown.TextChanged += new System.EventHandler(this.formatDropdown_TextChanged);
             // 
@@ -286,6 +286,18 @@
             this.imageGroup.TabStop = false;
             this.imageGroup.Text = "Image settings";
             // 
+            // qualitySlider
+            // 
+            this.qualitySlider.BackColor = System.Drawing.SystemColors.Window;
+            this.qualitySlider.Enabled = false;
+            this.qualitySlider.Format = null;
+            this.qualitySlider.Location = new System.Drawing.Point(22, 68);
+            this.qualitySlider.MaximumText = "High";
+            this.qualitySlider.MinimumText = "Low";
+            this.qualitySlider.Name = "qualitySlider";
+            this.qualitySlider.Size = new System.Drawing.Size(240, 57);
+            this.qualitySlider.TabIndex = 2;
+            // 
             // jpegQualityLabel
             // 
             this.jpegQualityLabel.AutoSize = true;
@@ -395,6 +407,17 @@
             this.authGroup.TabIndex = 1;
             this.authGroup.TabStop = false;
             this.authGroup.Text = "Authentication";
+            // 
+            // fingerprintText
+            // 
+            this.fingerprintText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fingerprintText.Location = new System.Drawing.Point(9, 167);
+            this.fingerprintText.Name = "fingerprintText";
+            this.fingerprintText.Placeholder = "ssh-rsa 2048 xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx";
+            this.fingerprintText.Size = new System.Drawing.Size(406, 23);
+            this.fingerprintText.TabIndex = 8;
+            this.fingerprintText.TextChanged += new System.EventHandler(this.fingerprintText_TextChanged);
             // 
             // fingerprintLabel
             // 
@@ -560,6 +583,91 @@
             this.interfaceTab.Text = "Interface";
             this.interfaceTab.UseVisualStyleBackColor = true;
             // 
+            // overlayGroup
+            // 
+            this.overlayGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.overlayGroup.Controls.Add(this.opacitySlider);
+            this.overlayGroup.Controls.Add(this.opacityLabel);
+            this.overlayGroup.Controls.Add(this.selectionColor);
+            this.overlayGroup.Controls.Add(this.selectionLabel);
+            this.overlayGroup.Controls.Add(this.backgroundColor);
+            this.overlayGroup.Controls.Add(this.backgroundLabel);
+            this.overlayGroup.Location = new System.Drawing.Point(6, 31);
+            this.overlayGroup.Name = "overlayGroup";
+            this.overlayGroup.Size = new System.Drawing.Size(421, 172);
+            this.overlayGroup.TabIndex = 1;
+            this.overlayGroup.TabStop = false;
+            this.overlayGroup.Text = "Overlay";
+            // 
+            // opacitySlider
+            // 
+            this.opacitySlider.BackColor = System.Drawing.SystemColors.Window;
+            this.opacitySlider.Format = "0\\%";
+            this.opacitySlider.Location = new System.Drawing.Point(6, 102);
+            this.opacitySlider.MaximumText = "Opaque";
+            this.opacitySlider.MinimumText = "Transparent";
+            this.opacitySlider.Name = "opacitySlider";
+            this.opacitySlider.Size = new System.Drawing.Size(259, 53);
+            this.opacitySlider.TabIndex = 5;
+            this.opacitySlider.ValueChanged += new System.EventHandler(this.opacitySlider_ValueChanged);
+            // 
+            // opacityLabel
+            // 
+            this.opacityLabel.AutoSize = true;
+            this.opacityLabel.Location = new System.Drawing.Point(6, 84);
+            this.opacityLabel.Name = "opacityLabel";
+            this.opacityLabel.Size = new System.Drawing.Size(51, 15);
+            this.opacityLabel.TabIndex = 4;
+            this.opacityLabel.Text = "Opacity:";
+            // 
+            // selectionColor
+            // 
+            this.selectionColor.Location = new System.Drawing.Point(116, 51);
+            this.selectionColor.Name = "selectionColor";
+            this.selectionColor.Size = new System.Drawing.Size(55, 23);
+            this.selectionColor.TabIndex = 3;
+            this.selectionColor.UseVisualStyleBackColor = true;
+            this.selectionColor.ColorChanged += new System.EventHandler(this.selectionColor_ColorChanged);
+            // 
+            // selectionLabel
+            // 
+            this.selectionLabel.AutoSize = true;
+            this.selectionLabel.Location = new System.Drawing.Point(6, 55);
+            this.selectionLabel.Name = "selectionLabel";
+            this.selectionLabel.Size = new System.Drawing.Size(88, 15);
+            this.selectionLabel.TabIndex = 2;
+            this.selectionLabel.Text = "&Selection color:";
+            // 
+            // backgroundColor
+            // 
+            this.backgroundColor.Location = new System.Drawing.Point(116, 22);
+            this.backgroundColor.Name = "backgroundColor";
+            this.backgroundColor.Size = new System.Drawing.Size(55, 23);
+            this.backgroundColor.TabIndex = 1;
+            this.backgroundColor.UseVisualStyleBackColor = true;
+            this.backgroundColor.ColorChanged += new System.EventHandler(this.backgroundColor_ColorChanged);
+            // 
+            // backgroundLabel
+            // 
+            this.backgroundLabel.AutoSize = true;
+            this.backgroundLabel.Location = new System.Drawing.Point(6, 26);
+            this.backgroundLabel.Name = "backgroundLabel";
+            this.backgroundLabel.Size = new System.Drawing.Size(104, 15);
+            this.backgroundLabel.TabIndex = 0;
+            this.backgroundLabel.Text = "&Background color:";
+            // 
+            // showPreview
+            // 
+            this.showPreview.AutoSize = true;
+            this.showPreview.Location = new System.Drawing.Point(6, 6);
+            this.showPreview.Name = "showPreview";
+            this.showPreview.Size = new System.Drawing.Size(267, 19);
+            this.showPreview.TabIndex = 0;
+            this.showPreview.Text = "Show a &preview before uploading screenshots";
+            this.showPreview.UseVisualStyleBackColor = true;
+            this.showPreview.CheckedChanged += new System.EventHandler(this.showPreview_CheckedChanged);
+            // 
             // okButton
             // 
             this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -604,114 +712,6 @@
             this.helpLink.TabStop = true;
             this.helpLink.Text = "Help";
             this.helpLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.helpLink_LinkClicked);
-            // 
-            // showPreview
-            // 
-            this.showPreview.AutoSize = true;
-            this.showPreview.Location = new System.Drawing.Point(6, 6);
-            this.showPreview.Name = "showPreview";
-            this.showPreview.Size = new System.Drawing.Size(267, 19);
-            this.showPreview.TabIndex = 0;
-            this.showPreview.Text = "Show a &preview before uploading screenshots";
-            this.showPreview.UseVisualStyleBackColor = true;
-            this.showPreview.CheckedChanged += new System.EventHandler(this.showPreview_CheckedChanged);
-            // 
-            // overlayGroup
-            // 
-            this.overlayGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.overlayGroup.Controls.Add(this.opacitySlider);
-            this.overlayGroup.Controls.Add(this.opacityLabel);
-            this.overlayGroup.Controls.Add(this.selectionColor);
-            this.overlayGroup.Controls.Add(this.selectionLabel);
-            this.overlayGroup.Controls.Add(this.backgroundColor);
-            this.overlayGroup.Controls.Add(this.backgroundLabel);
-            this.overlayGroup.Location = new System.Drawing.Point(6, 31);
-            this.overlayGroup.Name = "overlayGroup";
-            this.overlayGroup.Size = new System.Drawing.Size(421, 172);
-            this.overlayGroup.TabIndex = 1;
-            this.overlayGroup.TabStop = false;
-            this.overlayGroup.Text = "Overlay";
-            // 
-            // backgroundLabel
-            // 
-            this.backgroundLabel.AutoSize = true;
-            this.backgroundLabel.Location = new System.Drawing.Point(6, 26);
-            this.backgroundLabel.Name = "backgroundLabel";
-            this.backgroundLabel.Size = new System.Drawing.Size(104, 15);
-            this.backgroundLabel.TabIndex = 0;
-            this.backgroundLabel.Text = "&Background color:";
-            // 
-            // selectionLabel
-            // 
-            this.selectionLabel.AutoSize = true;
-            this.selectionLabel.Location = new System.Drawing.Point(6, 55);
-            this.selectionLabel.Name = "selectionLabel";
-            this.selectionLabel.Size = new System.Drawing.Size(88, 15);
-            this.selectionLabel.TabIndex = 2;
-            this.selectionLabel.Text = "&Selection color:";
-            // 
-            // opacityLabel
-            // 
-            this.opacityLabel.AutoSize = true;
-            this.opacityLabel.Location = new System.Drawing.Point(6, 84);
-            this.opacityLabel.Name = "opacityLabel";
-            this.opacityLabel.Size = new System.Drawing.Size(51, 15);
-            this.opacityLabel.TabIndex = 4;
-            this.opacityLabel.Text = "Opacity:";
-            // 
-            // qualitySlider
-            // 
-            this.qualitySlider.BackColor = System.Drawing.SystemColors.Window;
-            this.qualitySlider.Enabled = false;
-            this.qualitySlider.Format = null;
-            this.qualitySlider.Location = new System.Drawing.Point(22, 68);
-            this.qualitySlider.MaximumText = "High";
-            this.qualitySlider.MinimumText = "Low";
-            this.qualitySlider.Name = "qualitySlider";
-            this.qualitySlider.Size = new System.Drawing.Size(240, 57);
-            this.qualitySlider.TabIndex = 2;
-            // 
-            // fingerprintText
-            // 
-            this.fingerprintText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.fingerprintText.Location = new System.Drawing.Point(9, 167);
-            this.fingerprintText.Name = "fingerprintText";
-            this.fingerprintText.Placeholder = "ssh-rsa 2048 xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx";
-            this.fingerprintText.Size = new System.Drawing.Size(406, 23);
-            this.fingerprintText.TabIndex = 8;
-            this.fingerprintText.TextChanged += new System.EventHandler(this.fingerprintText_TextChanged);
-            // 
-            // opacitySlider
-            // 
-            this.opacitySlider.BackColor = System.Drawing.SystemColors.Window;
-            this.opacitySlider.Format = "0\\%";
-            this.opacitySlider.Location = new System.Drawing.Point(6, 102);
-            this.opacitySlider.MaximumText = "Opaque";
-            this.opacitySlider.MinimumText = "Transparent";
-            this.opacitySlider.Name = "opacitySlider";
-            this.opacitySlider.Size = new System.Drawing.Size(259, 53);
-            this.opacitySlider.TabIndex = 5;
-            this.opacitySlider.ValueChanged += new System.EventHandler(this.opacitySlider_ValueChanged);
-            // 
-            // selectionColor
-            // 
-            this.selectionColor.Location = new System.Drawing.Point(116, 51);
-            this.selectionColor.Name = "selectionColor";
-            this.selectionColor.Size = new System.Drawing.Size(55, 23);
-            this.selectionColor.TabIndex = 3;
-            this.selectionColor.UseVisualStyleBackColor = true;
-            this.selectionColor.ColorChanged += new System.EventHandler(this.selectionColor_ColorChanged);
-            // 
-            // backgroundColor
-            // 
-            this.backgroundColor.Location = new System.Drawing.Point(116, 22);
-            this.backgroundColor.Name = "backgroundColor";
-            this.backgroundColor.Size = new System.Drawing.Size(55, 23);
-            this.backgroundColor.TabIndex = 1;
-            this.backgroundColor.UseVisualStyleBackColor = true;
-            this.backgroundColor.ColorChanged += new System.EventHandler(this.backgroundColor_ColorChanged);
             // 
             // Settings
             // 
