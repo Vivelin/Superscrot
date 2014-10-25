@@ -14,8 +14,8 @@ namespace Superscrot
     /// </summary>
     public class Configuration
     {
-        private long jpegQuality = 90L;
-        private double overlayOpacity = 0.8;
+        private long jpegQuality = 100L;
+        private double overlayOpacity = 0.6;
         private string failedScreenshotsFolder;
         private string ftpServerPath;
         private string httpBaseUri;
@@ -33,8 +33,8 @@ namespace Superscrot
 
             FilenameFormat = "%c\\%s\\%d-%i";
             FtpPort = 21;
-            UseCompression = true;
-            JpegQuality = 90L;
+            UseCompression = false;
+            JpegQuality = 100L;
             FtpTimeout = 30000;
 
             OverlayBackgroundColor = Color.Black;
