@@ -21,6 +21,7 @@ namespace Superscrot
         private KeyboardHook hook = null;
         private History history = null;
         private bool enabled = true;
+        private Uploader uploader;
 
         /// <summary>
         /// Occurs when the <see cref="Enabled"/> property changes.
@@ -370,23 +371,7 @@ namespace Superscrot
         {
             try
             {
-                var up = GetUploader();
-                up.DuplicateFileFound += HandleDuplicateFileFound;
-
-                up.UploadSucceeded += (s) =>
-                {
-                    History.Push(s);
-                    System.Media.SystemSounds.Asterisk.Play();
-                    WriteLine("[0x{0:X}] Uploaded successfully to {1}", Thread.CurrentThread.ManagedThreadId, s.PublicUrl);
-                };
-
-                up.UploadFailed += (s) =>
-                {
-                    Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Upload failed!", Thread.CurrentThread.ManagedThreadId);
-                    ReportUploadError(screenshot);
-                };
-
-                up.Upload(screenshot, target);
+                Uploader.Upload(screenshot, target);
             }
             catch (Exception ex)
             {
@@ -445,47 +430,92 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Returns an uploader for the current configuration.
+        /// Gets an <see cref="Uploader"/> for the current configuration.
         /// </summary>
-        /// <returns>Returns a newly created <see cref="Superscrot.Uploaders.IUploader"/> instance.</returns>
-        private static IUploader GetUploader()
+        private Uploader Uploader
         {
-            if (Program.Config.UseSSH)
+            get
             {
+                if (uploader == null)
+                {
+                    if (Program.Config.UseSSH)
+                    {
 #if WINSCP
-                if (File.Exists(Program.Config.WinScpPath))
-                    return new WinScpUploader();
+                        if (File.Exists(Program.Config.WinScpPath))
+                        {
+                            uploader = new WinScpUploader(
+                                Program.Config.FtpHostname,
+                                Program.Config.FtpPort,
+                                Program.Config.FtpUsername,
+                                Program.Config.HostKeyFingerprint,
+                                Program.Config.PrivateKeyPath,
+                                Program.Config.FtpTimeout);
+                        }
+                        else
+                        {
 #endif
-                return new SftpUploader();
-            }
+                            uploader = new SftpUploader(
+                                Program.Config.FtpHostname,
+                                Program.Config.FtpPort,
+                                Program.Config.FtpUsername,
+                                Program.Config.FtpPassword);
+#if WINSCP
+                        }
+#endif
+                    }
+                    else
+                    {
+                        uploader = new FtpUploader(
+                            Program.Config.FtpHostname,
+                            Program.Config.FtpPort,
+                            Program.Config.FtpUsername,
+                            Program.Config.FtpPassword);
+                    }
 
-            return new FtpUploader();
+                    uploader.DuplicateFileFound += HandleDuplicateFileFound;
+                    uploader.UploadSucceeded += (s) =>
+                    {
+                        History.Push(s);
+                        System.Media.SystemSounds.Asterisk.Play();
+                        WriteLine("[0x{0:X}] Uploaded successfully to {1}",
+                            Thread.CurrentThread.ManagedThreadId, s.PublicUrl);
+                    };
+                    uploader.UploadFailed += (s) =>
+                    {
+                        Program.ConsoleWriteLine(ConsoleColor.Yellow,
+                            "[0x{0:X}] Upload failed!",
+                            Thread.CurrentThread.ManagedThreadId);
+                        ReportUploadError(s);
+                    };
+                    uploader.DeleteSucceeded += (s) =>
+                    {
+                        System.Media.SystemSounds.Asterisk.Play();
+                        WriteLine("[0x{0:X}] File deleted",
+                            Thread.CurrentThread.ManagedThreadId);
+                    };
+                    uploader.DeleteFailed += (s) =>
+                    {
+                        System.Media.SystemSounds.Exclamation.Play();
+                        Program.ConsoleWriteLine(ConsoleColor.Yellow,
+                            "[0x{0:X}] Deletion failed!",
+                            Thread.CurrentThread.ManagedThreadId);
+                        Program.Tray.ShowError("Screenshot could not be deleted", null);
+                    };
+                }
+
+                return uploader;
+            }
         }
 
         /// <summary>
         /// Deletes a screenshot from the server.
         /// </summary>
         /// <param name="screenshot">The screenshot to delete.</param>
-        private static void UndoUpload(Screenshot screenshot)
+        private void UndoUpload(Screenshot screenshot)
         {
             try
             {
-                var up = GetUploader();
-
-                up.DeleteSucceeded += (s) =>
-                {
-                    System.Media.SystemSounds.Asterisk.Play();
-                    WriteLine("[0x{0:X}] File deleted", Thread.CurrentThread.ManagedThreadId);
-                };
-
-                up.DeleteFailed += (s) =>
-                {
-                    System.Media.SystemSounds.Exclamation.Play();
-                    Program.ConsoleWriteLine(ConsoleColor.Yellow, "[0x{0:X}] Deletion failed!", Thread.CurrentThread.ManagedThreadId);
-                    Program.Tray.ShowError("Screenshot could not be deleted", null);
-                };
-
-                up.UndoUpload(screenshot);
+                Uploader.UndoUpload(screenshot);
             }
             catch (Exception ex)
             {
