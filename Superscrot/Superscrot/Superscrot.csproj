@@ -63,7 +63,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINSCP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -193,7 +193,6 @@
     <Compile Include="Uploaders\FtpUploader.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Uploaders\SftpUploader.cs" />
-    <Compile Include="Uploaders\WinScpUploader.cs" />
     <Compile Include="XmlColor.cs" />
     <EmbeddedResource Include="Dialogs\DuplicateFileFoundDialog.resx">
       <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>

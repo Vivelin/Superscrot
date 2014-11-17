@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Superscrot
 {
@@ -329,6 +330,12 @@ namespace Superscrot
                     hook.Dispose();
                     hook = null;
                 }
+
+                if (uploader != null)
+                {
+                    uploader.Dispose();
+                    uploader = null;
+                }
             }
         }
 
@@ -440,28 +447,33 @@ namespace Superscrot
                 {
                     if (Program.Config.UseSSH)
                     {
-#if WINSCP
-                        if (File.Exists(Program.Config.WinScpPath))
+                        try
                         {
-                            uploader = new WinScpUploader(
+                            if (File.Exists(Program.Config.PrivateKeyPath))
+                            {
+                                uploader = SftpUploader.WithKeyFile(
+                                    Program.Config.FtpHostname,
+                                    Program.Config.FtpPort,
+                                    Program.Config.FtpUsername,
+                                    Program.Config.PrivateKeyPath,
+                                    Program.Config.FtpTimeout);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Trace.WriteLine("Exception occurred while trying to use a key file, falling back to password.");
+                            Trace.WriteLine(ex);
+                        }
+
+                        if (uploader == null)
+                        {
+                            uploader = SftpUploader.WithPassword(
                                 Program.Config.FtpHostname,
                                 Program.Config.FtpPort,
                                 Program.Config.FtpUsername,
-                                Program.Config.HostKeyFingerprint,
-                                Program.Config.PrivateKeyPath,
+                                Program.Config.FtpPassword,
                                 Program.Config.FtpTimeout);
                         }
-                        else
-                        {
-#endif
-                            uploader = new SftpUploader(
-                                Program.Config.FtpHostname,
-                                Program.Config.FtpPort,
-                                Program.Config.FtpUsername,
-                                Program.Config.FtpPassword);
-#if WINSCP
-                        }
-#endif
                     }
                     else
                     {

@@ -11,7 +11,7 @@ namespace Superscrot.Uploaders
     /// <summary>
     /// Represents an abstract base class for uploading and deleting screenshots.
     /// </summary>
-    abstract class Uploader
+    abstract class Uploader : IDisposable
     {
         /// <summary>
         /// Occurs when an upload has succeeded.
@@ -125,5 +125,21 @@ namespace Superscrot.Uploaders
                 duplicateFileFound(this, e);
             }
         }
+
+        /// <summary>
+        /// Cleans up resources used by this instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Cleans up resources used by this instance.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release managed resources.
+        /// </param>
+        protected virtual void Dispose(bool disposing) { }
     }
 }

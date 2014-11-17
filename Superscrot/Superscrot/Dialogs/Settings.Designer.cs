@@ -48,14 +48,7 @@
             this.jpegQualityLabel = new System.Windows.Forms.Label();
             this.useJpeg = new System.Windows.Forms.CheckBox();
             this.connectionTab = new System.Windows.Forms.TabPage();
-            this.scpGroup = new System.Windows.Forms.GroupBox();
-            this.scpDescriptionLabel = new System.Windows.Forms.Label();
-            this.browseScpButton = new System.Windows.Forms.Button();
-            this.scpText = new System.Windows.Forms.TextBox();
-            this.scpLabel = new System.Windows.Forms.Label();
             this.authGroup = new System.Windows.Forms.GroupBox();
-            this.fingerprintText = new Superscrot.Controls.TextBox();
-            this.fingerprintLabel = new System.Windows.Forms.Label();
             this.browseKeyButton = new System.Windows.Forms.Button();
             this.keyText = new System.Windows.Forms.TextBox();
             this.keyLabel = new System.Windows.Forms.Label();
@@ -89,7 +82,6 @@
             this.pathGroup.SuspendLayout();
             this.imageGroup.SuspendLayout();
             this.connectionTab.SuspendLayout();
-            this.scpGroup.SuspendLayout();
             this.authGroup.SuspendLayout();
             this.serverGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.portNud)).BeginInit();
@@ -321,7 +313,6 @@
             // 
             // connectionTab
             // 
-            this.connectionTab.Controls.Add(this.scpGroup);
             this.connectionTab.Controls.Add(this.authGroup);
             this.connectionTab.Controls.Add(this.serverGroup);
             this.connectionTab.Location = new System.Drawing.Point(4, 24);
@@ -332,68 +323,10 @@
             this.connectionTab.Text = "Connection";
             this.connectionTab.UseVisualStyleBackColor = true;
             // 
-            // scpGroup
-            // 
-            this.scpGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.scpGroup.Controls.Add(this.scpDescriptionLabel);
-            this.scpGroup.Controls.Add(this.browseScpButton);
-            this.scpGroup.Controls.Add(this.scpText);
-            this.scpGroup.Controls.Add(this.scpLabel);
-            this.scpGroup.Location = new System.Drawing.Point(6, 343);
-            this.scpGroup.Name = "scpGroup";
-            this.scpGroup.Size = new System.Drawing.Size(421, 129);
-            this.scpGroup.TabIndex = 2;
-            this.scpGroup.TabStop = false;
-            this.scpGroup.Text = "WinSCP";
-            // 
-            // scpDescriptionLabel
-            // 
-            this.scpDescriptionLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.scpDescriptionLabel.Location = new System.Drawing.Point(6, 19);
-            this.scpDescriptionLabel.Name = "scpDescriptionLabel";
-            this.scpDescriptionLabel.Size = new System.Drawing.Size(409, 46);
-            this.scpDescriptionLabel.TabIndex = 3;
-            this.scpDescriptionLabel.Text = "You need to have WinSCP installed in order to use SSH key authentication. Additio" +
-    "nally, Pageant should be running if your private key requires a passphrase.\r\n";
-            // 
-            // browseScpButton
-            // 
-            this.browseScpButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.browseScpButton.Location = new System.Drawing.Point(340, 94);
-            this.browseScpButton.Name = "browseScpButton";
-            this.browseScpButton.Size = new System.Drawing.Size(75, 23);
-            this.browseScpButton.TabIndex = 2;
-            this.browseScpButton.Text = "Bro&wse...";
-            this.browseScpButton.UseVisualStyleBackColor = true;
-            this.browseScpButton.Click += new System.EventHandler(this.browseScpButton_Click);
-            // 
-            // scpText
-            // 
-            this.scpText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.scpText.Location = new System.Drawing.Point(9, 94);
-            this.scpText.Name = "scpText";
-            this.scpText.Size = new System.Drawing.Size(325, 23);
-            this.scpText.TabIndex = 1;
-            this.scpText.TextChanged += new System.EventHandler(this.scpText_TextChanged);
-            // 
-            // scpLabel
-            // 
-            this.scpLabel.AutoSize = true;
-            this.scpLabel.Location = new System.Drawing.Point(6, 76);
-            this.scpLabel.Name = "scpLabel";
-            this.scpLabel.Size = new System.Drawing.Size(56, 15);
-            this.scpLabel.TabIndex = 0;
-            this.scpLabel.Text = "&Location:";
-            // 
             // authGroup
             // 
             this.authGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.authGroup.Controls.Add(this.fingerprintText);
-            this.authGroup.Controls.Add(this.fingerprintLabel);
             this.authGroup.Controls.Add(this.browseKeyButton);
             this.authGroup.Controls.Add(this.keyText);
             this.authGroup.Controls.Add(this.keyLabel);
@@ -403,30 +336,10 @@
             this.authGroup.Controls.Add(this.usernameLabel);
             this.authGroup.Location = new System.Drawing.Point(6, 131);
             this.authGroup.Name = "authGroup";
-            this.authGroup.Size = new System.Drawing.Size(421, 206);
+            this.authGroup.Size = new System.Drawing.Size(421, 143);
             this.authGroup.TabIndex = 1;
             this.authGroup.TabStop = false;
             this.authGroup.Text = "Authentication";
-            // 
-            // fingerprintText
-            // 
-            this.fingerprintText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.fingerprintText.Location = new System.Drawing.Point(9, 167);
-            this.fingerprintText.Name = "fingerprintText";
-            this.fingerprintText.Placeholder = "ssh-rsa 2048 xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx";
-            this.fingerprintText.Size = new System.Drawing.Size(406, 23);
-            this.fingerprintText.TabIndex = 8;
-            this.fingerprintText.TextChanged += new System.EventHandler(this.fingerprintText_TextChanged);
-            // 
-            // fingerprintLabel
-            // 
-            this.fingerprintLabel.AutoSize = true;
-            this.fingerprintLabel.Location = new System.Drawing.Point(6, 149);
-            this.fingerprintLabel.Name = "fingerprintLabel";
-            this.fingerprintLabel.Size = new System.Drawing.Size(122, 15);
-            this.fingerprintLabel.TabIndex = 7;
-            this.fingerprintLabel.Text = "Server key &fingerprint:";
             // 
             // browseKeyButton
             // 
@@ -741,8 +654,6 @@
             this.imageGroup.ResumeLayout(false);
             this.imageGroup.PerformLayout();
             this.connectionTab.ResumeLayout(false);
-            this.scpGroup.ResumeLayout(false);
-            this.scpGroup.PerformLayout();
             this.authGroup.ResumeLayout(false);
             this.authGroup.PerformLayout();
             this.serverGroup.ResumeLayout(false);
@@ -779,13 +690,6 @@
         private System.Windows.Forms.Button browseKeyButton;
         private System.Windows.Forms.TextBox keyText;
         private System.Windows.Forms.Label keyLabel;
-        private Superscrot.Controls.TextBox fingerprintText;
-        private System.Windows.Forms.Label fingerprintLabel;
-        private System.Windows.Forms.GroupBox scpGroup;
-        private System.Windows.Forms.Label scpDescriptionLabel;
-        private System.Windows.Forms.Button browseScpButton;
-        private System.Windows.Forms.TextBox scpText;
-        private System.Windows.Forms.Label scpLabel;
         private System.Windows.Forms.LinkLabel helpLink;
         private System.Windows.Forms.TabPage uploadTab;
         private System.Windows.Forms.GroupBox imageGroup;

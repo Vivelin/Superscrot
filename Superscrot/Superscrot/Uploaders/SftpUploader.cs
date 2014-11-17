@@ -11,12 +11,25 @@ namespace Superscrot.Uploaders
     /// Provides the functionality to upload and delete screenshot to and from 
     /// an SFTP server.
     /// </summary>
-    class SftpUploader : Uploader, IDisposable
+    class SftpUploader : Uploader
     {
         private SftpClient client;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpUploader"/> class
+        /// with the specified <see cref="SftpClient"/>.
+        /// </summary>
+        /// <param name="client">The <see cref="SftpClient"/> to use.</param>
+        /// <param name="timeout">The time in milliseconds to wait for a 
+        /// response from the server.</param>
+        protected SftpUploader(SftpClient client, int timeout = 30000)
+        {
+            this.client = client;
+            this.client.ConnectionInfo.Timeout = TimeSpan.FromMilliseconds(timeout);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="SftpUploader"/> class
         /// with the specified username and password.
         /// </summary>
         /// <param name="hostname">The hostname or IP address of the server.</param>
@@ -26,11 +39,30 @@ namespace Superscrot.Uploaders
         /// </param>
         /// <param name="timeout">The time in milliseconds to wait for a 
         /// response from the server.</param>
-        public SftpUploader(string hostname, int port, string username, 
-            string password, int timeout = 30000)
+        public static SftpUploader WithPassword(string hostname, int port, 
+            string username, string password, int timeout = 30000)
         {
-            client = new SftpClient(hostname, port, username, password);
-            client.ConnectionInfo.Timeout = TimeSpan.FromMilliseconds(timeout);
+            var client = new SftpClient(hostname, port, username, password);
+            return new SftpUploader(client, timeout);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="SftpUploader"/> class
+        /// using public key authentication.
+        /// </summary>
+        /// <param name="hostname">The hostname or IP address of the server.</param>
+        /// <param name="port">The port of the server.</param>
+        /// <param name="username">The name of the user to authenticate as.</param>
+        /// <param name="privateKeyPath">The path to the private key file to
+        /// authenticate with.</param>
+        /// <param name="timeout">The time in milliseconds to wait for a 
+        /// response from the server.</param>
+        public static SftpUploader WithKeyFile(string hostname, int port, 
+            string username, string privateKeyPath, int timeout = 30000)
+        {
+            var keyFile = new PrivateKeyFile(privateKeyPath);
+            var client = new SftpClient(hostname, port, username, keyFile);
+            return new SftpUploader(client, timeout);
         }
 
         /// <summary>
@@ -117,17 +149,8 @@ namespace Superscrot.Uploaders
         /// <summary>
         /// Cleans up resources used by this instance.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Cleans up resources used by this instance.
-        /// </summary>
         /// <param name="disposing"><c>true</c> to release managed resources.</param>
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (disposing)
             {

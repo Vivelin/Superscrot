@@ -87,10 +87,6 @@ namespace Superscrot.Dialogs
             usernameText.Text = Configuration.FtpUsername;
             passwordText.Text = Configuration.FtpPassword;
             keyText.Text = Configuration.PrivateKeyPath;
-            fingerprintText.Text = configuration.HostKeyFingerprint;
-
-            // WinSCP
-            scpText.Text = Configuration.WinScpPath;
 
             // Interface
             showPreview.Checked = Configuration.ShowPreviewDialog;
@@ -130,10 +126,6 @@ namespace Superscrot.Dialogs
             Configuration.FtpUsername = usernameText.Text;
             Configuration.FtpPassword = passwordText.Text;
             Configuration.PrivateKeyPath = keyText.Text;
-            Configuration.HostKeyFingerprint = fingerprintText.Text;
-
-            // WinSCP
-            Configuration.WinScpPath = scpText.Text;
 
             // Interface
             Configuration.ShowPreviewDialog = showPreview.Checked;
@@ -188,11 +180,7 @@ namespace Superscrot.Dialogs
 
             // Enable/disable inputs depending on their relevance
             var useSsh = (protocolDropdown.SelectedIndex == 1);
-            var useScp = System.IO.File.Exists(scpText.Text);
-            keyLabel.Enabled = keyText.Enabled = browseKeyButton.Enabled = useSsh && useScp;
-            fingerprintLabel.Enabled = fingerprintText.Enabled = useSsh && useScp;
-            passwordLabel.Enabled = passwordText.Enabled = !useSsh || !useScp;
-            scpGroup.Enabled = useSsh;
+            keyLabel.Enabled = keyText.Enabled = browseKeyButton.Enabled = useSsh;
         }
 
         private void usernameText_TextChanged(object sender, EventArgs e)
@@ -208,24 +196,6 @@ namespace Superscrot.Dialogs
         private void keyText_TextChanged(object sender, EventArgs e)
         {
             IsDirty = true;
-        }
-
-        private void fingerprintText_TextChanged(object sender, EventArgs e)
-        {
-            IsDirty = true;
-        }
-
-        private void scpText_TextChanged(object sender, EventArgs e)
-        {
-            IsDirty = true;
-
-            /* Enable/disable PrivateKeyPath, HostKeyFingerprint, FtpPassword
-             * inputs depending on whether or not they are relevant with WinSCP
-             */
-            var isValid = System.IO.File.Exists(scpText.Text);
-            keyLabel.Enabled = keyText.Enabled = browseKeyButton.Enabled = isValid;
-            fingerprintLabel.Enabled = fingerprintText.Enabled = isValid;
-            passwordLabel.Enabled = passwordText.Enabled = !isValid;
         }
 
         private void useJpeg_CheckedChanged(object sender, EventArgs e)
@@ -293,24 +263,6 @@ namespace Superscrot.Dialogs
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     keyText.Text = dialog.FileName;
-                    IsDirty = true;
-                }
-            }
-        }
-
-        private void browseScpButton_Click(object sender, EventArgs e)
-        {
-            using (var dialog = new OpenFileDialog())
-            {
-                if (!string.IsNullOrWhiteSpace(scpText.Text))
-                {
-                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(scpText.Text);
-                    dialog.FileName = System.IO.Path.GetFileName(scpText.Text);
-                }
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    scpText.Text = dialog.FileName;
                     IsDirty = true;
                 }
             }
