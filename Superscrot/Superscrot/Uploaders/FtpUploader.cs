@@ -17,17 +17,13 @@ namespace Superscrot.Uploaders
         /// Initializes a new instance of the <see cref="FtpUploader"/> class
         /// with the specified username and password.
         /// </summary>
-        /// <param name="hostname">The hostname or IP address of the server.</param>
-        /// <param name="port">The port of the server.</param>
-        /// <param name="username">The name of the user to authenticate as.</param>
-        /// <param name="password">The password of the user to authenticate as.
-        /// </param>
+        /// <param name="info">An object containing the connection info.</param>
         /// <param name="timeout">The time in milliseconds to wait for a 
         /// response from the server.</param>
-        public FtpUploader(string hostname, int port, string username,
-            string password, int timeout = 30000)
+        public FtpUploader(ConnectionInfo info, int timeout = 30000)
         {
-            client = new FTP.FtpClient(hostname, port, username, password);
+            client = new FTP.FtpClient(info.Host, info.Port, info.UserName, 
+                info.Password);
             client.Timeout = timeout;
         }
 

@@ -39,6 +39,28 @@ namespace Superscrot.Uploaders
         public event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
 
         /// <summary>
+        /// Returns a new instance of the <see cref="Uploader"/> class for the
+        /// specified configuration.
+        /// </summary>
+        /// <param name="config">A <see cref="Configuration"/> object that 
+        /// contains the connection info and settings.</param>
+        /// <returns>A new object that derives from <see cref="Uploader"/>.
+        /// </returns>
+        public static Uploader Create(Configuration config)
+        {
+            var info = new ConnectionInfo(config);
+
+            if (config.UseSSH)
+            {
+                return new SftpUploader(info, config.FtpTimeout);
+            }
+            else
+            {
+                return new FtpUploader(info, config.FtpTimeout);
+            }
+        }
+
+        /// <summary>
         /// Uploads a screenshot to the target location on the currently configured server.
         /// </summary>
         /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace Superscrot.Uploaders
 {
@@ -19,50 +20,28 @@ namespace Superscrot.Uploaders
         /// Initializes a new instance of the <see cref="SftpUploader"/> class
         /// with the specified <see cref="SftpClient"/>.
         /// </summary>
-        /// <param name="client">The <see cref="SftpClient"/> to use.</param>
+        /// <param name="info">An object containing the connection info.</param>
         /// <param name="timeout">The time in milliseconds to wait for a 
         /// response from the server.</param>
-        protected SftpUploader(SftpClient client, int timeout = 30000)
+        public SftpUploader(ConnectionInfo info, int timeout = 30000)
         {
-            this.client = client;
-            this.client.ConnectionInfo.Timeout = TimeSpan.FromMilliseconds(timeout);
-        }
+            try
+            {
+                var keyFile = new PrivateKeyFile(info.PrivateKeyPath);
+                client = new SftpClient(info.Host, info.Port, info.UserName,
+                    keyFile);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="SftpUploader"/> class
-        /// with the specified username and password.
-        /// </summary>
-        /// <param name="hostname">The hostname or IP address of the server.</param>
-        /// <param name="port">The port of the server.</param>
-        /// <param name="username">The name of the user to authenticate as.</param>
-        /// <param name="password">The password of the user to authenticate as.
-        /// </param>
-        /// <param name="timeout">The time in milliseconds to wait for a 
-        /// response from the server.</param>
-        public static SftpUploader WithPassword(string hostname, int port, 
-            string username, string password, int timeout = 30000)
-        {
-            var client = new SftpClient(hostname, port, username, password);
-            return new SftpUploader(client, timeout);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="SftpUploader"/> class
-        /// using public key authentication.
-        /// </summary>
-        /// <param name="hostname">The hostname or IP address of the server.</param>
-        /// <param name="port">The port of the server.</param>
-        /// <param name="username">The name of the user to authenticate as.</param>
-        /// <param name="privateKeyPath">The path to the private key file to
-        /// authenticate with.</param>
-        /// <param name="timeout">The time in milliseconds to wait for a 
-        /// response from the server.</param>
-        public static SftpUploader WithKeyFile(string hostname, int port, 
-            string username, string privateKeyPath, int timeout = 30000)
-        {
-            var keyFile = new PrivateKeyFile(privateKeyPath);
-            var client = new SftpClient(hostname, port, username, keyFile);
-            return new SftpUploader(client, timeout);
+            if (client == null)
+            {
+                client = new SftpClient(info.Host, info.Port, info.UserName,
+                    info.Password);
+            }
+            client.ConnectionInfo.Timeout = TimeSpan.FromMilliseconds(timeout);
         }
 
         /// <summary>

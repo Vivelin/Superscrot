@@ -445,45 +445,7 @@ namespace Superscrot
             {
                 if (uploader == null)
                 {
-                    if (Program.Config.UseSSH)
-                    {
-                        try
-                        {
-                            if (File.Exists(Program.Config.PrivateKeyPath))
-                            {
-                                uploader = SftpUploader.WithKeyFile(
-                                    Program.Config.FtpHostname,
-                                    Program.Config.FtpPort,
-                                    Program.Config.FtpUsername,
-                                    Program.Config.PrivateKeyPath,
-                                    Program.Config.FtpTimeout);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine("Exception occurred while trying to use a key file, falling back to password.");
-                            Trace.WriteLine(ex);
-                        }
-
-                        if (uploader == null)
-                        {
-                            uploader = SftpUploader.WithPassword(
-                                Program.Config.FtpHostname,
-                                Program.Config.FtpPort,
-                                Program.Config.FtpUsername,
-                                Program.Config.FtpPassword,
-                                Program.Config.FtpTimeout);
-                        }
-                    }
-                    else
-                    {
-                        uploader = new FtpUploader(
-                            Program.Config.FtpHostname,
-                            Program.Config.FtpPort,
-                            Program.Config.FtpUsername,
-                            Program.Config.FtpPassword);
-                    }
-
+                    uploader = Uploader.Create(Program.Config);
                     uploader.DuplicateFileFound += HandleDuplicateFileFound;
                     uploader.UploadSucceeded += (s) =>
                     {

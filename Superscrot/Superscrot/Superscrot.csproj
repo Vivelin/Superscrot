@@ -154,6 +154,7 @@
     <Compile Include="CommandlineParser.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConnectionInfo.cs" />
     <Compile Include="Dialogs\DuplicateFileFoundDialog.cs">
       <SubType>Form</SubType>
     </Compile>
