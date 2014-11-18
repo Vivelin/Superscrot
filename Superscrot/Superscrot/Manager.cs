@@ -25,10 +25,24 @@ namespace Superscrot
         private Uploader uploader;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Manager"/> class.
+        /// </summary>
+        public Manager()
+        {
+            Program.ConfigurationChanged += (sender, e) =>
+            {
+                if (uploader != null)
+                {
+                    uploader.Dispose();
+                    uploader = null;
+                }
+            };
+        }
+
+        /// <summary>
         /// Occurs when the <see cref="Enabled"/> property changes.
         /// </summary>
         public event EventHandler EnabledChanged;
-
 
         /// <summary>
         /// Gets or sets a value indicating whether the <see cref="Manager"/> 
