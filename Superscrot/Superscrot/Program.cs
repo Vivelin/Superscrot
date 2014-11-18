@@ -17,6 +17,11 @@ namespace Superscrot
         private static EventWaitHandle _startupEventHandle;
 
         /// <summary>
+        /// Occurs when the <see cref="Config"/> property changes.
+        /// </summary>
+        public static event EventHandler ConfigurationChanged;
+
+        /// <summary>
         /// Gets whether the application is shutting down.
         /// </summary>
         public static bool IsShuttingDown { get; set; }
@@ -65,10 +70,10 @@ namespace Superscrot
                 if (value != _config)
                 {
                     _config = value;
-                    ConsoleWriteLine(ConsoleColor.Gray, "Switched configuration");
+                    OnConfigurationChanged();
                 }
             }
-        }
+        }				
 
         private static Manager _manager = null;
 
@@ -189,6 +194,18 @@ namespace Superscrot
                 settings.Configuration = new Configuration(Program.Config);
                 settings.ShowDialog();
             }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="ConfigurationChanged"/> event.
+        /// </summary>
+        private static void OnConfigurationChanged()
+        {
+            ConsoleWriteLine(ConsoleColor.Gray, "Switched configuration");
+
+            var handler = ConfigurationChanged;
+            if (handler != null)
+                handler(null, EventArgs.Empty);
         }
 
         /// <summary>

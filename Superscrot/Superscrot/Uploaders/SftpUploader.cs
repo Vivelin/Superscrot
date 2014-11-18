@@ -4,38 +4,45 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace Superscrot.Uploaders
 {
     /// <summary>
-    /// Provides the functionality to upload and delete screenshot to and from an SFTP server.
+    /// Provides the functionality to upload and delete screenshot to and from 
+    /// an SFTP server.
     /// </summary>
-    class SftpUploader : IUploader
+    class SftpUploader : Uploader
     {
-        /// <summary>
-        /// Occurs when an upload has succeeded.
-        /// </summary>
-        public event UploadEventHandler UploadSucceeded;
+        private SftpClient client;
 
         /// <summary>
-        /// Occurs when an upload has failed.
+        /// Initializes a new instance of the <see cref="SftpUploader"/> class
+        /// with the specified <see cref="SftpClient"/>.
         /// </summary>
-        public event UploadEventHandler UploadFailed;
+        /// <param name="info">An object containing the connection info.</param>
+        /// <param name="timeout">The time in milliseconds to wait for a 
+        /// response from the server.</param>
+        public SftpUploader(ConnectionInfo info, int timeout = 30000)
+        {
+            try
+            {
+                var keyFile = new PrivateKeyFile(info.PrivateKeyPath);
+                client = new SftpClient(info.Host, info.Port, info.UserName,
+                    keyFile);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
 
-        /// <summary>
-        /// Occurs when a file was deleted succesfully.
-        /// </summary>
-        public event UploadEventHandler DeleteSucceeded;
-
-        /// <summary>
-        /// Occurs when a file could not be deleted.
-        /// </summary>
-        public event UploadEventHandler DeleteFailed;
-
-        /// <summary>
-        /// Occurs when a duplicate file was found on the server before the screenshot was uploaded.
-        /// </summary>
-        public event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
+            if (client == null)
+            {
+                client = new SftpClient(info.Host, info.Port, info.UserName,
+                    info.Password);
+            }
+            client.ConnectionInfo.Timeout = TimeSpan.FromMilliseconds(timeout);
+        }
 
         /// <summary>
         /// Uploads a screenshot to the target location on the currently configured server.
@@ -44,39 +51,42 @@ namespace Superscrot.Uploaders
         /// <param name="target">The path on the server to upload to.</param>
         /// <returns>True if the upload succeeded, false otherwise.</returns>
         /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        public bool Upload(Screenshot screenshot, string target)
+        public override bool Upload(Screenshot screenshot, string target)
         {
-            SftpClient c = new SftpClient(Program.Config.FtpHostname, Program.Config.FtpPort, Program.Config.FtpUsername, Program.Config.FtpPassword);
-            c.ConnectionInfo.Timeout = new TimeSpan(0, 0, 0, 0, Program.Config.FtpTimeout);
-            c.Connect();
-            if (!c.IsConnected)
-                throw new ConnectionFailedException(string.Format("Upload failed: can't connect to \"{0}\"", Program.Config.FtpHostname), Program.Config.FtpHostname);
+            if (screenshot == null)
+                throw new ArgumentNullException("screenshot");
+
+            EnsureConnection();
 
             string folder = Path.GetDirectoryName(target).Replace('\\', '/');
-            SftpCreateDirectoryRecursive(ref c, folder);
+            SftpCreateDirectoryRecursive(folder);
 
             try
             {
-                if (Program.Config.CheckForDuplicateFiles && !FindDuplicateFile(screenshot, ref target, c))
+                if (Program.Config.CheckForDuplicateFiles 
+                    && !FindDuplicateFile(screenshot, ref target))
                     return false;
 
                 using (MemoryStream stream = new MemoryStream())
                 {
                     screenshot.SaveToStream(stream);
-                    c.UploadFile(stream, target);
+                    client.UploadFile(stream, target);
                 }
 
                 screenshot.ServerPath = target;
-                if (UploadSucceeded != null)
-                    UploadSucceeded(screenshot);
+                OnUploadSucceeded(screenshot);
                 return true;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
-                if (UploadFailed != null)
-                    UploadFailed(screenshot);
+                OnUploadFailed(screenshot);
                 return false;
+            }
+            finally
+            {
+                if (client != null)
+                    client.Disconnect();
             }
         }
 
@@ -87,29 +97,62 @@ namespace Superscrot.Uploaders
         /// <returns>True if the file was deleted, false otherwise.</returns>
         /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
         /// <exception cref="System.InvalidOperationException"><paramref name="screenshot"/> has not been uploaded (ServerPath property was not set)</exception>
-        public bool UndoUpload(Screenshot screenshot)
+        public override bool UndoUpload(Screenshot screenshot)
         {
-            if (screenshot.ServerPath == null) throw new InvalidOperationException("Can't undo an upload that never happened");
+            if (screenshot == null)
+                throw new ArgumentNullException("screenshot");
+            if (screenshot.ServerPath == null) 
+                throw new InvalidOperationException("Can't undo an upload that never happened");
 
-            SftpClient c = new SftpClient(Program.Config.FtpHostname, Program.Config.FtpPort, Program.Config.FtpUsername, Program.Config.FtpPassword);
-            c.ConnectionInfo.Timeout = new TimeSpan(0, 0, 0, 0, Program.Config.FtpTimeout);
-            c.Connect();
-            if (!c.IsConnected)
-                throw new ConnectionFailedException(string.Format("Undo upload failed: can't connect to \"{0}\"", Program.Config.FtpHostname), Program.Config.FtpHostname);
+            EnsureConnection();
 
             try
             {
-                c.DeleteFile(screenshot.ServerPath);
-                if (DeleteSucceeded != null)
-                    DeleteSucceeded(screenshot);
+                client.DeleteFile(screenshot.ServerPath);
+                OnDeleteSucceeded(screenshot);
                 return true;
             }
             catch (Exception ex)
             {
                 Program.ConsoleException(ex);
-                if (DeleteFailed != null)
-                    DeleteFailed(screenshot);
+                OnDeleteFailed(screenshot);
                 return false;
+            }
+            finally
+            {
+                if (client != null)
+                    client.Disconnect();
+            }
+        }
+
+        /// <summary>
+        /// Cleans up resources used by this instance.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release managed resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (client != null)
+                {
+                    client.Dispose();
+                    client = null;
+                }
+            }
+        }
+
+        private void EnsureConnection()
+        {
+            if (client != null)
+            {
+                client.Connect();
+                if (!client.IsConnected)
+                {
+                    throw new ConnectionFailedException(
+                        string.Format("Upload failed: can't connect to \"{0}\"",
+                            client.ConnectionInfo.Host),
+                        client.ConnectionInfo.Host);
+                }
             }
         }
 
@@ -119,55 +162,51 @@ namespace Superscrot.Uploaders
         /// </summary>
         /// <param name="screenshot">The screenshot that is being uploaded.</param>
         /// <param name="target">The target file name.</param>
-        /// <param name="c">The session in which the upload is taking place.</param>
         /// <returns>False if the upload should be aborted.</returns>
-        private bool FindDuplicateFile(Screenshot screenshot, ref string target, SftpClient c)
+        private bool FindDuplicateFile(Screenshot screenshot, ref string target)
         {
             if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return true;
 
-            var handler = DuplicateFileFound;
-            if (handler != null)
+            var directory = Path.GetDirectoryName(target).Replace('\\', '/');
+            var listing = client.ListDirectory(directory);
+            var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
+            var duplicate = listing.FirstOrDefault(x =>
+                x.Name.Contains(name)
+            );
+
+            if (duplicate != null)
             {
-                var directory = Path.GetDirectoryName(target).Replace('\\', '/');
-                var listing = c.ListDirectory(directory);
-                var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
-                var duplicate = listing.FirstOrDefault(x =>
-                    x.Name.Contains(name)
-                );
+                var e = new DuplicateFileEventArgs(screenshot, 
+                    client.ConnectionInfo.Host, duplicate.Name);
 
-                if (duplicate != null)
+                OnDuplicateFileFound(e);
+                switch (e.Action)
                 {
-                    var e = new DuplicateFileEventArgs(screenshot, c.ConnectionInfo.Host, duplicate.Name);
-
-                    handler(this, e);
-                    switch (e.Action)
-                    {
-                        case DuplicateFileAction.Replace:
-                            target = duplicate.FullName;                            
-                            Program.ConsoleWriteLine(ConsoleColor.Magenta, "Changed target to {0}", target);
-                            return true;
-                        case DuplicateFileAction.Abort:
-                            return false;
-                        case DuplicateFileAction.Ignore:
-                        default:
-                            return true;
-                    }
+                    case DuplicateFileAction.Replace:
+                        target = duplicate.FullName;                            
+                        Program.ConsoleWriteLine(ConsoleColor.Magenta, "Changed target to {0}", target);
+                        return true;
+                    case DuplicateFileAction.Abort:
+                        return false;
+                    case DuplicateFileAction.Ignore:
+                    default:
+                        return true;
                 }
             }
 
             return true;
         }
 
-        private static void SftpCreateDirectoryRecursive(ref SftpClient c, string path)
+        private void SftpCreateDirectoryRecursive(string path)
         {
-            if (!c.Exists(path))
+            if (!client.Exists(path))
             {
                 string parent = Path.GetDirectoryName(path).Replace('\\', '/');
-                SftpCreateDirectoryRecursive(ref c, parent);
-                Program.ConsoleWriteLine(ConsoleColor.Magenta, "Creating directory {0}", path);
-                c.CreateDirectory(path);
+                SftpCreateDirectoryRecursive(parent);
+                Program.ConsoleWriteLine(ConsoleColor.Magenta, 
+                    "Creating directory {0}", path);
+                client.CreateDirectory(path);
             }
         }
-
     }
 }

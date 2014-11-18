@@ -63,7 +63,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINSCP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -146,14 +146,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="WinSCPnet">
-      <HintPath>References\WinSCPnet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandlineParser.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConnectionInfo.cs" />
     <Compile Include="Dialogs\DuplicateFileFoundDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,7 +175,7 @@
       <DependentUpon>PreviewDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Uploaders\DuplicateFileEventArgs.cs" />
-    <Compile Include="Uploaders\IUploader.cs" />
+    <Compile Include="Uploaders\Uploader.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Manager.cs" />
     <Compile Include="Program.cs" />
@@ -193,7 +191,6 @@
     <Compile Include="Uploaders\FtpUploader.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Uploaders\SftpUploader.cs" />
-    <Compile Include="Uploaders\WinScpUploader.cs" />
     <Compile Include="XmlColor.cs" />
     <EmbeddedResource Include="Dialogs\DuplicateFileFoundDialog.resx">
       <DependentUpon>DuplicateFileFoundDialog.cs</DependentUpon>

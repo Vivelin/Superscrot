@@ -27,7 +27,7 @@ namespace Superscrot.Uploaders
     }
 
     /// <summary>
-    /// Provides data for the <see cref="IUploader.DuplicateFileFound"/> event.
+    /// Provides data for the <see cref="Uploader.DuplicateFileFound"/> event.
     /// </summary>
     public class DuplicateFileEventArgs : EventArgs
     {

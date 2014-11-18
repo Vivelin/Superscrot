@@ -16,16 +16,6 @@ namespace FTP
         private int _timeout = 30000;
 
         /// <summary>
-        /// Gets/sets the time in milliseconds to wait for responses to requests.
-        /// </summary>
-        public int Timeout
-        {
-            get { return _timeout; }
-            set { _timeout = value; }
-        }
-
-        #region Constructors nobody cares about
-        /// <summary>
         /// Initializes a new FTP client.
         /// </summary>
         /// <param name="hostname">The hostname or IP address of the FTP server.</param>
@@ -69,9 +59,28 @@ namespace FTP
         {
             _creds = new NetworkCredential(username, password);
         }
-        #endregion
 
-        #region Utility methods
+        /// <summary>
+        /// Gets the hostname of the server of the <see cref="FtpClient"/>.
+        /// </summary>
+        public string Hostname
+        {
+            get
+            {
+                if (_baseUri == null) return null;
+                return _baseUri.Host;
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets the time in milliseconds to wait for responses to requests.
+        /// </summary>
+        public int Timeout
+        {
+            get { return _timeout; }
+            set { _timeout = value; }
+        }
+
         /// <summary>
         /// Creates an FTP request for the specified directory on the server.
         /// </summary>
@@ -176,7 +185,6 @@ namespace FTP
                     return false;
             }
         }
-        #endregion
 
         /// <summary>
         /// Attempts to connect to the server.

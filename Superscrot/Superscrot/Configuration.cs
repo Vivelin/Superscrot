@@ -69,10 +69,6 @@ namespace Superscrot
             this.FtpUsername = that.FtpUsername;
             this.FtpPassword = that.FtpPassword;
             this.PrivateKeyPath = that.PrivateKeyPath;
-            this.HostKeyFingerprint = that.HostKeyFingerprint;
-
-            // WinSCP
-            this.WinScpPath = that.WinScpPath;
 
             // Upload
             this.UseCompression = that.UseCompression;
@@ -191,28 +187,12 @@ namespace Superscrot
         [Description("Determines whether to use FTP over SSH or not.")]
         public bool UseSSH { get; set; }
 
-#if WINSCP
-        /// <summary>
-        /// Gets/sets the location of winscp.exe
-        /// </summary>
-        [DisplayName("winscp.exe location"), Category("Connection")]
-        [Description("Required if using SSH. The location of winscp.exe.")]
-        public string WinScpPath { get; set; }
-
-        /// <summary>
-        /// Gets/sets the fingerprint of the server host key.
-        /// </summary>
-        [DisplayName("SSH host key fingerprint"), Category("Connection")]
-        [Description("Required if using SSH. A fingerprint of the form \"ssh-rsa 2048 xx:xx:...:xx\".")]
-        public string HostKeyFingerprint { get; set; }
-
         /// <summary>
         /// Gets/sets the path to the private key to use.
         /// </summary>
         [DisplayName("SSH private key path"), Category("Connection")]
         [Description("The path to the private key file to use for authentication over SSH.")]
         public string PrivateKeyPath { get; set; }
-#endif
         #endregion
 
         #region Image settings
