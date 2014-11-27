@@ -89,18 +89,16 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Returns the coordinates of the left-most, top-most, right-most and bottom-most edges of all screens.
+        /// Returns the coordinates of the left-most, top-most, right-most and 
+        /// bottom-most edges of all screens.
         /// </summary>
-        /// <param name="left">The X-coordinate of the left-most edge on the left-most screen.</param>
-        /// <param name="top">The Y-coordinate of the top-most edge on the top-most screen.</param>
-        /// <param name="right">The X-coordinate of the right-most edge on the right-most screen.</param>
-        /// <param name="bottom">The Y-coordinate of the bottom-most edge on the bottom-most screen.</param>
-        public static void GetDesktopBounds(out int left, out int top, out int right, out int bottom)
+        public static Rectangle GetDesktopBounds()
         {
-            left = 0;
-            top = 0;
-            right = 0;
-            bottom = 0;
+            var left = 0;
+            var top = 0;
+            var right = 0;
+            var bottom = 0;
+
             foreach (Screen s in Screen.AllScreens)
             {
                 if (s.Bounds.Left < left) left = s.Bounds.Left;
@@ -108,6 +106,8 @@ namespace Superscrot
                 if (s.Bounds.Right > right) right = s.Bounds.Right;
                 if (s.Bounds.Bottom > bottom) bottom = s.Bounds.Bottom;
             }
+
+            return Rectangle.FromLTRB(left, top, right, bottom);
         }
 
         /// <summary>

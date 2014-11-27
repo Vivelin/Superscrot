@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -42,12 +43,16 @@ namespace Superscrot
     /// </summary>
     public class Screenshot : IDisposable
     {
-        private const PixelFormat DefaultPixelFormat = PixelFormat.Format24bppRgb;
-
         private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.DarkGreen, text); }
         private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.DarkGreen, format, arg); }
         private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, text); }
         private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, format, arg); }
+
+        /// <summary>
+        /// #0D0B0C, a color that Windows doesn't seem to like very much.
+        /// </summary>
+        protected static readonly Color ThatFuckingColor = 
+            Color.FromArgb(0xFF, 0x0D, 0x0B, 0x0C);
 
         private Bitmap bitmap;
         private string serverPath;
@@ -134,61 +139,34 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Retrieves an image with the contents of the primary screen.
+        /// Retrieves an image containing a screenshot of the user's entire 
+        /// desktop.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> with the primary screen capture.</returns>
-        public static Screenshot FromPrimaryScreen()
-        {
-            try
-            {
-                Screenshot screenshot = new Screenshot();
-                screenshot.Source = ScreenshotSource.Desktop;
-
-                int width = Screen.PrimaryScreen.Bounds.Width;
-                int height = Screen.PrimaryScreen.Bounds.Height;
-                Write("Taking shot in 5.. 4.. ");
-
-                screenshot.Bitmap = new Bitmap(width, height, DefaultPixelFormat);
-                using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
-                {
-                    g.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, Screen.PrimaryScreen.Bounds.Size, CopyPixelOperation.SourceCopy);
-                }
-                WriteLine("just kidding, already done.", width, height);
-                return screenshot;
-            }
-            catch (Exception ex)
-            {
-                Program.ConsoleException(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Retrieves an iamge with the contents of the user's entire desktop.
-        /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> with an image containg all screens.</returns>
+        /// <returns>A new <see cref="Screenshot"/> with an image containg a 
+        /// screenshot of all screens combined.</returns>
         public static Screenshot FromDesktop()
         {
             try
             {
-                Screenshot screenshot = new Screenshot();
+                var screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.Desktop;
 
-                // Calculate the size of the user's entire desktop.
-                int left, top, right, bottom;
-                Common.GetDesktopBounds(out left, out top, out right, out bottom);
-
-                //Do the shit
-                screenshot.Bitmap = new Bitmap(right - left, bottom - top, DefaultPixelFormat);
+                var bounds = Common.GetDesktopBounds();
+                screenshot.Bitmap = new Bitmap(bounds.Width, bounds.Height);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
-                    foreach (Screen s in Screen.AllScreens)
+                    foreach (var screen in Screen.AllScreens)
                     {
-                        g.CopyFromScreen(s.Bounds.X, s.Bounds.Y, s.Bounds.X + Math.Abs(left), s.Bounds.Y + Math.Abs(top), s.Bounds.Size, CopyPixelOperation.SourceCopy);
+                        var destination = new Point(
+                            screen.Bounds.X + Math.Abs(bounds.Left),
+                            screen.Bounds.Y + Math.Abs(bounds.Top));
+                        using (var screenBitmap = CopyFromScreen(screen))
+                        {
+                            g.DrawImageUnscaled(screenBitmap, destination);
+                        }
                     }
                 }
+
                 return screenshot;
             }
             catch (Exception ex)
@@ -216,11 +194,12 @@ namespace Superscrot
                 WriteLine("Found a {0} window at {1} titled {2}",
                     window.Size, window.Location, window.Caption);
 
-                screenshot.Bitmap = new Bitmap(window.Width, window.Height, 
-                    DefaultPixelFormat);
+                screenshot.Bitmap = new Bitmap(window.Width, window.Height);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
-                    g.CopyFromScreen(window.Location, Point.Empty, window.Size, CopyPixelOperation.SourceCopy);
+                    g.Clear(ThatFuckingColor);
+                    g.CopyFromScreen(window.Location, Point.Empty,
+                        window.Size, CopyPixelOperation.SourceCopy);
                 }
                 return screenshot;
             }
@@ -234,10 +213,10 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Shows an overlay over the screen that allows the user to select a region, of which
-        /// the image is captured and returned.
+        /// Shows an overlay over the screen that allows the user to select a 
+        /// region, of which the image is captured and returned.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> with the selected region.</returns>
+        /// <returns>A <see cref="Screenshot"/> with the selected region.</returns>
         public static Screenshot FromRegion()
         {
             try
@@ -252,10 +231,13 @@ namespace Superscrot
                     {
                         WriteLine("Drawn rectangle of {0}x{1} starting at ({1}, {2})", rect.Width, rect.Height, rect.X, rect.Y);
 
-                        screenshot.Bitmap = new Bitmap(rect.Width, rect.Height, DefaultPixelFormat);
+                        screenshot.Bitmap = new Bitmap(rect.Width, rect.Height);
                         using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                         {
-                            g.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
+                            g.Clear(ThatFuckingColor);
+                            g.CopyFromScreen(rect.X, rect.Y, 0, 0, 
+                                new Size(rect.Width, rect.Height), 
+                                CopyPixelOperation.SourceCopy);
                         }
                         return screenshot;
                     }
@@ -486,6 +468,25 @@ namespace Superscrot
                     return stream.Length;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Bitmap"/> containing an image of the specified
+        /// screen.
+        /// </summary>
+        /// <param name="screen">The <see cref="Screen"/> to capture.</param>
+        /// <returns>A new <see cref="Bitmap"/> object representing <paramref 
+        /// name="screen"/>.</returns>
+        protected static Bitmap CopyFromScreen(Screen screen)
+        {
+            var bitmap = new Bitmap(screen.Bounds.Width, screen.Bounds.Height);
+            using (var g = Graphics.FromImage(bitmap))
+            {
+                g.Clear(ThatFuckingColor);
+                g.CopyFromScreen(screen.Bounds.Location, Point.Empty,
+                    screen.Bounds.Size, CopyPixelOperation.SourceCopy);
+            }
+            return bitmap;
         }
 
         private void OnUploaded()
