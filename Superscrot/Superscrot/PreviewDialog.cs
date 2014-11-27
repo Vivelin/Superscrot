@@ -152,7 +152,7 @@ namespace Superscrot
             UploadButton.Enabled = !string.IsNullOrEmpty(FileName);
             if (!string.IsNullOrEmpty(FileName))
             {
-                PublicUrl.Text = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(FileName));
+                PublicUrl.Text = PathUtility.UriCombine(Program.Config.HttpBaseUri, PathUtility.UrlEncode(FileName));
             }
             else
             {

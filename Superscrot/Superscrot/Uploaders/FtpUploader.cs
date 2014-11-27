@@ -129,7 +129,7 @@ namespace Superscrot.Uploaders
                     case DuplicateFileAction.Replace:
                         if (duplicate.StartsWith("/"))
                             target = duplicate;
-                        target = Common.UriCombine(directory, duplicate);
+                        target = PathUtility.UriCombine(directory, duplicate);
                         Program.ConsoleWriteLine(ConsoleColor.Magenta, "Changed target to {0}", target);
                         return true;
                     case DuplicateFileAction.Abort:

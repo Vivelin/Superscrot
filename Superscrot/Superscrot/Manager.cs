@@ -219,7 +219,7 @@ namespace Superscrot
                                 if (capture != null)
                                 {
                                     var name = capture.GetFileName();
-                                    var target = Common.UriCombine(Program.Config.FtpServerPath, name);
+                                    var target = PathUtility.UriCombine(Program.Config.FtpServerPath, name);
                                     Upload(capture, target);
                                     if (!string.IsNullOrWhiteSpace(capture.PublicUrl))
                                         clipText.AppendLine(capture.PublicUrl);
@@ -279,8 +279,8 @@ namespace Superscrot
                     }
                 }
 
-                string target = Common.UriCombine(Program.Config.FtpServerPath, filename);
-                string url = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(filename));
+                string target = PathUtility.UriCombine(Program.Config.FtpServerPath, filename);
+                string url = PathUtility.UriCombine(Program.Config.HttpBaseUri, PathUtility.UrlEncode(filename));
 
                 Thread uploadThread = new Thread(() =>
                 {
@@ -439,7 +439,7 @@ namespace Superscrot
                 Program.Tray.ShowError("Screenshot was not successfully uploaded", string.Format("Check your connection to {0} and try again.", Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
 
-                var fileName = Common.RemoveInvalidFilenameChars(screenshot.GetFileName());
+                var fileName = PathUtility.RemoveInvalidFilenameChars(screenshot.GetFileName());
                 var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
                 screenshot.SaveToFile(target);
                 WriteLine("Failed screenshot saved to {0}", target);

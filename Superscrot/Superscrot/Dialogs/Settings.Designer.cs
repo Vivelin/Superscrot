@@ -157,9 +157,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.formatDropdown.FormattingEnabled = true;
             this.formatDropdown.Items.AddRange(new object[] {
-            "%c\\%s\\%d-%i",
-            "%c-%s-%d-%i",
-            "%d-%i"});
+            "{yyyy}\\\\{MM}\\\\{unix}-{name}",
+            "{machine}\\\\{source}\\\\{time}-{name}",
+            "{machine}\\\\{source}\\\\{unix}-{name}",
+            "{unix}-{name}",
+            "{unix}"});
             this.formatDropdown.Location = new System.Drawing.Point(65, 22);
             this.formatDropdown.Name = "formatDropdown";
             this.formatDropdown.Size = new System.Drawing.Size(275, 23);

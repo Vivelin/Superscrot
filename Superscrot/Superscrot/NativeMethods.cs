@@ -97,7 +97,7 @@ namespace Superscrot
             {
                 return new System.Drawing.Point(value.x, value.y);
             }
-            
+
             /// <summary>
             /// Converts the specified <see cref="System.Drawing.Point"/> 
             /// instance to a new instance of the <see cref="POINT"/> class.
@@ -152,7 +152,7 @@ namespace Superscrot
             /// the following values. 
             /// </summary>
             public SHOWCMD showCmd;
-            
+
             /// <summary>
             /// The coordinates of the window's upper-left corner when the 
             /// window is minimized. 
@@ -706,5 +706,21 @@ namespace Superscrot
         /// <returns>Returns a pointer to the converted string, or NULL if the conversion fails.</returns>
         [DllImport("Shlwapi.dll", CharSet = CharSet.Unicode)]
         internal static extern long StrFormatByteSize(long fileSize, System.Text.StringBuilder buffer, int bufferSize);
+
+        /// <summary>
+        /// Retrieves the identifier of the thread that created the specified 
+        /// window and, optionally, the identifier of the process that created 
+        /// the window. 
+        /// </summary>
+        /// <param name="hWnd">A handle to the window.</param>
+        /// <param name="lpdwProcessId">A pointer to a variable that receives 
+        /// the process identifier. If this parameter is not <c>null</c>, 
+        /// GetWindowThreadProcessId copies the identifier of the process to 
+        /// the variable; otherwise, it does not.</param>
+        /// <returns>The return value is the identifier of the thread that 
+        /// created the window.</returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern uint GetWindowThreadProcessId(IntPtr hWnd,
+            out uint lpdwProcessId);
     }
 }

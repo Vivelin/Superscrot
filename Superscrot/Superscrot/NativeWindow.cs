@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Superscrot
     /// <summary>
     /// Represents a native window.
     /// </summary>
-    internal class NativeWindow
+    internal class NativeWindow : IDisposable
     {
         private NativeMethods.RECT rect;
         private NativeMethods.WINDOWPLACEMENT placement;
@@ -17,6 +18,7 @@ namespace Superscrot
         private Point? location;
         private Size? size;
         private string caption;
+        private Process owner;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NativeWindow"/> class
@@ -117,6 +119,15 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Gets a <see cref="Process"/> object that represents the owner of 
+        /// the window.
+        /// </summary>
+        public Process Owner
+        {
+            get { return owner; }
+        }
+
+        /// <summary>
         /// Creates a new instance of the <see cref="NativeWindow"/> class for 
         /// the foreground window.
         /// </summary>
@@ -128,6 +139,32 @@ namespace Superscrot
         {
             var handle = NativeMethods.GetForegroundWindow();
             return new NativeWindow(handle);
+        }
+
+        /// <summary>
+        /// Cleans up resources used by this object.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Cleans up resources used by this object.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release managed resources.
+        /// </param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (owner != null)
+                {
+                    owner.Dispose();
+                    owner = null;
+                }
+            }
         }
 
         private void Init()
@@ -166,6 +203,18 @@ namespace Superscrot
             else
             {
                 caption = string.Empty;
+            }
+
+            try
+            {
+                uint processId;
+                NativeMethods.GetWindowThreadProcessId(Handle, out processId);
+                owner = Process.GetProcessById((int)processId);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+                owner = null;
             }
         }
     }

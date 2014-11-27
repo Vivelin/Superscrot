@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -58,12 +59,13 @@ namespace Superscrot
         private string serverPath;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.Screenshot"/> class.
+        /// Initializes a new instance of the <see cref="Screenshot"/> class.
         /// </summary>
         public Screenshot() { }
 
         /// <summary>
-        /// Occurs when the screenshot has been uploaded or the path on the server has changed.
+        /// Occurs when the screenshot has been uploaded or the path on the 
+        /// server has changed.
         /// </summary>
         public event EventHandler Uploaded;
 
@@ -82,7 +84,8 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Gets or sets the path on the server, or null if the screenshot hasn't been uploaded yet.
+        /// Gets or sets the path on the server, or <c>null</c> if the 
+        /// screenshot hasn't been uploaded yet.
         /// </summary>
         public string ServerPath
         {
@@ -92,29 +95,38 @@ namespace Superscrot
                 if (value != serverPath)
                 {
                     serverPath = value;
-                    PublicUrl = Common.TranslateServerPath(value);
+                    PublicUrl = PathUtility.TranslateServerPath(value);
                     OnUploaded();
                 }
             }
         }
 
         /// <summary>
-        /// Gets the public URL to the file on the server, or null if the screenshot hasn't been uploaded yet.
+        /// Gets the public URL to the file on the server, or <c>null</c> if 
+        /// the screenshot hasn't been uploaded yet.
         /// </summary>
         public string PublicUrl { get; private set; }
 
         /// <summary>
-        /// Gets or sets the title of the window the screenshot was taken of, or null for non-window captures.
+        /// Gets or sets the title of the window the screenshot was taken of, 
+        /// or <c>null</c> for non-window captures.
         /// </summary>
         public string WindowTitle { get; set; }
 
         /// <summary>
-        /// Gets or sets the original filename that the screenshot originates from, or null for non file-based captures.
+        /// Gets or sets a string that represents the owner of the window the 
+        /// screenshot was taken of, or <c>null</c>.
+        /// </summary>
+        public string WindowOwner { get; set; }
+
+        /// <summary>
+        /// Gets or sets the original filename that the screenshot originates 
+        /// from, or <c>null</c> for non file-based captures.
         /// </summary>
         public string OriginalFileName { get; set; }
 
         /// <summary>
-        /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
+        /// Releases all resources used by the <see cref="Screenshot"/> class.
         /// </summary>
         public void Dispose()
         {
@@ -123,7 +135,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases all resources used by the <see cref="Superscrot.Screenshot"/> class.
+        /// Releases all resources used by the <see cref="Screenshot"/> class.
         /// </summary>
         /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
@@ -151,7 +163,7 @@ namespace Superscrot
                 var screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.Desktop;
 
-                var bounds = Common.GetDesktopBounds();
+                var bounds = GetDesktopBounds();
                 screenshot.Bitmap = new Bitmap(bounds.Width, bounds.Height);
                 using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                 {
@@ -188,20 +200,23 @@ namespace Superscrot
                 Screenshot screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.WindowCapture;
 
-                var window = NativeWindow.ForegroundWindow();
-                screenshot.WindowTitle = window.Caption;
-
-                WriteLine("Found a {0} window at {1} titled {2}",
-                    window.Size, window.Location, window.Caption);
-
-                screenshot.Bitmap = new Bitmap(window.Width, window.Height);
-                using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
+                using (var window = NativeWindow.ForegroundWindow())
                 {
-                    g.Clear(ThatFuckingColor);
-                    g.CopyFromScreen(window.Location, Point.Empty,
-                        window.Size, CopyPixelOperation.SourceCopy);
+                    screenshot.WindowTitle = window.Caption;
+                    screenshot.WindowOwner = window.Owner.MainModule.FileVersionInfo.FileDescription;
+
+                    WriteLine("Found a {0} window at {1} titled {2}",
+                        window.Size, window.Location, window.Caption);
+
+                    screenshot.Bitmap = new Bitmap(window.Width, window.Height);
+                    using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
+                    {
+                        g.Clear(ThatFuckingColor);
+                        g.CopyFromScreen(window.Location, Point.Empty,
+                            window.Size, CopyPixelOperation.SourceCopy);
+                    }
+                    return screenshot;
                 }
-                return screenshot;
             }
             catch (Exception ex)
             {
@@ -405,48 +420,49 @@ namespace Superscrot
         /// <param name="format">The composite format string.</param>
         public string GetFileName(string format)
         {
-            string windowTitle = Common.RemoveInvalidFilenameChars(WindowTitle);
-            string fileName = Common.RemoveInvalidFilenameChars(Path.GetFileNameWithoutExtension(OriginalFileName));
-
-            string formatted = format;
-            formatted = formatted.Replace("%c", Common.RemoveInvalidFilenameChars(Environment.MachineName));
-            formatted = formatted.Replace("%d", DateTime.Now.ToString("yyyyMMddHHmmssffff"));
-            formatted = formatted.Replace("%w", Bitmap.Width.ToString());
-            formatted = formatted.Replace("%h", Bitmap.Height.ToString());
-            formatted = formatted.Replace("%t", windowTitle);
-            formatted = formatted.Replace("%f", fileName);
+            var time = DateTime.Now;
+            var fileName = Path.GetFileNameWithoutExtension(OriginalFileName);
+            var args = new StringDictionary();
+            args.Add("machine", Environment.MachineName);
+            args.Add("width", Bitmap.Width.ToString());
+            args.Add("height", Bitmap.Height.ToString());
+            args.Add("window", WindowTitle);
+            args.Add("process", WindowOwner);
+            args.Add("file", fileName);
+            
+            // Date/time related placeholders
+            args.Add("time", time.ToString("yyyyMMddHHmmssffff"));
+            args.Add("unix", time.ToUnixTimestamp().ToString());
 
             switch (Source)
             {
                 case ScreenshotSource.Desktop:
-                    formatted = formatted.Replace("%s", "Desktop");
-                    formatted = formatted.Replace("%i", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
+                    args.Add("source", "Desktop");
+                    args.Add("name", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
                     break;
                 case ScreenshotSource.Clipboard:
-                    formatted = formatted.Replace("%s", "Clipboard");
-                    formatted = formatted.Replace("%i", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
+                    args.Add("source", "Clipboard");
+                    args.Add("name", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
                     break;
                 case ScreenshotSource.RegionCapture:
-                    formatted = formatted.Replace("%s", "Capture");
-                    formatted = formatted.Replace("%i", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
+                    args.Add("source", "Capture");
+                    args.Add("name", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
                     break;
                 case ScreenshotSource.WindowCapture:
-                    formatted = formatted.Replace("%s", "Window");
-                    formatted = formatted.Replace("%i", windowTitle);
+                    args.Add("source", "Window");
+                    args.Add("name", WindowOwner);
                     break;
                 case ScreenshotSource.File:
-                    formatted = formatted.Replace("%s", "File");
-                    formatted = formatted.Replace("%i", fileName);
+                    args.Add("source", "File");
+                    args.Add("name", fileName);
                     break;
             }
 
+            var result = PathUtility.Format(format, args, time);
+            var ext = Program.Config.UseCompression ? "jpg" : "png";
             if (Source == ScreenshotSource.File)
-                formatted = Path.ChangeExtension(formatted, Path.GetExtension(OriginalFileName));
-            else if (Program.Config.UseCompression && !(formatted.EndsWith(".jpg") || formatted.EndsWith(".jpeg")))
-                formatted += ".jpg";
-            else if (!formatted.EndsWith(".png"))
-                formatted += ".png";
-            return formatted;
+                ext = Path.GetExtension(OriginalFileName);
+            return Path.ChangeExtension(result, ext);
         }
 
         /// <summary>
@@ -487,6 +503,28 @@ namespace Superscrot
                     screen.Bounds.Size, CopyPixelOperation.SourceCopy);
             }
             return bitmap;
+        }
+
+        /// <summary>
+        /// Returns the coordinates of the left-most, top-most, right-most and 
+        /// bottom-most edges of all screens.
+        /// </summary>
+        protected static Rectangle GetDesktopBounds()
+        {
+            var left = 0;
+            var top = 0;
+            var right = 0;
+            var bottom = 0;
+
+            foreach (Screen s in Screen.AllScreens)
+            {
+                if (s.Bounds.Left < left) left = s.Bounds.Left;
+                if (s.Bounds.Top < top) top = s.Bounds.Top;
+                if (s.Bounds.Right > right) right = s.Bounds.Right;
+                if (s.Bounds.Bottom > bottom) bottom = s.Bounds.Bottom;
+            }
+
+            return Rectangle.FromLTRB(left, top, right, bottom);
         }
 
         private void OnUploaded()

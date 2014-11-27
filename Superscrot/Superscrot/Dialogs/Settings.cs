@@ -211,8 +211,17 @@ namespace Superscrot.Dialogs
 
             if (exampleScreenshot != null)
             {
-                var format = formatDropdown.Text;
-                formatExample.Text = exampleScreenshot.GetFileName(format);
+                try
+                {
+                    var format = formatDropdown.Text;
+                    formatExample.Text = exampleScreenshot.GetFileName(format);
+                    formatExample.ForeColor = SystemColors.ControlText;
+                }
+                catch (FormatException ex)
+                {
+                    formatExample.Text = ex.Message;
+                    formatExample.ForeColor = Color.Red;
+                }
             }
         }
 

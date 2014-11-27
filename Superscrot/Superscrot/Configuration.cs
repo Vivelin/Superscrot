@@ -31,7 +31,7 @@ namespace Superscrot
             EnableTrayIcon = true;
             ShowPreviewDialog = true;
 
-            FilenameFormat = "%c\\%s\\%d-%i";
+            FilenameFormat = "{yyyy}\\\\{MM}\\\\{unix}-{name}";
             FtpPort = 21;
             UseCompression = false;
             JpegQuality = 100L;
