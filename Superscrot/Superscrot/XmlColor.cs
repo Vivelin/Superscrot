@@ -47,7 +47,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine("Can't serialize color: " + ex.Message); Console.ResetColor();
+                System.Diagnostics.Trace.WriteLine(ex);
                 return "NamedColor:Transparent";
             }
         }
@@ -80,7 +80,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine("Can't deserialize color: " + ex.Message); Console.ResetColor();
+                System.Diagnostics.Trace.WriteLine(ex);
             }
             return Color.Empty;
         }

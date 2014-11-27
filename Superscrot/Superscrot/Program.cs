@@ -7,46 +7,45 @@ using System.Windows.Forms;
 namespace Superscrot
 {
     /// <summary>
-    /// Handles program initialization and console behaviour. Console output is colored White.
+    /// Probably shouldn't do nearly as much as it does right now.
     /// </summary>
     public static class Program
     {
-        private static bool _startedWithDefaultSettings = false;
-
-        private static EventWaitHandle _startupEventHandle;
+        private static bool startedWithDefaultSettings = false;
+        private static EventWaitHandle startupEventHandle;
+        private static string settingsPath = string.Empty;
+        private static Configuration config = null;
+        private static Manager manager = null;
 
         /// <summary>
         /// Occurs when the <see cref="Config"/> property changes.
         /// </summary>
         public static event EventHandler ConfigurationChanged;
 
-        private static string _settingsPath = string.Empty;
         /// <summary>
         /// Gets the path to the file where the settings are located.
         /// </summary>
         public static string SettingsPath
         {
-            get { return _settingsPath; }
+            get { return settingsPath; }
         }
 
-        private static Configuration _config = null;
         /// <summary>
         /// Provides common configurable settings.
         /// </summary>
         public static Configuration Config
         {
-            get { return _config; }
+            get { return config; }
             internal set 
             {
-                if (value != _config)
+                if (value != config)
                 {
-                    _config = value;
+                    config = value;
                     OnConfigurationChanged();
                 }
             }
         }				
 
-        private static Manager _manager = null;
 
         /// <summary>
         /// Coordinates top-level functionality and provides common functions that interact between 
@@ -54,8 +53,8 @@ namespace Superscrot
         /// </summary>
         public static Manager Manager
         {
-            get { return _manager; }
-            internal set { _manager = value; }
+            get { return manager; }
+            internal set { manager = value; }
         }
 
         /// <summary>
@@ -74,7 +73,8 @@ namespace Superscrot
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
+            AppDomain.CurrentDomain.UnhandledException += 
+                new UnhandledExceptionEventHandler(UnhandledException);
 
             Manager = new Superscrot.Manager();
             LoadSettings();
@@ -86,10 +86,15 @@ namespace Superscrot
                 return;
             }
 
-            if (_startedWithDefaultSettings || cmd["config"] != null) ShowConfigEditor();
+            if (startedWithDefaultSettings || cmd["config"] != null)
+            {
+                ShowConfigEditor();
+            }
 
             bool created = false;
-            _startupEventHandle = new EventWaitHandle(false, EventResetMode.ManualReset, Environment.UserName + "SuperscrotStartup", out created);
+            startupEventHandle = new EventWaitHandle(false, 
+                EventResetMode.ManualReset, 
+                Environment.UserName + "SuperscrotStartup", out created);
             if (created)
             {
                 if (!Manager.InitializeKeyboardHook())
@@ -114,7 +119,6 @@ namespace Superscrot
         {
             Tray.Dispose();
             Manager.Dispose();
-            NativeMethods.FreeConsole();
             Application.Exit();
         }
 
@@ -163,23 +167,23 @@ namespace Superscrot
             if (!Directory.Exists(appData))
                 Directory.CreateDirectory(appData);
 
-            _settingsPath = Path.Combine(appData, "Config.xml");
+            settingsPath = Path.Combine(appData, "Config.xml");
 
             var logName = string.Format("{0:y}.svclog", DateTime.Now);
             var logPath = Path.Combine(appData, logName);
-            Trace.Listeners.Add(new XmlWriterTraceListener(logPath));
+            Trace.Listeners.Add(new XmlWriterTraceListener(logPath, "Superscrot"));
             Trace.AutoFlush = true;
 
-            if (File.Exists(_settingsPath))
+            if (File.Exists(settingsPath))
             {
-                _config = Configuration.LoadSettings(_settingsPath);
+                config = Configuration.LoadSettings(settingsPath);
             }
             else
             {
                 //Save default settings
-                _config = new Configuration();
-                Program.Config.SaveSettings(_settingsPath);
-                _startedWithDefaultSettings = true;
+                config = new Configuration();
+                Program.Config.SaveSettings(settingsPath);
+                startedWithDefaultSettings = true;
             }
         }
     }

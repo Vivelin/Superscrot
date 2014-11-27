@@ -27,8 +27,6 @@ namespace Superscrot
         /// </summary>
         public Configuration()
         {
-            ConsoleEnabled = false;
-            EnableLogfile = true;
             EnableTrayIcon = true;
             ShowPreviewDialog = true;
 
@@ -57,9 +55,6 @@ namespace Superscrot
         /// </param>
         public Configuration(Configuration that)
         {
-            this.ConsoleEnabled = that.ConsoleEnabled;
-            this.EnableLogfile = that.EnableLogfile;
-
             // Server
             this.FtpHostname = that.FtpHostname;
             this.FtpPort = that.FtpPort;
@@ -87,20 +82,6 @@ namespace Superscrot
             this.OverlayOpacity = that.OverlayOpacity;
             this.EnableTrayIcon = that.EnableTrayIcon;
         }
-
-        /// <summary>
-        /// Determines whether to display a debug console window.
-        /// </summary>
-        [DisplayName("Enable developer console"), Category("Debug")]
-        [Description("Determines whether to display the developer console window that shows detailed background information.")]
-        public bool ConsoleEnabled { get; set; }
-
-        /// <summary>
-        /// Determines whether to write console output to a file.
-        /// </summary>
-        [DisplayName("Enable logging console output to file"), Category("Debug")]
-        [Description("Determines whether to write console output to a file.")]
-        public bool EnableLogfile { get; set; }
 
         #region Path settings
         /// <summary>

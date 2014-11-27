@@ -58,7 +58,7 @@ namespace Superscrot
             InitializeComponent();
             FileSizeLabel.Text = string.Format(new FileSizeFormatProvider(), "Size: {0}", s.CalculateSize());
 
-            if (s.Source == ScreenshotSource.File)
+            if (s.IsFile)
             {
                 SaveButton.Enabled = false;
             }
@@ -127,7 +127,7 @@ namespace Superscrot
                 sfd.FileName = FileName.Replace("/", "-").Replace("\\", "-");
                 if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    _screenshot.SaveToFile(sfd.FileName);
+                    _screenshot.Save(sfd.FileName);
                 }
             }
         }

@@ -9,37 +9,6 @@ using System.Windows.Forms;
 namespace Superscrot
 {
     /// <summary>
-    /// Specifies the source of a screenshot.
-    /// </summary>
-    public enum ScreenshotSource
-    {
-        /// <summary>
-        /// The screenshot was taken from either the user's entire desktop, or one of his screens.
-        /// </summary>
-        Desktop,
-
-        /// <summary>
-        /// The screenshot originates from an image from the user's clipboard.
-        /// </summary>
-        Clipboard,
-
-        /// <summary>
-        /// The screenshot was taken from a user-selected region on the screen.
-        /// </summary>
-        RegionCapture,
-
-        /// <summary>
-        /// The screenshot was taken from the active window.
-        /// </summary>
-        WindowCapture,
-
-        /// <summary>
-        /// The screenshot originates from an image file.
-        /// </summary>
-        File
-    }
-
-    /// <summary>
     /// Represents a single taken screenshot.
     /// </summary>
     public class Screenshot : IDisposable
@@ -119,6 +88,15 @@ namespace Superscrot
         /// from, or <c>null</c> for non file-based captures.
         /// </summary>
         public string OriginalFileName { get; set; }
+
+        /// <summary>
+        /// Gets a value that indicates whether the screenshot is based on a 
+        /// file.
+        /// </summary>
+        public bool IsFile
+        {
+            get { return Source == ScreenshotSource.File; }
+        }
 
         /// <summary>
         /// Releases all resources used by the <see cref="Screenshot"/> class.
@@ -258,10 +236,13 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on the image data on the clipboard.
+        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on
+        /// the image data on the clipboard.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the clipboard image.</returns>
-        /// <exception cref="System.InvalidOperationException">The clipboard is empty or does not contain an image.</exception>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the 
+        /// clipboard image.</returns>
+        /// <exception cref="System.InvalidOperationException">The clipboard is
+        /// empty or does not contain an image.</exception>
         public static Screenshot FromClipboard()
         {
             if (!Clipboard.ContainsImage()) throw new InvalidOperationException("The clipboard is empty or does not contain an image.");
@@ -281,9 +262,11 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on the specified image file.
+        /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on
+        /// the specified image file.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the specified image file.</returns>
+        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the 
+        /// specified image file.</returns>
         public static Screenshot FromFile(string path)
         {
             try
@@ -303,11 +286,51 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Saves this screenshot to the specified stream in an image format based on the current 
-        /// program settings.
+        /// Saves the screenshot to a temporary file and returns the filename. 
+        /// If the screenshot originated from a file, that filename is returned
+        /// instead and nothing is written to disk.
         /// </summary>
-        /// <param name="destination">The <see cref="System.IO.Stream"/> where the image will be saved.</param>
-        public void SaveToStream(Stream destination)
+        /// <returns>The filename of the screenshot.</returns>
+        public string Save()
+        {
+            if (Source == ScreenshotSource.File)
+            {
+                return OriginalFileName;
+            }
+            else
+            {
+                var tempFile = Path.GetTempFileName();
+                return Save(tempFile);
+            }
+        }
+
+        /// <summary>
+        /// Saves the screenshot to a new file with the specified name in an 
+        /// image format based on the current program settings.
+        /// </summary>
+        /// <param name="path">The name of the file to save to.</param>
+        /// <returns>The name of the file saved to.</returns>
+        public string Save(string path)
+        {
+            using (var stream = new FileStream(path, FileMode.Create, 
+                FileAccess.Write, FileShare.None))
+            {
+                Save(stream);
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// Saves this screenshot to the specified stream in an image format 
+        /// based on the current program settings.
+        /// </summary>
+        /// <param name="destination">The <see cref="System.IO.Stream"/> where 
+        /// the image will be saved.</param>
+        /// <remarks>
+        /// After the screenshot has been saved, the Position property of the
+        /// <paramref name="destination"/> stream is set to 0.
+        /// </remarks>
+        public void Save(Stream destination)
         {
             if (this.Bitmap == null) return;
 
@@ -342,40 +365,6 @@ namespace Superscrot
 
             //Reset position of the destination stream
             destination.Position = 0;
-        }
-
-        /// <summary>
-        /// Saves the screenshot to a temporary file and returns the filename. 
-        /// If the screenshot originated from a file, that filename is returned
-        /// instead and nothing is written to disk.
-        /// </summary>
-        /// <returns>The filename of the screenshot.</returns>
-        public string SaveToFile()
-        {
-            if (Source == ScreenshotSource.File)
-            {
-                return OriginalFileName;
-            }
-            else
-            {
-                var tempFile = Path.GetTempFileName();
-                return SaveToFile(tempFile);
-            }
-        }
-
-        /// <summary>
-        /// Saves the screenshot to a new file with the specified name in an 
-        /// image format based on the current program settings.
-        /// </summary>
-        /// <param name="path">The name of the file to save to.</param>
-        /// <returns>The name of the file saved to.</returns>
-        public string SaveToFile(string path)
-        {
-            using (var file = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                SaveToStream(file);
-            }
-            return path;
         }
 
         /// <summary>
@@ -454,7 +443,7 @@ namespace Superscrot
             {
                 using (var stream = new MemoryStream())
                 {
-                    SaveToStream(stream);
+                    Save(stream);
                     return stream.Length;
                 }
             }
@@ -501,13 +490,47 @@ namespace Superscrot
             return Rectangle.FromLTRB(left, top, right, bottom);
         }
 
-        private void OnUploaded()
+        /// <summary>
+        /// Raises the <see cref="Uploaded"/> event.
+        /// </summary>
+        protected virtual void OnUploaded()
         {
             var handler = Uploaded;
             if (handler != null)
             {
                 handler(this, new EventArgs());
             }
+        }
+
+        /// <summary>
+        /// Specifies the source of a screenshot.
+        /// </summary>
+        public enum ScreenshotSource
+        {
+            /// <summary>
+            /// The screenshot contains the user's entire desktop.
+            /// </summary>
+            Desktop,
+
+            /// <summary>
+            /// The screenshot contains an image from the clipboard.
+            /// </summary>
+            Clipboard,
+
+            /// <summary>
+            /// The screenshot was taken from a user-selected region on the screen.
+            /// </summary>
+            RegionCapture,
+
+            /// <summary>
+            /// The screenshot was taken from the active window.
+            /// </summary>
+            WindowCapture,
+
+            /// <summary>
+            /// The screenshot contains an image from a file.
+            /// </summary>
+            File
         }
     }
 }

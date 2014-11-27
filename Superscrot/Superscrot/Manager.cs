@@ -9,8 +9,7 @@ using System.Diagnostics;
 namespace Superscrot
 {
     /// <summary>
-    /// Coordinates top-level functionality and provides common functions that interact between 
-    /// classes. Console output is marked Cyan.
+    /// Acts as a temporary user interface replacement.
     /// </summary>
     public class Manager : IDisposable
     {
@@ -415,7 +414,7 @@ namespace Superscrot
 
                 var fileName = PathUtility.RemoveInvalidFilenameChars(screenshot.GetFileName());
                 var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
-                screenshot.SaveToFile(target);
+                screenshot.Save(target);
                 Trace.WriteLine("Failed screenshot saved to " + target);
             }
             catch (Exception ex)

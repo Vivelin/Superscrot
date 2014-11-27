@@ -48,7 +48,7 @@ namespace Superscrot.Uploaders
 
             using (MemoryStream stream = new MemoryStream())
             {
-                screenshot.SaveToStream(stream);
+                screenshot.Save(stream);
                 if (client.Upload(stream, target))
                 {
                     screenshot.ServerPath = target;

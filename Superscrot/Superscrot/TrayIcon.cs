@@ -8,7 +8,7 @@ using System.Windows.Forms;
 namespace Superscrot
 {
     /// <summary>
-    /// Handles the application's tray icon initializes and behaviour. Console output is colored White.
+    /// Handles the application's tray icon initializes and behaviour. 
     /// </summary>
     public class TrayIcon : IDisposable
     {

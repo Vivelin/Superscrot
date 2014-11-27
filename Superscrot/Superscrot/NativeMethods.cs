@@ -654,36 +654,6 @@ namespace Superscrot
         internal static extern int GetWindowTextLength(IntPtr hWnd);
 
         /// <summary>
-        /// Allocates a new console for the calling process.
-        /// </summary>
-        /// <returns>
-        /// If the function succeeds, the return value is nonzero. If the function fails, the 
-        /// return value is zero. To get extended error information, call GetLastError.
-        /// </returns>
-        [DllImport("kernel32.dll")]
-        internal static extern bool AllocConsole();
-
-        /// <summary>
-        /// Detaches the calling process from its console.
-        /// </summary>
-        /// <returns>
-        /// If the function succeeds, the return value is nonzero. If the function fails, the 
-        /// return value is zero. To get extended error information, call GetLastError.
-        /// </returns>
-        [DllImport("kernel32.dll")]
-        internal static extern bool FreeConsole();
-
-        /// <summary>
-        /// Retrieves the window handle used by the console associated with the calling process.
-        /// </summary>
-        /// <returns>
-        /// The return value is a handle to the window used by the console associated with the 
-        /// calling process or NULL if there is no such associated console.
-        /// </returns>
-        [DllImport("kernel32.dll")]
-        internal static extern IntPtr GetConsoleWindow();
-
-        /// <summary>
         /// Sets the specified window's show state. 
         /// </summary>
         /// <param name="hWnd">A handle to the window.</param>

@@ -69,7 +69,7 @@ namespace Superscrot.Uploaders
 
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    screenshot.SaveToStream(stream);
+                    screenshot.Save(stream);
                     client.UploadFile(stream, target);
                 }
 
