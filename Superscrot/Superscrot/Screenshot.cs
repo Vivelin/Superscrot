@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Superscrot.Uploaders;
 
 namespace Superscrot
 {
@@ -16,7 +18,7 @@ namespace Superscrot
         /// <summary>
         /// #0D0B0C, a color that Windows doesn't seem to like very much.
         /// </summary>
-        protected static readonly Color ThatFuckingColor = 
+        protected static readonly Color ThatFuckingColor =
             Color.FromArgb(0xFF, 0x0D, 0x0B, 0x0C);
 
         private Bitmap bitmap;
@@ -28,10 +30,14 @@ namespace Superscrot
         public Screenshot() { }
 
         /// <summary>
-        /// Occurs when the screenshot has been uploaded or the path on the 
-        /// server has changed.
+        /// Occurs before the screenshot starts uploading.
         /// </summary>
-        public event EventHandler Uploaded;
+        public event EventHandler<UploadingEventArgs> Uploading;
+
+        /// <summary>
+        /// Occurs when a duplicate file has been found on the server.
+        /// </summary>
+        public event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
 
         /// <summary>
         /// Gets or sets the source of the screenshot.
@@ -60,7 +66,6 @@ namespace Superscrot
                 {
                     serverPath = value;
                     PublicUrl = PathUtility.TranslateServerPath(value);
-                    OnUploaded();
                 }
             }
         }
@@ -96,6 +101,14 @@ namespace Superscrot
         public bool IsFile
         {
             get { return Source == ScreenshotSource.File; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the screenshot has been uploaded.
+        /// </summary>
+        public bool IsUploaded
+        {
+            get { return !string.IsNullOrWhiteSpace(PublicUrl); }
         }
 
         /// <summary>
@@ -218,8 +231,8 @@ namespace Superscrot
                         using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                         {
                             g.Clear(ThatFuckingColor);
-                            g.CopyFromScreen(rect.X, rect.Y, 0, 0, 
-                                new Size(rect.Width, rect.Height), 
+                            g.CopyFromScreen(rect.X, rect.Y, 0, 0,
+                                new Size(rect.Width, rect.Height),
                                 CopyPixelOperation.SourceCopy);
                         }
                         return screenshot;
@@ -312,7 +325,7 @@ namespace Superscrot
         /// <returns>The name of the file saved to.</returns>
         public string Save(string path)
         {
-            using (var stream = new FileStream(path, FileMode.Create, 
+            using (var stream = new FileStream(path, FileMode.Create,
                 FileAccess.Write, FileShare.None))
             {
                 Save(stream);
@@ -368,6 +381,65 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Uploads the screenshot to the currently configured server.
+        /// </summary>
+        /// <returns>A value indicating whether the upload succeeded without 
+        /// errors.</returns>
+        public bool Upload()
+        {
+            var args = new UploadingEventArgs(GetFileName());
+            OnUploading(args);
+
+            if (args.Cancel) return true;
+
+            var target = PathUtility.UriCombine(Program.Config.FtpServerPath, 
+                args.FileName);
+            var uploader = Uploader.Create(Program.Config);
+            uploader.DuplicateFileFound += (sender, e) =>
+            {
+                OnDuplicateFileFound(e);
+            };
+
+            return uploader.Upload(this, target);
+        }
+
+        /// <summary>
+        /// Asynchronously uploads the screenshot to the currently configured 
+        /// server.
+        /// </summary>
+        /// <returns>A value indicating whether the upload succeeded without 
+        /// errors.</returns>
+        public async Task<bool> UploadAsync()
+        {
+            return await Task.Run(() =>
+            {
+                return Upload();
+            });
+        }
+
+        /// <summary>
+        /// Deletes the screenshot from the server.
+        /// </summary>
+        /// <returns>A value indicating whether the deletion succeeded.</returns>
+        public bool Delete()
+        {
+            var uploader = Uploader.Create(Program.Config);
+            return uploader.UndoUpload(this);
+        }
+
+        /// <summary>
+        /// Asynchronously deletes the screenshot from the server.
+        /// </summary>
+        /// <returns>A value indicating whether the deletion succeeded.</returns>
+        public async Task<bool> DeleteAsync()
+        {
+            return await Task.Run(() =>
+            {
+                return Delete();
+            });
+        }
+
+        /// <summary>
         /// Gets a string that contains the filename for this screenshot, 
         /// formatted using the program settings.
         /// </summary>
@@ -392,7 +464,7 @@ namespace Superscrot
             args.Add("window", WindowTitle);
             args.Add("process", WindowOwner);
             args.Add("file", fileName);
-            
+
             // Date/time related placeholders
             args.Add("time", time.ToString("yyyyMMddHHmmssffff"));
             args.Add("unix", time.ToUnixTimestamp().ToString());
@@ -491,15 +563,23 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Raises the <see cref="Uploaded"/> event.
+        /// Raises the <see cref="Uploading"/> event.
         /// </summary>
-        protected virtual void OnUploaded()
+        protected virtual void OnUploading(UploadingEventArgs arg)
         {
-            var handler = Uploaded;
+            var handler = Uploading;
             if (handler != null)
-            {
-                handler(this, new EventArgs());
-            }
+                handler(this, arg);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="DuplicateFileFound"/> event.
+        /// </summary>
+        protected virtual void OnDuplicateFileFound(DuplicateFileEventArgs arg)
+        {
+            var handler = DuplicateFileFound;
+            if (handler != null)
+                handler(this, arg);
         }
 
         /// <summary>

@@ -80,12 +80,6 @@ namespace Superscrot
             LoadSettings();
 
             CommandlineParser cmd = new CommandlineParser(args);
-            if (cmd["now"] != null)
-            {
-                Manager.TakeAndUploadRegionScreenshot();
-                return;
-            }
-
             if (startedWithDefaultSettings || cmd["config"] != null)
             {
                 ShowConfigEditor();
