@@ -36,6 +36,7 @@
             this.formatDropdown = new System.Windows.Forms.ComboBox();
             this.formatLabel = new System.Windows.Forms.Label();
             this.pathGroup = new System.Windows.Forms.GroupBox();
+            this.openFailedButton = new System.Windows.Forms.Button();
             this.browseFailedButton = new System.Windows.Forms.Button();
             this.failedText = new System.Windows.Forms.TextBox();
             this.baseUrlText = new System.Windows.Forms.TextBox();
@@ -76,7 +77,6 @@
             this.cancelButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.helpLink = new System.Windows.Forms.LinkLabel();
-            this.openFailedButton = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.uploadTab.SuspendLayout();
             this.filenameGroup.SuspendLayout();
@@ -158,11 +158,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.formatDropdown.FormattingEnabled = true;
             this.formatDropdown.Items.AddRange(new object[] {
-            "{yyyy}\\\\{MM}\\\\{unix}-{name}",
-            "{machine}\\\\{source}\\\\{time}-{name}",
-            "{machine}\\\\{source}\\\\{unix}-{name}",
-            "{unix}-{name}",
-            "{unix}"});
+            "{yyyy}/{MM}/{Unix}-{Name}",
+            "{Machine}/{Source}/{Time}-{Name}",
+            "{Machine}/{Source}/{Unix}-{Name}",
+            "{Unix}-{Name}",
+            "{Unix}",
+            "{Guid}"});
             this.formatDropdown.Location = new System.Drawing.Point(65, 22);
             this.formatDropdown.Name = "formatDropdown";
             this.formatDropdown.Size = new System.Drawing.Size(275, 23);
@@ -197,6 +198,17 @@
             this.pathGroup.TabIndex = 1;
             this.pathGroup.TabStop = false;
             this.pathGroup.Text = "Locations";
+            // 
+            // openFailedButton
+            // 
+            this.openFailedButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.openFailedButton.Location = new System.Drawing.Point(340, 166);
+            this.openFailedButton.Name = "openFailedButton";
+            this.openFailedButton.Size = new System.Drawing.Size(75, 23);
+            this.openFailedButton.TabIndex = 3;
+            this.openFailedButton.Text = "&Show";
+            this.openFailedButton.UseVisualStyleBackColor = true;
+            this.openFailedButton.Click += new System.EventHandler(this.openFailedButton_Click);
             // 
             // browseFailedButton
             // 
@@ -629,17 +641,6 @@
             this.helpLink.TabStop = true;
             this.helpLink.Text = "Help";
             this.helpLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.helpLink_LinkClicked);
-            // 
-            // openFailedButton
-            // 
-            this.openFailedButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.openFailedButton.Location = new System.Drawing.Point(340, 166);
-            this.openFailedButton.Name = "openFailedButton";
-            this.openFailedButton.Size = new System.Drawing.Size(75, 23);
-            this.openFailedButton.TabIndex = 3;
-            this.openFailedButton.Text = "&Show";
-            this.openFailedButton.UseVisualStyleBackColor = true;
-            this.openFailedButton.Click += new System.EventHandler(this.openFailedButton_Click);
             // 
             // Settings
             // 

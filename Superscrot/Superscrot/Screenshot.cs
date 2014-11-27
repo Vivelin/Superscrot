@@ -464,6 +464,7 @@ namespace Superscrot
             args.Add("window", WindowTitle);
             args.Add("process", WindowOwner);
             args.Add("file", fileName);
+            args.Add("guid", Guid.NewGuid().ToString("N"));
 
             // Date/time related placeholders
             args.Add("time", time.ToString("yyyyMMddHHmmssffff"));
