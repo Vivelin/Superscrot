@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -211,8 +212,17 @@ namespace Superscrot.Dialogs
 
             if (exampleScreenshot != null)
             {
-                var format = formatDropdown.Text;
-                formatExample.Text = exampleScreenshot.GetFileName(format);
+                try
+                {
+                    var format = formatDropdown.Text;
+                    formatExample.Text = exampleScreenshot.GetFileName(format);
+                    formatExample.ForeColor = SystemColors.ControlText;
+                }
+                catch (FormatException ex)
+                {
+                    formatExample.Text = ex.Message;
+                    formatExample.ForeColor = Color.Red;
+                }
             }
         }
 
@@ -247,6 +257,15 @@ namespace Superscrot.Dialogs
                     failedText.Text = dialog.FileName;
                     IsDirty = true;
                 }
+            }
+        }
+
+        private void openFailedButton_Click(object sender, EventArgs e)
+        {
+            var path = failedText.Text;
+            if (System.IO.Directory.Exists(path))
+            {
+                Process.Start(path);
             }
         }
 
@@ -288,5 +307,6 @@ namespace Superscrot.Dialogs
             IsDirty = true;
         }
         #endregion
+
     }
 }

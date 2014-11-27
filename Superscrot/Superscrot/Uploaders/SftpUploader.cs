@@ -69,7 +69,7 @@ namespace Superscrot.Uploaders
 
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    screenshot.SaveToStream(stream);
+                    screenshot.Save(stream);
                     client.UploadFile(stream, target);
                 }
 
@@ -79,7 +79,7 @@ namespace Superscrot.Uploaders
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 OnUploadFailed(screenshot);
                 return false;
             }
@@ -114,7 +114,7 @@ namespace Superscrot.Uploaders
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 OnDeleteFailed(screenshot);
                 return false;
             }
@@ -184,7 +184,7 @@ namespace Superscrot.Uploaders
                 {
                     case DuplicateFileAction.Replace:
                         target = duplicate.FullName;                            
-                        Program.ConsoleWriteLine(ConsoleColor.Magenta, "Changed target to {0}", target);
+                        Trace.WriteLine("Changed upload target to " + target);
                         return true;
                     case DuplicateFileAction.Abort:
                         return false;
@@ -203,8 +203,6 @@ namespace Superscrot.Uploaders
             {
                 string parent = Path.GetDirectoryName(path).Replace('\\', '/');
                 SftpCreateDirectoryRecursive(parent);
-                Program.ConsoleWriteLine(ConsoleColor.Magenta, 
-                    "Creating directory {0}", path);
                 client.CreateDirectory(path);
             }
         }

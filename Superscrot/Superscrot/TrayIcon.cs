@@ -8,15 +8,10 @@ using System.Windows.Forms;
 namespace Superscrot
 {
     /// <summary>
-    /// Handles the application's tray icon initializes and behaviour. Console output is colored White.
+    /// Handles the application's tray icon initializes and behaviour. 
     /// </summary>
     public class TrayIcon : IDisposable
     {
-        private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.White, text); }
-        private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.White, format, arg); }
-        private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.White, text); }
-        private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.White, format, arg); }
-
         private static TrayIcon _instance = null;
 
         private NotifyIcon trayIcon;
@@ -40,7 +35,6 @@ namespace Superscrot
             trayIcon.ContextMenuStrip.Items.Add(toggleEnableItem);
             trayIcon.ContextMenuStrip.Items.Add("-");
             trayIcon.ContextMenuStrip.Items.Add("Settings", Properties.Resources.Configure, new EventHandler(OnTrayConfigure));
-            trayIcon.ContextMenuStrip.Items.Add("Toggle Developer Console", Properties.Resources.Console, new EventHandler(OnTrayShowConsole));
             trayIcon.ContextMenuStrip.Items.Add("Exit", Properties.Resources.Exit, new EventHandler(OnTrayExit));
         }
 
@@ -145,14 +139,6 @@ namespace Superscrot
         protected virtual void OnTrayConfigure(object sender, EventArgs e)
         {
             Program.ShowConfigEditor();
-        }
-
-        /// <summary>
-        /// Shows or hides the console.
-        /// </summary>
-        protected virtual void OnTrayShowConsole(object sender, EventArgs e)
-        {
-            Program.ToggleConsole();
         }
 
         /// <summary>

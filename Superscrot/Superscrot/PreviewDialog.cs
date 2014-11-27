@@ -58,7 +58,7 @@ namespace Superscrot
             InitializeComponent();
             FileSizeLabel.Text = string.Format(new FileSizeFormatProvider(), "Size: {0}", s.CalculateSize());
 
-            if (s.Source == ScreenshotSource.File)
+            if (s.IsFile)
             {
                 SaveButton.Enabled = false;
             }
@@ -127,7 +127,7 @@ namespace Superscrot
                 sfd.FileName = FileName.Replace("/", "-").Replace("\\", "-");
                 if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    _screenshot.SaveToFile(sfd.FileName);
+                    _screenshot.Save(sfd.FileName);
                 }
             }
         }
@@ -152,7 +152,7 @@ namespace Superscrot
             UploadButton.Enabled = !string.IsNullOrEmpty(FileName);
             if (!string.IsNullOrEmpty(FileName))
             {
-                PublicUrl.Text = Common.UriCombine(Program.Config.HttpBaseUri, Common.UrlEncode(FileName));
+                PublicUrl.Text = PathUtility.UriCombine(Program.Config.HttpBaseUri, PathUtility.UrlEncode(FileName));
             }
             else
             {

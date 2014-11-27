@@ -42,7 +42,7 @@ namespace Superscrot
             if (arg is long)
             {
                 var value = (long)arg;
-                return Common.FormatFileSize(value);
+                return PathUtility.FormatFileSize(value);
             }
 
             // Fallback

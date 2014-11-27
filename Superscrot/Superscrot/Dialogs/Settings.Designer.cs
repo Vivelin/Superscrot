@@ -76,6 +76,7 @@
             this.cancelButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.helpLink = new System.Windows.Forms.LinkLabel();
+            this.openFailedButton = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.uploadTab.SuspendLayout();
             this.filenameGroup.SuspendLayout();
@@ -157,9 +158,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.formatDropdown.FormattingEnabled = true;
             this.formatDropdown.Items.AddRange(new object[] {
-            "%c\\%s\\%d-%i",
-            "%c-%s-%d-%i",
-            "%d-%i"});
+            "{yyyy}\\\\{MM}\\\\{unix}-{name}",
+            "{machine}\\\\{source}\\\\{time}-{name}",
+            "{machine}\\\\{source}\\\\{unix}-{name}",
+            "{unix}-{name}",
+            "{unix}"});
             this.formatDropdown.Location = new System.Drawing.Point(65, 22);
             this.formatDropdown.Name = "formatDropdown";
             this.formatDropdown.Size = new System.Drawing.Size(275, 23);
@@ -180,6 +183,7 @@
             // 
             this.pathGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.pathGroup.Controls.Add(this.openFailedButton);
             this.pathGroup.Controls.Add(this.browseFailedButton);
             this.pathGroup.Controls.Add(this.failedText);
             this.pathGroup.Controls.Add(this.baseUrlText);
@@ -189,7 +193,7 @@
             this.pathGroup.Controls.Add(this.serverPathLabel);
             this.pathGroup.Location = new System.Drawing.Point(6, 265);
             this.pathGroup.Name = "pathGroup";
-            this.pathGroup.Size = new System.Drawing.Size(421, 175);
+            this.pathGroup.Size = new System.Drawing.Size(421, 199);
             this.pathGroup.TabIndex = 1;
             this.pathGroup.TabStop = false;
             this.pathGroup.Text = "Locations";
@@ -626,6 +630,17 @@
             this.helpLink.Text = "Help";
             this.helpLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.helpLink_LinkClicked);
             // 
+            // openFailedButton
+            // 
+            this.openFailedButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.openFailedButton.Location = new System.Drawing.Point(340, 166);
+            this.openFailedButton.Name = "openFailedButton";
+            this.openFailedButton.Size = new System.Drawing.Size(75, 23);
+            this.openFailedButton.TabIndex = 3;
+            this.openFailedButton.Text = "&Show";
+            this.openFailedButton.UseVisualStyleBackColor = true;
+            this.openFailedButton.Click += new System.EventHandler(this.openFailedButton_Click);
+            // 
             // Settings
             // 
             this.AcceptButton = this.okButton;
@@ -718,5 +733,6 @@
         private System.Windows.Forms.Label opacityLabel;
         private Controls.Slider opacitySlider;
         private Controls.Slider qualitySlider;
+        private System.Windows.Forms.Button openFailedButton;
     }
 }

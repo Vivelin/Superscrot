@@ -6,6 +6,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace Superscrot
 {
@@ -26,12 +27,10 @@ namespace Superscrot
         /// </summary>
         public Configuration()
         {
-            ConsoleEnabled = false;
-            EnableLogfile = true;
             EnableTrayIcon = true;
             ShowPreviewDialog = true;
 
-            FilenameFormat = "%c\\%s\\%d-%i";
+            FilenameFormat = "{yyyy}\\\\{MM}\\\\{unix}-{name}";
             FtpPort = 21;
             UseCompression = false;
             JpegQuality = 100L;
@@ -56,9 +55,6 @@ namespace Superscrot
         /// </param>
         public Configuration(Configuration that)
         {
-            this.ConsoleEnabled = that.ConsoleEnabled;
-            this.EnableLogfile = that.EnableLogfile;
-
             // Server
             this.FtpHostname = that.FtpHostname;
             this.FtpPort = that.FtpPort;
@@ -86,20 +82,6 @@ namespace Superscrot
             this.OverlayOpacity = that.OverlayOpacity;
             this.EnableTrayIcon = that.EnableTrayIcon;
         }
-
-        /// <summary>
-        /// Determines whether to display a debug console window.
-        /// </summary>
-        [DisplayName("Enable developer console"), Category("Debug")]
-        [Description("Determines whether to display the developer console window that shows detailed background information.")]
-        public bool ConsoleEnabled { get; set; }
-
-        /// <summary>
-        /// Determines whether to write console output to a file.
-        /// </summary>
-        [DisplayName("Enable logging console output to file"), Category("Debug")]
-        [Description("Determines whether to write console output to a file.")]
-        public bool EnableLogfile { get; set; }
 
         #region Path settings
         /// <summary>
@@ -347,7 +329,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
             }
 
             return config;
@@ -361,8 +343,7 @@ namespace Superscrot
         {
             try
             {
-                if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                EnsureDirectoryExists(Path.GetDirectoryName(filename));
 
                 XmlSerializer x = new XmlSerializer(typeof(Configuration));
                 using (FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
@@ -373,7 +354,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
             }
         }
 
