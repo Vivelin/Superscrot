@@ -6,6 +6,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace Superscrot
 {
@@ -347,7 +348,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
             }
 
             return config;
@@ -361,8 +362,7 @@ namespace Superscrot
         {
             try
             {
-                if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                EnsureDirectoryExists(Path.GetDirectoryName(filename));
 
                 XmlSerializer x = new XmlSerializer(typeof(Configuration));
                 using (FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
@@ -373,7 +373,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
             }
         }
 

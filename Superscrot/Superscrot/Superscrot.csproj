@@ -266,9 +266,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Console.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Property_501.png" />
   </ItemGroup>
   <ItemGroup>

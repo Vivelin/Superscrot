@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -107,11 +108,6 @@ namespace Superscrot.Uploaders
         {
             if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return true;
 
-            // lol
-            Program.ConsoleWriteLine(ConsoleColor.White, "This shit is untested. If it " +
-                "does something unexpected or nothing at all, please create an issue at " +
-                "https://github.com/horsedrowner/Superscrot/issues");
-
             var directory = Path.GetDirectoryName(target).Replace('\\', '/');
             var listing = client.ListDirectory(directory);
             var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
@@ -130,7 +126,7 @@ namespace Superscrot.Uploaders
                         if (duplicate.StartsWith("/"))
                             target = duplicate;
                         target = PathUtility.UriCombine(directory, duplicate);
-                        Program.ConsoleWriteLine(ConsoleColor.Magenta, "Changed target to {0}", target);
+                        Trace.WriteLine("Changed upload target to " + target);
                         return true;
                     case DuplicateFileAction.Abort:
                         return false;

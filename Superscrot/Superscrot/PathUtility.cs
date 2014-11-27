@@ -43,20 +43,13 @@ namespace Superscrot
         {
             string combined = string.Empty;
 
-            try
+            foreach (string item in parts)
             {
-                foreach (string item in parts)
+                if (item != string.Empty)
                 {
-                    if (item != string.Empty)
-                    {
-                        combined += item.Replace('\\', '/');
-                        if (!combined.EndsWith("/")) combined += '/';
-                    }
+                    combined += item.Replace('\\', '/');
+                    if (!combined.EndsWith("/")) combined += '/';
                 }
-            }
-            catch (Exception ex)
-            {
-                Program.ConsoleException(ex);
             }
 
             return combined.TrimEnd('/');
@@ -71,19 +64,12 @@ namespace Superscrot
         {
             string encoded = string.Empty;
 
-            try
+            string[] paths = str.Split('/', '\\');
+            for (int i = 0; i < paths.Length; i++)
             {
-                string[] paths = str.Split('/', '\\');
-                for (int i = 0; i < paths.Length; i++)
-                {
-                    paths[i] = Uri.EscapeDataString(paths[i]);
-                }
-                encoded = string.Join("/", paths);
+                paths[i] = Uri.EscapeDataString(paths[i]);
             }
-            catch (Exception ex)
-            {
-                Program.ConsoleException(ex);
-            }
+            encoded = string.Join("/", paths);
 
             return encoded;
         }

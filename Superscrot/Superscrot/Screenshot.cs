@@ -44,11 +44,6 @@ namespace Superscrot
     /// </summary>
     public class Screenshot : IDisposable
     {
-        private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.DarkGreen, text); }
-        private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.DarkGreen, format, arg); }
-        private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, text); }
-        private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.DarkGreen, format, arg); }
-
         /// <summary>
         /// #0D0B0C, a color that Windows doesn't seem to like very much.
         /// </summary>
@@ -183,7 +178,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
             }
             return null;
@@ -205,9 +200,6 @@ namespace Superscrot
                     screenshot.WindowTitle = window.Caption;
                     screenshot.WindowOwner = window.Owner.MainModule.FileVersionInfo.FileDescription;
 
-                    WriteLine("Found a {0} window at {1} titled {2}",
-                        window.Size, window.Location, window.Caption);
-
                     screenshot.Bitmap = new Bitmap(window.Width, window.Height);
                     using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                     {
@@ -220,7 +212,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
             }
 
@@ -244,8 +236,6 @@ namespace Superscrot
                     Rectangle rect = overlay.SelectedRegion;
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        WriteLine("Drawn rectangle of {0}x{1} starting at ({1}, {2})", rect.Width, rect.Height, rect.X, rect.Y);
-
                         screenshot.Bitmap = new Bitmap(rect.Width, rect.Height);
                         using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
                         {
@@ -256,19 +246,11 @@ namespace Superscrot
                         }
                         return screenshot;
                     }
-                    else
-                    {
-                        WriteLine("Nothing to capture (empty rectangle)", rect.Width, rect.Height);
-                    }
-                }
-                else
-                {
-                    WriteLine("User cancelled overlay");
                 }
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
             }
 
@@ -288,12 +270,11 @@ namespace Superscrot
                 Screenshot screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.Clipboard;
                 screenshot.Bitmap = (Bitmap)Clipboard.GetImage();
-                WriteLine("Clipboard contains a {0}x{1} image", screenshot.Bitmap.Width, screenshot.Bitmap.Height);
                 return screenshot;
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
                 return null;
             }
@@ -311,12 +292,11 @@ namespace Superscrot
                 screenshot.Source = ScreenshotSource.File;
                 screenshot.OriginalFileName = path;
                 screenshot.Bitmap = (Bitmap)Image.FromFile(path);
-                WriteLine("{0} is a {1}x{2} image", path, screenshot.Bitmap.Width, screenshot.Bitmap.Height);
                 return screenshot;
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
                 return null;
             }
@@ -333,7 +313,6 @@ namespace Superscrot
 
             if (Source == ScreenshotSource.File)
             {
-                WriteLine("Using original file \"{0}\"", OriginalFileName);
                 using (StreamReader sr = new StreamReader(OriginalFileName))
                 {
                     sr.BaseStream.CopyTo(destination);
@@ -341,10 +320,6 @@ namespace Superscrot
             }
             else if (Program.Config.UseCompression)
             {
-                if (Program.Config.JpegQuality == 0)
-                    WriteLine("Using JPEG compression (Sweet Bro and Hella Jeff mode)", Program.Config.JpegQuality);
-                else
-                    WriteLine("Using JPEG compression (quality level {0})", Program.Config.JpegQuality);
                 ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
                 ImageCodecInfo ici = null;
                 foreach (ImageCodecInfo codec in codecs)
@@ -362,7 +337,6 @@ namespace Superscrot
             }
             else
             {
-                WriteLine("Using PNG");
                 this.Bitmap.Save(destination, ImageFormat.Png);
             }
 

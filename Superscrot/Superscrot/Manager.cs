@@ -14,11 +14,6 @@ namespace Superscrot
     /// </summary>
     public class Manager : IDisposable
     {
-        private static void Write(string text) { Program.ConsoleWrite(ConsoleColor.Cyan, text); }
-        private static void Write(string format, params object[] arg) { Program.ConsoleWrite(ConsoleColor.Cyan, format, arg); }
-        private static void WriteLine(string text) { Program.ConsoleWriteLine(ConsoleColor.Cyan, text); }
-        private static void WriteLine(string format, params object[] arg) { Program.ConsoleWriteLine(ConsoleColor.Cyan, format, arg); }
-
         private KeyboardHook hook = null;
         private History history = null;
         private bool enabled = true;
@@ -94,7 +89,7 @@ namespace Superscrot
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
-                Program.ConsoleFatal(ex);
+                Trace.WriteLine(ex);
                 MessageBox.Show("Superscrot can't start because the hotkey is already registered."
                     + "\n\nIf Windows needs to restart to apply updates, please try rebooting."
                     + "\n\nError code: 0x" + ex.NativeErrorCode.ToString("X"),
@@ -183,7 +178,6 @@ namespace Superscrot
             }
             else if (Clipboard.ContainsFileDropList())
             {
-                WriteLine("Clipboard contains files: ");
                 StringBuilder clipText = new StringBuilder();
 
                 System.Collections.Specialized.StringCollection files = Clipboard.GetFileDropList();
@@ -209,11 +203,7 @@ namespace Superscrot
                         {
                             try
                             {
-                                if (!IsImageFile(file))
-                                {
-                                    WriteLine("{0} is not recognized by superscrot", file);
-                                    continue;
-                                }
+                                if (!IsImageFile(file)) continue;
 
                                 Screenshot capture = Screenshot.FromFile(file);
                                 if (capture != null)
@@ -227,7 +217,7 @@ namespace Superscrot
                             }
                             catch (Exception ex)
                             {
-                                Program.ConsoleException(ex);
+                                Trace.WriteLine(ex);
                                 System.Media.SystemSounds.Exclamation.Play();
                             }
                         }
@@ -238,10 +228,6 @@ namespace Superscrot
                     multiUploadThread.SetApartmentState(ApartmentState.STA);
                     multiUploadThread.Start();
                 }
-            }
-            else
-            {
-                WriteLine("Clipboard is empty or clipboard contains data that is not supported by superscrot");
             }
         }
 
@@ -272,10 +258,7 @@ namespace Superscrot
                         if (preview.ShowDialog() == DialogResult.OK)
                             filename = preview.FileName;
                         else
-                        {
-                            WriteLine("Cancelled");
                             return;
-                        }
                     }
                 }
 
@@ -289,12 +272,10 @@ namespace Superscrot
                 uploadThread.SetApartmentState(ApartmentState.STA);
                 uploadThread.Name = "Upload thread";
                 uploadThread.Start();
-
-                WriteLine("[0x{0:X}] Uploading to {1}...", uploadThread.ManagedThreadId, url);
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
             }
         }
@@ -306,26 +287,19 @@ namespace Superscrot
         {
             try
             {
-                if (History.Count == 0)
-                {
-                    WriteLine("Nothing to undo");
-                    return;
-                }
+                if (History.Count == 0) return;
 
                 Screenshot screenshot = History.Pop();
-
                 Thread deleteThread = new Thread(() =>
                 {
                     UndoUpload(screenshot);
                 });
                 deleteThread.Name = "Delete thread";
                 deleteThread.Start();
-
-                WriteLine("[0x{1:X}] Removing {0} from server...", screenshot.ServerPath, deleteThread.ManagedThreadId);
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
             }
         }
@@ -396,7 +370,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 ReportUploadError(screenshot);
             }
             finally
@@ -407,7 +381,7 @@ namespace Superscrot
 
         private void HandleDuplicateFileFound(object sender, DuplicateFileEventArgs e)
         {
-            WriteLine("Duplicate file found: {0}", e.FileName);
+            Trace.WriteLine("Duplicate file found: " + e.FileName);
 
             using (var dialog = new Dialogs.DuplicateFileFoundDialog(e.Screenshot, e.FileName))
             {
@@ -442,11 +416,11 @@ namespace Superscrot
                 var fileName = PathUtility.RemoveInvalidFilenameChars(screenshot.GetFileName());
                 var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
                 screenshot.SaveToFile(target);
-                WriteLine("Failed screenshot saved to {0}", target);
+                Trace.WriteLine("Failed screenshot saved to " + target);
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
             }
         }
 
@@ -465,28 +439,20 @@ namespace Superscrot
                     {
                         History.Push(s);
                         System.Media.SystemSounds.Asterisk.Play();
-                        WriteLine("[0x{0:X}] Uploaded successfully to {1}",
-                            Thread.CurrentThread.ManagedThreadId, s.PublicUrl);
                     };
                     uploader.UploadFailed += (s) =>
                     {
-                        Program.ConsoleWriteLine(ConsoleColor.Yellow,
-                            "[0x{0:X}] Upload failed!",
-                            Thread.CurrentThread.ManagedThreadId);
                         ReportUploadError(s);
                     };
                     uploader.DeleteSucceeded += (s) =>
                     {
                         System.Media.SystemSounds.Asterisk.Play();
-                        WriteLine("[0x{0:X}] File deleted",
-                            Thread.CurrentThread.ManagedThreadId);
                     };
                     uploader.DeleteFailed += (s) =>
                     {
+                        Trace.WriteLine("Screenshot could not be deleted from " 
+                            + s.PublicUrl);
                         System.Media.SystemSounds.Exclamation.Play();
-                        Program.ConsoleWriteLine(ConsoleColor.Yellow,
-                            "[0x{0:X}] Deletion failed!",
-                            Thread.CurrentThread.ManagedThreadId);
                         Program.Tray.ShowError("Screenshot could not be deleted", null);
                     };
                 }
@@ -507,7 +473,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
                 Program.Tray.ShowError("Screenshot could not be deleted", null);
             }
@@ -518,15 +484,7 @@ namespace Superscrot
         /// </summary>
         private void KeyPressed(object sender, KeyPressedEventArgs e)
         {
-            if (!Enabled)
-            {
-                WriteLine("Superscrot is suspended, key suppressed");
-                return;
-            }
-
-            Write("Pressed ");
-            if (e.Modifier != ModifierKeys.None) Write(e.Modifier.ToString() + " + ");
-            WriteLine(e.Key.ToString());
+            if (!Enabled) return;
 
             try
             {
@@ -555,7 +513,7 @@ namespace Superscrot
             }
             catch (Exception ex)
             {
-                Program.ConsoleException(ex);
+                Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
                 Program.Tray.ShowError("Superscrot encountered a problem", "If this problem keeps happening, please report the problem at https://github.com/horsedrowner/Superscrot/issues \nDetails: " + ex.Message);
             }
