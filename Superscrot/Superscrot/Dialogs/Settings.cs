@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -259,6 +260,15 @@ namespace Superscrot.Dialogs
             }
         }
 
+        private void openFailedButton_Click(object sender, EventArgs e)
+        {
+            var path = failedText.Text;
+            if (System.IO.Directory.Exists(path))
+            {
+                Process.Start(path);
+            }
+        }
+
         private void browseKeyButton_Click(object sender, EventArgs e)
         {
             using (var dialog = new OpenFileDialog())
@@ -297,5 +307,6 @@ namespace Superscrot.Dialogs
             IsDirty = true;
         }
         #endregion
+
     }
 }
