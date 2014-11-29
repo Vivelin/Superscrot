@@ -23,11 +23,17 @@ namespace Superscrot
 
         private Bitmap bitmap;
         private string serverPath;
+        private DateTime createdDate;
+        private Guid guid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Screenshot"/> class.
         /// </summary>
-        public Screenshot() { }
+        public Screenshot()
+        {
+            createdDate = DateTime.Now;
+            guid = Guid.NewGuid();
+        }
 
         /// <summary>
         /// Occurs before the screenshot starts uploading.
@@ -109,6 +115,22 @@ namespace Superscrot
         public bool IsUploaded
         {
             get { return !string.IsNullOrWhiteSpace(PublicUrl); }
+        }
+
+        /// <summary>
+        /// Gets a globally unique identifier for this screenshot.
+        /// </summary>
+        public Guid Guid
+        {
+            get { return guid; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the date and time the screenshot was made.
+        /// </summary>
+        public DateTime Created
+        {
+            get { return createdDate; }
         }
 
         /// <summary>
@@ -455,7 +477,6 @@ namespace Superscrot
         /// <param name="format">The composite format string.</param>
         public string GetFileName(string format)
         {
-            var time = DateTime.Now;
             var fileName = Path.GetFileNameWithoutExtension(OriginalFileName);
             var args = new StringDictionary();
             args.Add("machine", Environment.MachineName);
@@ -464,11 +485,11 @@ namespace Superscrot
             args.Add("window", WindowTitle);
             args.Add("process", WindowOwner);
             args.Add("file", fileName);
-            args.Add("guid", Guid.NewGuid().ToString("N"));
+            args.Add("guid", Guid.ToString("N"));
 
             // Date/time related placeholders
-            args.Add("time", time.ToString("yyyyMMddHHmmssffff"));
-            args.Add("unix", time.ToUnixTimestamp().ToString());
+            args.Add("time", Created.ToString("yyyyMMddHHmmssffff"));
+            args.Add("unix", Created.ToUnixTimestamp().ToString());
 
             switch (Source)
             {
@@ -494,7 +515,7 @@ namespace Superscrot
                     break;
             }
 
-            var result = PathUtility.Format(format, args, time);
+            var result = PathUtility.Format(format, args, Created);
             var ext = Program.Config.UseCompression ? "jpg" : "png";
             if (Source == ScreenshotSource.File)
                 ext = Path.GetExtension(OriginalFileName);
