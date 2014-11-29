@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 
 namespace Superscrot
 {
@@ -25,14 +23,16 @@ namespace Superscrot
         {
             if (input == null) return string.Empty;
 
-            string formatted = input;
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var stringBuilder = new StringBuilder();
 
-            foreach (char c in Path.GetInvalidFileNameChars())
+            foreach (var c in input)
             {
-                formatted = formatted.Replace(c, '_');
+                if (!invalidChars.Contains(c))
+                    stringBuilder.Append(c);
             }
 
-            return formatted;
+            return stringBuilder.ToString();
         }
 
         /// <summary>
