@@ -157,6 +157,7 @@
   <ItemGroup>
     <Compile Include="CommandlineParser.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="PathUtility.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConnectionInfo.cs" />

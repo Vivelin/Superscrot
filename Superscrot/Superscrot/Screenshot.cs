@@ -211,7 +211,11 @@ namespace Superscrot
                 using (var window = NativeWindow.ForegroundWindow())
                 {
                     screenshot.WindowTitle = window.Caption;
-                    screenshot.WindowOwner = window.Owner.MainModule.FileVersionInfo.FileDescription;
+                    screenshot.WindowOwner = StringExtensions.Coalesce(
+                        window.Owner.MainModule.FileVersionInfo.FileDescription,
+                        window.Owner.MainModule.FileVersionInfo.ProductName,
+                        window.Owner.ProcessName,
+                        string.Empty);
 
                     screenshot.Bitmap = new Bitmap(window.Width, window.Height);
                     using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
