@@ -103,7 +103,7 @@ namespace Superscrot
         /// Uploads a screenshot.
         /// </summary>
         /// <param name="screenshot">The screenshot to upload.</param>
-        public async void UploadScreenshot(Screenshot screenshot)
+        public async Task UploadScreenshot(Screenshot screenshot)
         {
             if (screenshot == null) throw new ArgumentNullException("screenshot");
 
@@ -163,12 +163,12 @@ namespace Superscrot
         /// <summary>
         /// Uploads images and files on the clipboard to FTP.
         /// </summary>
-        public async void UploadClipboard()
+        public async Task UploadClipboard()
         {
             if (Clipboard.ContainsImage())
             {
                 var capture = Screenshot.FromClipboard();
-                UploadScreenshot(capture);
+                await UploadScreenshot(capture);
             }
             else if (Clipboard.ContainsFileDropList())
             {
@@ -176,7 +176,7 @@ namespace Superscrot
                 if (files.Count == 1)
                 {
                     var capture = Screenshot.FromFile(files[0]);
-                    UploadScreenshot(capture);
+                    await UploadScreenshot(capture);
                 }
                 else
                 {
@@ -330,7 +330,7 @@ namespace Superscrot
             }
         }
 
-        private void KeyPressed(object sender, KeyPressedEventArgs e)
+        private async void KeyPressed(object sender, KeyPressedEventArgs e)
         {
             if (!Enabled) return;
 
@@ -354,11 +354,13 @@ namespace Superscrot
                             UndoUpload();
                             return;
                     }
-                    UploadScreenshot(screenshot);
+
+                    if (screenshot != null) 
+                        await UploadScreenshot(screenshot);
                 }
                 else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
                 {
-                    UploadClipboard();
+                    await UploadClipboard();
                 }
             }
             catch (Exception ex)
