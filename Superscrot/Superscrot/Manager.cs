@@ -276,6 +276,8 @@ namespace Superscrot
             {
                 var screenshot = (Screenshot)sender;
 
+                Debug.Assert(uiContext != null, 
+                    "Main thread context should not be null");
                 uiContext.Send(_ =>
                 {
                     using (var dialog = new PreviewDialog(screenshot))
@@ -353,6 +355,8 @@ namespace Superscrot
 
             try
             {
+                uiContext = SynchronizationContext.Current;
+
                 if (e.Key == Keys.PrintScreen)
                 {
                     Screenshot screenshot = null;
@@ -373,10 +377,7 @@ namespace Superscrot
                     }
 
                     if (screenshot != null)
-                    {
-                        uiContext = SynchronizationContext.Current;
                         await UploadScreenshot(screenshot);
-                    }
                 }
                 else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
                 {
