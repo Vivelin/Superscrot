@@ -313,7 +313,15 @@ namespace Superscrot
                 Screenshot screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.File;
                 screenshot.OriginalFileName = path;
-                screenshot.Bitmap = (Bitmap)Image.FromFile(path);
+
+                using (var stream = new FileStream(path, FileMode.Open))
+                {
+                    using (var image = Image.FromStream(stream))
+                    {
+                        screenshot.Bitmap = new Bitmap(image);
+                    }
+                }
+
                 return screenshot;
             }
             catch (Exception ex)
@@ -418,7 +426,7 @@ namespace Superscrot
 
             if (args.Cancel) return true;
 
-            var target = PathUtility.UriCombine(Program.Config.FtpServerPath, 
+            var target = PathUtility.UriCombine(Program.Config.FtpServerPath,
                 args.FileName);
             var uploader = Uploader.Create(Program.Config);
             uploader.DuplicateFileFound += (sender, e) =>
