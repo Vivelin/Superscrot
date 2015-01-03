@@ -162,8 +162,10 @@ namespace Superscrot
         /// Retrieves an image containing a screenshot of the user's entire 
         /// desktop.
         /// </summary>
-        /// <returns>A new <see cref="Screenshot"/> with an image containg a 
-        /// screenshot of all screens combined.</returns>
+        /// <returns>
+        /// A new <see cref="Screenshot"/> with an image containg a screenshot 
+        /// of all screens combined.
+        /// </returns>
         public static Screenshot FromDesktop()
         {
             try
@@ -200,7 +202,9 @@ namespace Superscrot
         /// <summary>
         /// Retrieves an image with the contents of the active window.
         /// </summary>
-        /// <returns>A <see cref="Screenshot"/> with the active window capture.</returns>
+        /// <returns>
+        /// A <see cref="Screenshot"/> with the active window capture.
+        /// </returns>
         public static Screenshot FromActiveWindow()
         {
             try
@@ -240,7 +244,9 @@ namespace Superscrot
         /// Shows an overlay over the screen that allows the user to select a 
         /// region, of which the image is captured and returned.
         /// </summary>
-        /// <returns>A <see cref="Screenshot"/> with the selected region.</returns>
+        /// <returns>
+        /// A <see cref="Screenshot"/> with the selected region.
+        /// </returns>
         public static Screenshot FromRegion()
         {
             try
@@ -278,13 +284,17 @@ namespace Superscrot
         /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on
         /// the image data on the clipboard.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the 
-        /// clipboard image.</returns>
-        /// <exception cref="System.InvalidOperationException">The clipboard is
-        /// empty or does not contain an image.</exception>
+        /// <returns>
+        /// A <see cref="Superscrot.Screenshot"/> based on the clipboard image.
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException">
+        /// The clipboard is empty or does not contain an image.
+        /// </exception>
         public static Screenshot FromClipboard()
         {
-            if (!Clipboard.ContainsImage()) throw new InvalidOperationException("The clipboard is empty or does not contain an image.");
+            if (!Clipboard.ContainsImage())
+                throw new InvalidOperationException(SR.NoClipboardImage);
+
             try
             {
                 Screenshot screenshot = new Screenshot();
@@ -304,8 +314,10 @@ namespace Superscrot
         /// Creates a new <see cref="Superscrot.Screenshot"/> instance based on
         /// the specified image file.
         /// </summary>
-        /// <returns>A <see cref="Superscrot.Screenshot"/> based on the 
-        /// specified image file.</returns>
+        /// <returns>
+        /// A <see cref="Superscrot.Screenshot"/> based on the specified image 
+        /// file.
+        /// </returns>
         public static Screenshot FromFile(string path)
         {
             try
@@ -371,8 +383,10 @@ namespace Superscrot
         /// Saves this screenshot to the specified stream in an image format 
         /// based on the current program settings.
         /// </summary>
-        /// <param name="destination">The <see cref="System.IO.Stream"/> where 
-        /// the image will be saved.</param>
+        /// <param name="destination">
+        /// The <see cref="System.IO.Stream"/> where the image will be saved 
+        /// to.
+        /// </param>
         /// <remarks>
         /// After the screenshot has been saved, the Position property of the
         /// <paramref name="destination"/> stream is set to 0.
@@ -402,7 +416,8 @@ namespace Superscrot
                 }
 
                 EncoderParameters ep = new EncoderParameters();
-                ep.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, Program.Config.JpegQuality);
+                ep.Param[0] = new EncoderParameter(Encoder.Quality, 
+                    Program.Config.JpegQuality);
                 this.Bitmap.Save(destination, ici, ep);
             }
             else
@@ -417,8 +432,9 @@ namespace Superscrot
         /// <summary>
         /// Uploads the screenshot to the currently configured server.
         /// </summary>
-        /// <returns>A value indicating whether the upload succeeded without 
-        /// errors.</returns>
+        /// <returns>
+        /// A value indicating whether the upload succeeded without errors.
+        /// </returns>
         public bool Upload()
         {
             var args = new UploadingEventArgs(GetFileName());
@@ -441,8 +457,9 @@ namespace Superscrot
         /// Asynchronously uploads the screenshot to the currently configured 
         /// server.
         /// </summary>
-        /// <returns>A value indicating whether the upload succeeded without 
-        /// errors.</returns>
+        /// <returns>
+        /// A value indicating whether the upload succeeded without errors.
+        /// </returns>
         public async Task<bool> UploadAsync()
         {
             return await Task.Run(() =>
@@ -454,7 +471,9 @@ namespace Superscrot
         /// <summary>
         /// Deletes the screenshot from the server.
         /// </summary>
-        /// <returns>A value indicating whether the deletion succeeded.</returns>
+        /// <returns>
+        /// A value indicating whether the deletion succeeded.
+        /// </returns>
         public bool Delete()
         {
             var uploader = Uploader.Create(Program.Config);
@@ -464,7 +483,9 @@ namespace Superscrot
         /// <summary>
         /// Asynchronously deletes the screenshot from the server.
         /// </summary>
-        /// <returns>A value indicating whether the deletion succeeded.</returns>
+        /// <returns>
+        /// A value indicating whether the deletion succeeded.
+        /// </returns>
         public async Task<bool> DeleteAsync()
         {
             return await Task.Run(() =>
@@ -507,15 +528,15 @@ namespace Superscrot
             {
                 case ScreenshotSource.Desktop:
                     args.Add("source", "Desktop");
-                    args.Add("name", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
+                    args.Add("name", "\{Bitmap.Width}x\{Bitmap.Height}");
                     break;
                 case ScreenshotSource.Clipboard:
                     args.Add("source", "Clipboard");
-                    args.Add("name", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
+                    args.Add("name", "\{Bitmap.Width}x\{Bitmap.Height}");
                     break;
                 case ScreenshotSource.RegionCapture:
                     args.Add("source", "Capture");
-                    args.Add("name", Bitmap.Width.ToString() + "x" + Bitmap.Height.ToString());
+                    args.Add("name", "\{Bitmap.Width}x\{Bitmap.Height}");
                     break;
                 case ScreenshotSource.WindowCapture:
                     args.Add("source", "Window");
@@ -560,8 +581,10 @@ namespace Superscrot
         /// screen.
         /// </summary>
         /// <param name="screen">The <see cref="Screen"/> to capture.</param>
-        /// <returns>A new <see cref="Bitmap"/> object representing <paramref 
-        /// name="screen"/>.</returns>
+        /// <returns>
+        /// A new <see cref="Bitmap"/> object representing <paramref 
+        /// name="screen"/>.
+        /// </returns>
         protected static Bitmap CopyFromScreen(Screen screen)
         {
             var bitmap = new Bitmap(screen.Bounds.Width, screen.Bounds.Height);

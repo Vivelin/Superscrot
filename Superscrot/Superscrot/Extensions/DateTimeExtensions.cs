@@ -20,8 +20,6 @@ namespace Superscrot
         /// since Unix epoch.</returns>
         public static long ToUnixTimestamp(this DateTime value)
         {
-            if (value == null) throw new ArgumentNullException("value");
-
             var diff = value.ToUniversalTime() - UnixEpoch;
             return (long)diff.TotalSeconds;
         }
