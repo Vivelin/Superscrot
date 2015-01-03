@@ -126,8 +126,7 @@ namespace Superscrot
                 {
                     Debug.WriteLine("Screenshot uploaded successfully to "
                         + screenshot.PublicUrl);
-
-                    Clipboard.SetText(screenshot.PublicUrl);
+                    SetClipboard(screenshot);
                     System.Media.SystemSounds.Asterisk.Play();
 
                     History.Push(screenshot);
@@ -138,7 +137,7 @@ namespace Superscrot
                 ReportUploadError(screenshot);
             }
         }
-
+        
         /// <summary>
         /// Deletes the last uploaded file. Can be called multiple times 
         /// consecutively.
@@ -193,7 +192,7 @@ namespace Superscrot
                 {
                     var result = await MultiUploadAsync(files);
                     if (!string.IsNullOrWhiteSpace(result))
-                        Clipboard.SetText(result.Trim());
+                        SetClipboard(result.Trim());
                 }
             }
         }
@@ -239,6 +238,30 @@ namespace Superscrot
             }
 
             return false;
+        }
+        private static void SetClipboard(Screenshot screenshot)
+        {
+            SetClipboard(screenshot.PublicUrl);
+        }
+        private static void SetClipboard(string text)
+        {
+            try
+            {
+                Clipboard.SetText(text);
+            }
+            catch (System.Runtime.InteropServices.ExternalException ex)
+            {
+                var hWnd = NativeMethods.GetOpenClipboardWindow();
+                if (hWnd != IntPtr.Zero)
+                {
+                    var culprit = new NativeWindow(hWnd);
+                    throw new Exception(SR.ClipboardBlockedBy.With(culprit), ex);
+                }
+                else
+                {
+                    throw new Exception(SR.ClipboardBlocked);
+                }
+            }
         }
 
         private async Task<string> MultiUploadAsync(IEnumerable files)

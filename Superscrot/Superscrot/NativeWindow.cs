@@ -142,6 +142,36 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Returns a string representation of the window.
+        /// </summary>
+        /// <returns>
+        /// A string containing the name of the owner of the window.
+        /// </returns>
+        public override string ToString()
+        {
+            try
+            {
+                var mainModule = Owner.MainModule;
+                return StringExtensions.Coalesce(
+                    mainModule.FileVersionInfo.FileDescription,
+                    mainModule.FileVersionInfo.ProductName,
+                    Owner.ProcessName,
+                    Caption);
+            }
+            catch
+            {
+                try
+                {
+                    return Owner.ProcessName.Coalesce(Caption);
+                }
+                catch
+                {
+                    return base.ToString();
+                }
+            }
+        }
+
+        /// <summary>
         /// Cleans up resources used by this object.
         /// </summary>
         public void Dispose()

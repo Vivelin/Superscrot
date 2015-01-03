@@ -79,6 +79,24 @@ namespace Superscrot.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The URL could not be copied because the clipboard is in use..
+        /// </summary>
+        internal static string ClipboardBlocked {
+            get {
+                return ResourceManager.GetString("ClipboardBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The URL could not be copied because the clipboard is in use by {0}..
+        /// </summary>
+        internal static string ClipboardBlockedBy {
+            get {
+                return ResourceManager.GetString("ClipboardBlockedBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t connect to &quot;{0}&quot;..
         /// </summary>
         internal static string ConnectionFailed {

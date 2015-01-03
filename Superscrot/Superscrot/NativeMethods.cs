@@ -692,5 +692,23 @@ namespace Superscrot
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern uint GetWindowThreadProcessId(IntPtr hWnd,
             out uint lpdwProcessId);
+
+        /// <summary>
+        /// Retrieves the handle to the window that currently has the clipboard
+        /// open.
+        /// </summary>
+        /// <returns>
+        /// If the function succeeds, the return value is the handle to the 
+        /// window that has the clipboard open. If no window has the clipboard 
+        /// open, the return value is <see cref="IntPtr.Zero"/>.
+        /// </returns>
+        /// <remarks>
+        /// If an application or DLL specifies a <c>null</c> window handle when
+        /// calling the <c>OpenClipboard</c> function, the clipboard is opened 
+        /// but is not associated with a window. In such a case, 
+        /// <c>GetOpenClipboardWindow</c> returns <c>null</c>.
+        /// </remarks>
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern IntPtr GetOpenClipboardWindow();
     }
 }
