@@ -7,11 +7,8 @@ namespace Superscrot
     /// <summary>
     /// Represents the native methods that are shared between assemblies.
     /// </summary>
-    internal class NativeMethods
+    internal static class NativeMethods
     {
-        // Prevent instances from being created. (look, MSDN told me to do this)
-        private NativeMethods() { }
-
         /// <summary>
         /// Posted when the user presses a hot key registered by the RegisterHotKey function. The 
         /// message is placed at the top of the message queue associated with the thread that 
