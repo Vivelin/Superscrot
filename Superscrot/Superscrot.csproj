@@ -143,8 +143,8 @@
     <Reference Include="Microsoft.WindowsAPICodePack.Shell">
       <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions">
-      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\packages\SSH.NET.2013.4.7\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -250,15 +250,11 @@
     <None Include="Superscrot_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FTPLib\FTPLib.csproj">
+    <ProjectReference Include="..\FTPLib\FTPLib.csproj">
       <Project>{74C3F14F-036F-44C2-A725-1779793BADAC}</Project>
       <Name>FTPLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Renci.SshNet\Renci.SshNet.csproj">
-      <Project>{2f5f8c90-0bd1-424f-997c-7bc6280919d1}</Project>
-      <Name>Renci.SshNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Superscrot.Controls\Superscrot.Controls.csproj">
+    <ProjectReference Include="..\Superscrot.Controls\Superscrot.Controls.csproj">
       <Project>{4c4e70e1-6abd-4b98-8d65-1b1fc6d5aa0f}</Project>
       <Name>Superscrot.Controls</Name>
     </ProjectReference>
