@@ -101,7 +101,8 @@ namespace Superscrot
             }
             else
             {
-                MessageBox.Show("Superscrot is already running. You may configure Superscrot by using /config, but you will need to restart the running instance.", "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                MessageBox.Show(SR.InstanceAlreadyRunning, "Superscrot", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return;
             }
         }

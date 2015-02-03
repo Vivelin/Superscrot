@@ -91,9 +91,7 @@ namespace Superscrot.Uploaders
             if (!client.AttemptConnection())
             {
                 throw new ConnectionFailedException(
-                    string.Format("Upload failed: can't connect to \"{0}\"",
-                        client.Hostname),
-                    client.Hostname);
+                    SR.ConnectionFailed.With(client.Hostname), client.Hostname);
             }
         }
 
@@ -101,7 +99,9 @@ namespace Superscrot.Uploaders
         /// Checks if the session contains a duplicate file and returns 
         /// whether to continue the upload.
         /// </summary>
-        /// <param name="screenshot">The screenshot that is being uploaded.</param>
+        /// <param name="screenshot">
+        /// The screenshot that is being uploaded.
+        /// </param>
         /// <param name="target">The target file name.</param>
         /// <returns>False if the upload should be aborted.</returns>
         private bool FindDuplicateFile(Screenshot screenshot, ref string target)

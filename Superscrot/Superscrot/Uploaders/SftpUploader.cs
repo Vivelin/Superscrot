@@ -102,7 +102,7 @@ namespace Superscrot.Uploaders
             if (screenshot == null)
                 throw new ArgumentNullException("screenshot");
             if (screenshot.ServerPath == null) 
-                throw new InvalidOperationException("Can't undo an upload that never happened");
+                throw new InvalidOperationException(SR.CantUndoNull);
 
             EnsureConnection();
 
@@ -149,8 +149,7 @@ namespace Superscrot.Uploaders
                 if (!client.IsConnected)
                 {
                     throw new ConnectionFailedException(
-                        string.Format("Upload failed: can't connect to \"{0}\"",
-                            client.ConnectionInfo.Host),
+                        SR.ConnectionFailed.With(client.ConnectionInfo.Host),
                         client.ConnectionInfo.Host);
                 }
             }

@@ -95,10 +95,8 @@ namespace Superscrot
             catch (System.ComponentModel.Win32Exception ex)
             {
                 Trace.WriteLine(ex);
-                MessageBox.Show("Superscrot can't start because the hotkey is already registered."
-                    + "\n\nIf Windows needs to restart to apply updates, please try rebooting."
-                    + "\n\nError code: 0x" + ex.NativeErrorCode.ToString("X"),
-                    "Superscrot", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(SR.HotkeyAlreadyRegistered, "Superscrot", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -128,8 +126,7 @@ namespace Superscrot
                 {
                     Debug.WriteLine("Screenshot uploaded successfully to "
                         + screenshot.PublicUrl);
-
-                    Clipboard.SetText(screenshot.PublicUrl);
+                    SetClipboard(screenshot);
                     System.Media.SystemSounds.Asterisk.Play();
 
                     History.Push(screenshot);
@@ -140,7 +137,7 @@ namespace Superscrot
                 ReportUploadError(screenshot);
             }
         }
-
+        
         /// <summary>
         /// Deletes the last uploaded file. Can be called multiple times 
         /// consecutively.
@@ -195,7 +192,7 @@ namespace Superscrot
                 {
                     var result = await MultiUploadAsync(files);
                     if (!string.IsNullOrWhiteSpace(result))
-                        Clipboard.SetText(result.Trim());
+                        SetClipboard(result.Trim());
                 }
             }
         }
@@ -241,6 +238,30 @@ namespace Superscrot
             }
 
             return false;
+        }
+        private static void SetClipboard(Screenshot screenshot)
+        {
+            SetClipboard(screenshot.PublicUrl);
+        }
+        private static void SetClipboard(string text)
+        {
+            try
+            {
+                Clipboard.SetText(text);
+            }
+            catch (System.Runtime.InteropServices.ExternalException ex)
+            {
+                var hWnd = NativeMethods.GetOpenClipboardWindow();
+                if (hWnd != IntPtr.Zero)
+                {
+                    var culprit = new NativeWindow(hWnd);
+                    throw new Exception(SR.ClipboardBlockedBy.With(culprit), ex);
+                }
+                else
+                {
+                    throw new Exception(SR.ClipboardBlocked);
+                }
+            }
         }
 
         private async Task<string> MultiUploadAsync(IEnumerable files)
@@ -317,9 +338,8 @@ namespace Superscrot
         {
             try
             {
-                Program.Tray.ShowError("Screenshot was not successfully uploaded",
-                    string.Format("Check your connection to {0} and try again.",
-                        Program.Config.FtpHostname));
+                Program.Tray.ShowError(SR.GenericUploadFailed,
+                    SR.CheckHostConnection.With(Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
 
                 var fileName = PathUtility.RemoveInvalidFilenameChars(screenshot.GetFileName());
@@ -337,9 +357,8 @@ namespace Superscrot
         {
             try
             {
-                Program.Tray.ShowError("Screenshot was not successfully deleted",
-                    string.Format("Check your connection to {0} and try again.",
-                        Program.Config.FtpHostname));
+                Program.Tray.ShowError(SR.GenericDeleteFailed,
+                    SR.CheckHostConnection.With(Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
 
             }
@@ -388,8 +407,8 @@ namespace Superscrot
             {
                 Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError("Superscrot encountered a problem",
-                    "If this problem keeps happening, please report the problem at https://github.com/horsedrowner/Superscrot/issues \nDetails: " + ex.Message);
+                Program.Tray.ShowError(SR.GenericError, 
+                    SR.GenericErrorMessage.With(ex.Message));
             }
         }
     }

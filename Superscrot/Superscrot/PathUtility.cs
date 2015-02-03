@@ -132,8 +132,7 @@ namespace Superscrot
                     var end = format.IndexOf(PlaceholderEnd, i);
                     if (end <= i)
                     {
-                        var message = string.Format("Expected '{0}' at position {1}",
-                            PlaceholderEnd, i);
+                        var message = SR.ExpectedAtPos.With(PlaceholderEnd, i);
                         throw new FormatException(message);
                     }
 
@@ -147,8 +146,7 @@ namespace Superscrot
                         }
                         catch (Exception ex)
                         {
-                            var message = string.Format("'{0}' is not a valid placeholder name or DateTime format string",
-                                placeholder);
+                            var message = SR.InvalidPlaceholder.With(placeholder);
                             throw new FormatException(message, ex);
                         }
                     }
@@ -160,8 +158,7 @@ namespace Superscrot
                 {
                     if (i >= format.Length)
                     {
-                        var message = string.Format("Unexpected end of string after '{0}'",
-                            PlaceholderEscape);
+                        var message = SR.EndOfString.With(PlaceholderEscape);
                         throw new FormatException(message);
                     }
 
@@ -191,7 +188,7 @@ namespace Superscrot
             var file = Path.GetFileName(serverPath);
 
             if (!folder.StartsWith(Program.Config.FtpServerPath))
-                throw new Exception("Server path is outside of the configured base server path, " + Program.Config.FtpServerPath);
+                throw new Exception(SR.DebasedServerPath);
 
             var baseUrl = folder.Replace(Program.Config.FtpServerPath, Program.Config.HttpBaseUri);
             var url = UriCombine(baseUrl, UrlEncode(file));

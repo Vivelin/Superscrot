@@ -1,4 +1,6 @@
-﻿namespace Superscrot
+﻿using System.Diagnostics;
+
+namespace Superscrot
 {
     /// <summary>
     /// Provides additional functionality to strings.
@@ -32,6 +34,25 @@
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Replaces any format items in the string with string representations
+        /// of the equivalent objects.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">The objects to format.</param>
+        /// <returns>
+        /// The formatted string, or <c>null</c> if <paramref name="format"/>
+        /// or <paramref name="args"/> are <c>null</c>.
+        /// </returns>
+        public static string With(this string format, params object[] args)
+        {
+            if (format == null) return null;
+            if (args == null || args.Length == 0)
+                Debug.WriteLine("Warning: no arguments to format with");
+
+            return string.Format(format, args);
         }
     }
 }
