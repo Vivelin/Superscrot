@@ -23,11 +23,17 @@ namespace Superscrot
 
         private Bitmap bitmap;
         private string serverPath;
+        private DateTime createdDate;
+        private Guid guid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Screenshot"/> class.
         /// </summary>
-        public Screenshot() { }
+        public Screenshot()
+        {
+            createdDate = DateTime.Now;
+            guid = Guid.NewGuid();
+        }
 
         /// <summary>
         /// Occurs before the screenshot starts uploading.
@@ -112,6 +118,22 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Gets a globally unique identifier for this screenshot.
+        /// </summary>
+        public Guid Guid
+        {
+            get { return guid; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the date and time the screenshot was made.
+        /// </summary>
+        public DateTime Created
+        {
+            get { return createdDate; }
+        }
+
+        /// <summary>
         /// Releases all resources used by the <see cref="Screenshot"/> class.
         /// </summary>
         public void Dispose()
@@ -189,7 +211,11 @@ namespace Superscrot
                 using (var window = NativeWindow.ForegroundWindow())
                 {
                     screenshot.WindowTitle = window.Caption;
-                    screenshot.WindowOwner = window.Owner.MainModule.FileVersionInfo.FileDescription;
+                    screenshot.WindowOwner = StringExtensions.Coalesce(
+                        window.Owner.MainModule.FileVersionInfo.FileDescription,
+                        window.Owner.MainModule.FileVersionInfo.ProductName,
+                        window.Owner.ProcessName,
+                        string.Empty);
 
                     screenshot.Bitmap = new Bitmap(window.Width, window.Height);
                     using (Graphics g = Graphics.FromImage(screenshot.Bitmap))
@@ -287,7 +313,15 @@ namespace Superscrot
                 Screenshot screenshot = new Screenshot();
                 screenshot.Source = ScreenshotSource.File;
                 screenshot.OriginalFileName = path;
-                screenshot.Bitmap = (Bitmap)Image.FromFile(path);
+
+                using (var stream = new FileStream(path, FileMode.Open))
+                {
+                    using (var image = Image.FromStream(stream))
+                    {
+                        screenshot.Bitmap = new Bitmap(image);
+                    }
+                }
+
                 return screenshot;
             }
             catch (Exception ex)
@@ -392,7 +426,7 @@ namespace Superscrot
 
             if (args.Cancel) return true;
 
-            var target = PathUtility.UriCombine(Program.Config.FtpServerPath, 
+            var target = PathUtility.UriCombine(Program.Config.FtpServerPath,
                 args.FileName);
             var uploader = Uploader.Create(Program.Config);
             uploader.DuplicateFileFound += (sender, e) =>
@@ -455,7 +489,6 @@ namespace Superscrot
         /// <param name="format">The composite format string.</param>
         public string GetFileName(string format)
         {
-            var time = DateTime.Now;
             var fileName = Path.GetFileNameWithoutExtension(OriginalFileName);
             var args = new StringDictionary();
             args.Add("machine", Environment.MachineName);
@@ -464,10 +497,11 @@ namespace Superscrot
             args.Add("window", WindowTitle);
             args.Add("process", WindowOwner);
             args.Add("file", fileName);
+            args.Add("guid", Guid.ToString("N"));
 
             // Date/time related placeholders
-            args.Add("time", time.ToString("yyyyMMddHHmmssffff"));
-            args.Add("unix", time.ToUnixTimestamp().ToString());
+            args.Add("time", Created.ToString("yyyyMMddHHmmssffff"));
+            args.Add("unix", Created.ToUnixTimestamp().ToString());
 
             switch (Source)
             {
@@ -493,7 +527,7 @@ namespace Superscrot
                     break;
             }
 
-            var result = PathUtility.Format(format, args, time);
+            var result = PathUtility.Format(format, args, Created);
             var ext = Program.Config.UseCompression ? "jpg" : "png";
             if (Source == ScreenshotSource.File)
                 ext = Path.GetExtension(OriginalFileName);

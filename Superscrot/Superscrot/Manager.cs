@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Superscrot.Uploaders;
@@ -17,6 +18,18 @@ namespace Superscrot
         private KeyboardHook hook = null;
         private History history = null;
         private bool enabled = true;
+
+        /// <summary>
+        /// The synchronization context for the main (UI) thread. 
+        /// </summary>
+        /// <remarks>
+        /// This is used to show Windows Forms dialogs on the UI thread while
+        /// in the context of a background thread (e.g. while <c>await</c>ing)
+        /// to preview issues that would require some components to run on an
+        /// STA thread.
+        /// </remarks>
+        private SynchronizationContext uiContext = null;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Manager"/> class.
@@ -103,7 +116,7 @@ namespace Superscrot
         /// Uploads a screenshot.
         /// </summary>
         /// <param name="screenshot">The screenshot to upload.</param>
-        public async void UploadScreenshot(Screenshot screenshot)
+        public async Task UploadScreenshot(Screenshot screenshot)
         {
             if (screenshot == null) throw new ArgumentNullException("screenshot");
 
@@ -163,12 +176,12 @@ namespace Superscrot
         /// <summary>
         /// Uploads images and files on the clipboard to FTP.
         /// </summary>
-        public async void UploadClipboard()
+        public async Task UploadClipboard()
         {
             if (Clipboard.ContainsImage())
             {
                 var capture = Screenshot.FromClipboard();
-                UploadScreenshot(capture);
+                await UploadScreenshot(capture);
             }
             else if (Clipboard.ContainsFileDropList())
             {
@@ -176,7 +189,7 @@ namespace Superscrot
                 if (files.Count == 1)
                 {
                     var capture = Screenshot.FromFile(files[0]);
-                    UploadScreenshot(capture);
+                    await UploadScreenshot(capture);
                 }
                 else
                 {
@@ -262,12 +275,18 @@ namespace Superscrot
             if (Program.Config.ShowPreviewDialog)
             {
                 var screenshot = (Screenshot)sender;
-                using (var dialog = new PreviewDialog(screenshot))
+
+                Debug.Assert(uiContext != null, 
+                    "Main thread context should not be null");
+                uiContext.Send(_ =>
                 {
-                    if (dialog.ShowDialog() != DialogResult.OK)
-                        e.Cancel = true;
-                    e.FileName = dialog.FileName;
-                }
+                    using (var dialog = new PreviewDialog(screenshot))
+                    {
+                        if (dialog.ShowDialog() != DialogResult.OK)
+                            e.Cancel = true;
+                        e.FileName = dialog.FileName;
+                    }
+                }, null);
             }
         }
 
@@ -298,8 +317,8 @@ namespace Superscrot
         {
             try
             {
-                Program.Tray.ShowError("Screenshot was not successfully uploaded", 
-                    string.Format("Check your connection to {0} and try again.", 
+                Program.Tray.ShowError("Screenshot was not successfully uploaded",
+                    string.Format("Check your connection to {0} and try again.",
                         Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
 
@@ -318,8 +337,8 @@ namespace Superscrot
         {
             try
             {
-                Program.Tray.ShowError("Screenshot was not successfully deleted", 
-                    string.Format("Check your connection to {0} and try again.", 
+                Program.Tray.ShowError("Screenshot was not successfully deleted",
+                    string.Format("Check your connection to {0} and try again.",
                         Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
 
@@ -330,12 +349,14 @@ namespace Superscrot
             }
         }
 
-        private void KeyPressed(object sender, KeyPressedEventArgs e)
+        private async void KeyPressed(object sender, KeyPressedEventArgs e)
         {
             if (!Enabled) return;
 
             try
             {
+                uiContext = SynchronizationContext.Current;
+
                 if (e.Key == Keys.PrintScreen)
                 {
                     Screenshot screenshot = null;
@@ -354,18 +375,20 @@ namespace Superscrot
                             UndoUpload();
                             return;
                     }
-                    UploadScreenshot(screenshot);
+
+                    if (screenshot != null)
+                        await UploadScreenshot(screenshot);
                 }
                 else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
                 {
-                    UploadClipboard();
+                    await UploadClipboard();
                 }
             }
             catch (Exception ex)
             {
                 Trace.WriteLine(ex);
                 System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError("Superscrot encountered a problem", 
+                Program.Tray.ShowError("Superscrot encountered a problem",
                     "If this problem keeps happening, please report the problem at https://github.com/horsedrowner/Superscrot/issues \nDetails: " + ex.Message);
             }
         }
