@@ -313,9 +313,10 @@ namespace Superscrot
 
         private void Screenshot_DuplicateFileFound(object sender, DuplicateFileEventArgs e)
         {
-            Trace.WriteLine("Duplicate file found: " + e.FileName);
+            Trace.WriteLine("Duplicate file found: " + e.DuplicateFileName);
 
-            using (var dialog = new Dialogs.DuplicateFileFoundDialog(e.Screenshot, e.FileName))
+            using (var dialog = new Dialogs.DuplicateFileFoundDialog(
+                e.TargetFileName, e.DuplicateFileName))
             {
                 var result = dialog.ShowDialog();
                 switch (result)

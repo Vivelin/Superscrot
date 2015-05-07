@@ -1,38 +1,14 @@
 ﻿using System;
+using System.IO;
 
 namespace Superscrot.Uploaders
 {
-    /// <summary>
-    /// Represents the method that will handle events fired by the <see cref="Uploader"/> class.
-    /// </summary>
-    /// <param name="s">The screenshot for the event.</param>
-    public delegate void UploadEventHandler(Screenshot s);   
 
     /// <summary>
-    /// Represents an abstract base class for uploading and deleting screenshots.
+    /// Represents an abstract base class for uploading and deleting files.
     /// </summary>
-    abstract class Uploader : IDisposable
+    public abstract class Uploader : IDisposable
     {
-        /// <summary>
-        /// Occurs when an upload has succeeded.
-        /// </summary>
-        public event UploadEventHandler UploadSucceeded;
-
-        /// <summary>
-        /// Occurs when an upload has failed.
-        /// </summary>
-        public event UploadEventHandler UploadFailed;
-
-        /// <summary>
-        /// Occurs when a file was deleted succesfully.
-        /// </summary>
-        public event UploadEventHandler DeleteSucceeded;
-
-        /// <summary>
-        /// Occurs when a file could not be deleted.
-        /// </summary>
-        public event UploadEventHandler DeleteFailed;
-
         /// <summary>
         /// Occurs when a duplicate file was found on the server before the screenshot was uploaded.
         /// </summary>
@@ -61,78 +37,103 @@ namespace Superscrot.Uploaders
         }
 
         /// <summary>
-        /// Uploads a screenshot to the target location on the currently configured server.
+        /// Uploads a file to the target location on the currently configured 
+        /// server.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>
+        /// <param name="stream">The file to upload.</param>
         /// <param name="target">The path on the server to upload to.</param>
         /// <returns>True if the upload succeeded, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        public abstract bool Upload(Screenshot screenshot, string target);
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connection to the server failed.
+        /// </exception>
+        public abstract bool Upload(Stream stream, ref string target);
 
         /// <summary>
-        /// Removes a screenshot from the server.
+        /// Uploads a file to the target location on the currently configured 
+        /// server.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to remove from the server.</param>
+        /// <param name="path">The path to the file to upload.</param>
+        /// <param name="target">The path on the server to upload to.</param>
+        /// <returns>True if the upload succeeded, false otherwise.</returns>
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connection to the server failed.
+        /// </exception>
+        public virtual bool Upload(string path, ref string target)
+        {
+            using (var stream = File.OpenRead(path))
+            {
+                return Upload(stream, ref target);
+            }
+        }
+
+        /// <summary>
+        /// Removes a file from the server.
+        /// </summary>
+        /// <param name="path">
+        /// The path to the file on the server to remove.
+        /// </param>
         /// <returns>True if the file was deleted, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        /// <exception cref="System.InvalidOperationException"><paramref name="screenshot"/> has not been uploaded (ServerPath property was not set)</exception>
-        public abstract bool UndoUpload(Screenshot screenshot);
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connectioned to the server failed
+        /// </exception>
+        public abstract bool Delete(string path);
 
         /// <summary>
-        /// Raises the <see cref="UploadSucceeded"/> event.
+        /// Checks if the server contains a file containing <paramref 
+        /// name="name"/> in the name, and returns a value indicating whether
+        /// to continue the upload or not.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Screenshot"/> that was 
-        /// uploaded.</param>
-        protected virtual void OnUploadSucceeded(Screenshot screenshot)
+        /// <param name="name">
+        /// The name to check for in files on the server. This is typically the
+        /// name of the original file being uploaded. If this is <c>null</c> or
+        /// the empty string, this function will always return <c>true</c>.
+        /// </param>
+        /// <param name="target">The name of the file to upload.</param>
+        /// <returns>
+        /// <c>true</c> if the upload should continue (as <paramref 
+        /// name="target"/>), <c>false</c> otherwise.
+        /// </returns>
+        public virtual bool CheckDuplicates(string name, ref string target)
         {
-            var uploadSucceeded = UploadSucceeded;
-            if (uploadSucceeded != null)
+            if (string.IsNullOrEmpty(name)) return true;
+
+            var directory = Path.GetDirectoryName(target).Replace('\\', '/');
+            var duplicate = FindDuplicate(name, directory);
+
+            if (duplicate != null)
             {
-                uploadSucceeded(screenshot);
+                var e = new DuplicateFileEventArgs(this, target, duplicate);
+
+                OnDuplicateFileFound(e);
+                switch (e.Action)
+                {
+                    case DuplicateFileAction.Replace:
+                        target = duplicate;
+                        return true;
+                    case DuplicateFileAction.Abort:
+                        return false;
+                    case DuplicateFileAction.Ignore:
+                    default:
+                        return true;
+                }
             }
+
+            return true;
         }
 
         /// <summary>
-        /// Raises the <see cref="UploadFailed"/> event.
+        /// Finds files partially matching the specified name in a directory on
+        /// the server.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Screenshot"/> that failed 
-        /// to upload.</param>
-        protected virtual void OnUploadFailed(Screenshot screenshot)
-        {
-            var uploadFailed = UploadFailed;
-            if (uploadFailed != null)
-            {
-                uploadFailed(screenshot);
-            }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="DeleteSucceeded"/> event.
-        /// </summary>
-        /// <param name="screenshot">The <see cref="Screenshot"/> that was 
-        /// deleted.</param>
-        protected virtual void OnDeleteSucceeded(Screenshot screenshot)
-        {
-            var deleteSucceeded = DeleteSucceeded;
-            if (deleteSucceeded != null)
-            {
-                deleteSucceeded(screenshot);
-            }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="DeleteFailed"/> event.
-        /// </summary>
-        /// <param name="screenshot">The <see cref="Screenshot"/> that failed 
-        /// to delete.</param>
-        protected virtual void OnDeleteFailed(Screenshot screenshot)
-        {
-            var deleteFailed = DeleteFailed;
-            if (deleteFailed != null)
-            {
-                deleteFailed(screenshot);
-            }
-        }
+        /// <param name="name">The name that should be searched for.</param>
+        /// <param name="directory">
+        /// The directory on the server to search in.
+        /// </param>
+        /// <returns>
+        /// The full name of the first matching file on the server, or 
+        /// <c>null</c> if no matching files could be found.
+        /// </returns>
+        protected abstract string FindDuplicate(string name, string directory);
 
         /// <summary>
         /// Raises the <see cref="DuplicateFileFound"/> event.

@@ -46,6 +46,26 @@ namespace Superscrot
         public event EventHandler<DuplicateFileEventArgs> DuplicateFileFound;
 
         /// <summary>
+        /// Occurs when an upload has succeeded.
+        /// </summary>
+        public event EventHandler UploadSucceeded;
+
+        /// <summary>
+        /// Occurs when an upload has failed.
+        /// </summary>
+        public event EventHandler UploadFailed;
+
+        /// <summary>
+        /// Occurs when a file was deleted succesfully.
+        /// </summary>
+        public event EventHandler DeleteSucceeded;
+
+        /// <summary>
+        /// Occurs when a file could not be deleted.
+        /// </summary>
+        public event EventHandler DeleteFailed;
+
+        /// <summary>
         /// Gets or sets the source of the screenshot.
         /// </summary>
         public ScreenshotSource Source { get; set; }
@@ -446,7 +466,25 @@ namespace Superscrot
                 OnDuplicateFileFound(e);
             };
 
-            return uploader.Upload(this, target);
+            if (IsFile && Program.Config.CheckForDuplicateFiles)
+            {
+                var name = Path.GetFileNameWithoutExtension(OriginalFileName);
+                if (!uploader.CheckDuplicates(name, ref target))
+                    return false;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                Save(stream);
+
+                if (uploader.Upload(stream, ref target))
+                {
+                    ServerPath = target;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -473,7 +511,7 @@ namespace Superscrot
         public bool Delete()
         {
             var uploader = Uploader.Create(Program.Config);
-            return uploader.UndoUpload(this);
+            return uploader.Delete(ServerPath);
         }
 
         /// <summary>
@@ -524,15 +562,15 @@ namespace Superscrot
             {
                 case ScreenshotSource.Desktop:
                     args.Add("source", "Desktop");
-                    args.Add("name", "\{Bitmap.Width}x\{Bitmap.Height}");
+                    args.Add("name", $"{Bitmap.Width}x{Bitmap.Height}");
                     break;
                 case ScreenshotSource.Clipboard:
                     args.Add("source", "Clipboard");
-                    args.Add("name", "\{Bitmap.Width}x\{Bitmap.Height}");
+                    args.Add("name", $"{Bitmap.Width}x{Bitmap.Height}");
                     break;
                 case ScreenshotSource.RegionCapture:
                     args.Add("source", "Capture");
-                    args.Add("name", "\{Bitmap.Width}x\{Bitmap.Height}");
+                    args.Add("name", $"{Bitmap.Width}x{Bitmap.Height}");
                     break;
                 case ScreenshotSource.WindowCapture:
                     args.Add("source", "Window");
@@ -623,6 +661,54 @@ namespace Superscrot
             var handler = Uploading;
             if (handler != null)
                 handler(this, arg);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="UploadSucceeded"/> event.
+        /// </summary>
+        protected virtual void OnUploadSucceeded()
+        {
+            var handler = UploadSucceeded;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="UploadFailed"/> event.
+        /// </summary>
+        protected virtual void OnUploadFailed()
+        {
+            var handler = UploadFailed;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="DeleteSucceeded"/> event.
+        /// </summary>
+        protected virtual void OnDeleteSucceeded()
+        {
+            var handler = DeleteSucceeded;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="DeleteFailed"/> event.
+        /// </summary>
+        protected virtual void OnDeleteFailed()
+        {
+            var handler = DeleteFailed;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>

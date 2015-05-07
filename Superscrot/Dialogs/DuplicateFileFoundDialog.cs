@@ -20,16 +20,19 @@ namespace Superscrot.Dialogs
         /// class with the specified screenshot and the name of the duplicate 
         /// file.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Screenshot"/> being uploaded.</param>
-        /// <param name="fileName">The name of the duplicate file on the server.</param>
-        public DuplicateFileFoundDialog(Screenshot screenshot, string fileName)
+        /// <param name="target">The name of the file being uploaded.</param>
+        /// <param name="duplicate">
+        /// The name of the duplicate file on the server.
+        /// </param>
+        public DuplicateFileFoundDialog(string target, string duplicate)
         {
             InitializeComponent();
 
-            MainInstruction.Text = string.Format(MainInstruction.Text, fileName);
+            MainInstruction.Text = string.Format(MainInstruction.Text, duplicate);
         }
 
-        private void DuplicateFileFoundDialog_FormClosed(object sender, FormClosedEventArgs e)
+        private void DuplicateFileFoundDialog_FormClosed(object sender, 
+            FormClosedEventArgs e)
         {
             Program.Config.CheckForDuplicateFiles = !PreventDialogCheckbox.Checked;
             Program.Config.SaveSettings(Program.SettingsPath);

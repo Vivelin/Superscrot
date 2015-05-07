@@ -44,18 +44,20 @@ namespace Superscrot.Uploaders
             client.ConnectionInfo.Timeout = TimeSpan.FromMilliseconds(timeout);
         }
 
-        /// <summary>
-        /// Uploads a screenshot to the target location on the currently configured server.
-        /// </summary>
-        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>
-        /// <param name="target">The path on the server to upload to.</param>
-        /// <returns>True if the upload succeeded, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        public override bool Upload(Screenshot screenshot, string target)
-        {
-            if (screenshot == null)
-                throw new ArgumentNullException("screenshot");
 
+        /// <summary>
+        /// Uploads a file to the target location on the currently configured 
+        /// server.
+        /// </summary>
+        /// <param name="stream">The file to upload.</param>
+        /// <param name="target">The path to the file on the server.</param>
+        /// <returns>True if the upload succeeded, false otherwise.</returns>
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connection to the server failed.
+        /// </exception>        
+        public override bool Upload(Stream stream, ref string target)
+        {
+            if (stream == null) throw new ArgumentNullException("stream");
             EnsureConnection();
 
             string folder = Path.GetDirectoryName(target).Replace('\\', '/');
@@ -63,24 +65,12 @@ namespace Superscrot.Uploaders
 
             try
             {
-                if (Program.Config.CheckForDuplicateFiles 
-                    && !FindDuplicateFile(screenshot, ref target))
-                    return false;
-
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    screenshot.Save(stream);
-                    client.UploadFile(stream, target);
-                }
-
-                screenshot.ServerPath = target;
-                OnUploadSucceeded(screenshot);
+                client.UploadFile(stream, target);
                 return true;
             }
             catch (Exception ex)
             {
                 Trace.WriteLine(ex);
-                OnUploadFailed(screenshot);
                 return false;
             }
             finally
@@ -91,38 +81,28 @@ namespace Superscrot.Uploaders
         }
 
         /// <summary>
-        /// Removes a screenshot from the server.
+        /// Removes a file from the server.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to remove from the server.</param>
+        /// <param name="path">
+        /// The path to the file on the server to remove.
+        /// </param>
         /// <returns>True if the file was deleted, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        /// <exception cref="System.InvalidOperationException"><paramref name="screenshot"/> has not been uploaded (ServerPath property was not set)</exception>
-        public override bool UndoUpload(Screenshot screenshot)
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connectioned to the server failed
+        /// </exception>
+        public override bool Delete(string path)
         {
-            if (screenshot == null)
-                throw new ArgumentNullException("screenshot");
-            if (screenshot.ServerPath == null) 
-                throw new InvalidOperationException(SR.CantUndoNull);
-
             EnsureConnection();
-
             try
             {
-                client.DeleteFile(screenshot.ServerPath);
-                OnDeleteSucceeded(screenshot);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-                OnDeleteFailed(screenshot);
-                return false;
+                client.DeleteFile(path);
             }
             finally
             {
                 if (client != null)
                     client.Disconnect();
             }
+            return true;
         }
 
         /// <summary>
@@ -141,6 +121,33 @@ namespace Superscrot.Uploaders
             }
         }
 
+        /// <summary>
+        /// Finds files partially matching the specified name in a directory on
+        /// the server.
+        /// </summary>
+        /// <param name="name">The name that should be searched for.</param>
+        /// <param name="directory">
+        /// The directory on the server to search in.
+        /// </param>
+        /// <returns>
+        /// The full name of the first matching file on the server, or 
+        /// <c>null</c> if no matching files could be found.
+        /// </returns>
+        protected override string FindDuplicate(string name, string directory)
+        {
+            EnsureConnection();
+
+            var listing = client.ListDirectory(directory);
+            var duplicate = listing.FirstOrDefault(x => x.Name.Contains(name));
+
+            if (duplicate != null)
+            {
+                return duplicate.FullName;
+            }
+
+            return null;
+        }
+
         private void EnsureConnection()
         {
             if (client != null)
@@ -153,47 +160,6 @@ namespace Superscrot.Uploaders
                         client.ConnectionInfo.Host);
                 }
             }
-        }
-
-        /// <summary>
-        /// Checks if the session contains a duplicate file and returns 
-        /// whether to continue the upload.
-        /// </summary>
-        /// <param name="screenshot">The screenshot that is being uploaded.</param>
-        /// <param name="target">The target file name.</param>
-        /// <returns>False if the upload should be aborted.</returns>
-        private bool FindDuplicateFile(Screenshot screenshot, ref string target)
-        {
-            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return true;
-
-            var directory = Path.GetDirectoryName(target).Replace('\\', '/');
-            var listing = client.ListDirectory(directory);
-            var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
-            var duplicate = listing.FirstOrDefault(x =>
-                x.Name.Contains(name)
-            );
-
-            if (duplicate != null)
-            {
-                var e = new DuplicateFileEventArgs(screenshot, 
-                    client.ConnectionInfo.Host, duplicate.Name);
-
-                OnDuplicateFileFound(e);
-                switch (e.Action)
-                {
-                    case DuplicateFileAction.Replace:
-                        target = duplicate.FullName;                            
-                        Trace.WriteLine("Changed upload target to " + target);
-                        return true;
-                    case DuplicateFileAction.Abort:
-                        return false;
-                    case DuplicateFileAction.Ignore:
-                    default:
-                        return true;
-                }
-            }
-
-            return true;
         }
 
         private void SftpCreateDirectoryRecursive(string path)

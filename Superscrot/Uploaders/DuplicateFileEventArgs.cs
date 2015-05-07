@@ -32,35 +32,41 @@ namespace Superscrot.Uploaders
     public class DuplicateFileEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DuplicateFileEventArgs"/> class with the
-        /// screenshot being uploaded, the hostname of the server that contains the duplicate file 
-        /// and the name of the duplicate file on the server.
+        /// Initializes a new instance of the <see cref="DuplicateFileEventArgs"/> 
+        /// class with the uploader being used, the original destination and
+        /// the name of the duplicate file.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Screenshot"/> being uploaded.</param>
-        /// <param name="hostname">The hostname of the server.</param>
-        /// <param name="fileName">The name of the duplicate file on the server.</param>
-        public DuplicateFileEventArgs(Screenshot screenshot, string hostname, string fileName)
+        /// <param name="uploader">
+        /// The <see cref="Uploader"/> instance being used.
+        /// </param>
+        /// <param name="target">The original upload destination.</param>
+        /// <param name="duplicate">
+        /// The name of a possible duplicate file on the server.
+        /// </param>
+        public DuplicateFileEventArgs(Uploader uploader, string target, 
+            string duplicate)
         {
-            Screenshot = screenshot;
-            Hostname = hostname;
-            FileName = fileName;
+            Uploader = uploader;
+            TargetFileName = target;
+            DuplicateFileName = duplicate;
             Action = DuplicateFileAction.Ignore;
         }
 
         /// <summary>
         /// Gets the <see cref="Screenshot"/> that caused the event to trigger.
         /// </summary>
-        public Screenshot Screenshot { get; private set; }
+        public Uploader Uploader { get; }
 
         /// <summary>
-        /// Gets the hostname of the server on which the duplicate file exists.
+        /// Gets name of the file being uploaded.
         /// </summary>
-        public string Hostname { get; private set; }
+        public string TargetFileName { get; }
 
         /// <summary>
-        /// Gets the name of the file on the server that is a duplicate of the screenshot being uploaded.
+        /// Gets the name of the file on the server that matches the name of 
+        /// the file being uploaded.
         /// </summary>
-        public string FileName { get; private set; }
+        public string DuplicateFileName { get; }
 
         /// <summary>
         /// Gets or sets the action to be taken.

@@ -31,59 +31,59 @@ namespace Superscrot.Uploaders
         /// <summary>
         /// Uploads a screenshot to the target location on the currently configured server.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to upload.</param>
+        /// <param name="stream">The file to upload.</param>
         /// <param name="target">The path on the server to upload to.</param>
         /// <returns>True if the upload succeeded, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        public override bool Upload(Screenshot screenshot, string target)
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connectioned to the server failed.
+        /// </exception>
+        public override bool Upload(Stream stream, ref string target)
         {
             EnsureConnection();
 
             if (!client.DirectoryExists(Path.GetDirectoryName(target)))
                 client.CreateDirectory(Path.GetDirectoryName(target));
-
-            if (Program.Config.CheckForDuplicateFiles
-                && !FindDuplicateFile(screenshot, ref target))
-                return false;
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                screenshot.Save(stream);
-                if (client.Upload(stream, target))
-                {
-                    screenshot.ServerPath = target;
-                    OnUploadSucceeded(screenshot);
-                    return true;
-                }
-                else
-                {
-                    OnUploadFailed(screenshot);
-                    return false;
-                }
-            }
+            
+            return client.Upload(stream, target);
         }
 
         /// <summary>
         /// Removes a screenshot from the server.
         /// </summary>
-        /// <param name="screenshot">The <see cref="Superscrot.Screenshot"/> to remove from the server.</param>
+        /// <param name="path">
+        /// The path to the file on the server to remove.
+        /// </param>
         /// <returns>True if the file was deleted, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">Connectioned to the server failed</exception>
-        /// <exception cref="System.InvalidOperationException"><paramref name="screenshot"/> has not been uploaded (ServerPath property was not set)</exception>
-        public override bool UndoUpload(Screenshot screenshot)
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connectioned to the server failed.
+        /// </exception>
+        public override bool Delete(string path)
         {
             EnsureConnection();
 
-            if (client.DeleteFile(screenshot.ServerPath))
-            {
-                OnDeleteSucceeded(screenshot);
-                return true;
-            }
-            else
-            {
-                OnDeleteFailed(screenshot);
-                return false;
-            }
+            return client.DeleteFile(path);
+        }
+
+        /// <summary>
+        /// Finds files partially matching the specified name in a directory on
+        /// the server.
+        /// </summary>
+        /// <param name="name">The name that should be searched for.</param>
+        /// <param name="directory">
+        /// The directory on the server to search in.
+        /// </param>
+        /// <returns>
+        /// The full name of the first matching file on the server, or 
+        /// <c>null</c> if no matching files could be found.
+        /// </returns>
+        protected override string FindDuplicate(string name, string directory)
+        {
+            var listing = client.ListDirectory(directory);
+            var duplicate = listing.FirstOrDefault(x => x.Contains(name));
+
+            if (duplicate.StartsWith("/"))
+                return duplicate;
+            return PathUtility.UriCombine(directory, duplicate);
         }
 
         private void EnsureConnection()
@@ -93,50 +93,6 @@ namespace Superscrot.Uploaders
                 throw new ConnectionFailedException(
                     SR.ConnectionFailed.With(client.Hostname), client.Hostname);
             }
-        }
-
-        /// <summary>
-        /// Checks if the session contains a duplicate file and returns 
-        /// whether to continue the upload.
-        /// </summary>
-        /// <param name="screenshot">
-        /// The screenshot that is being uploaded.
-        /// </param>
-        /// <param name="target">The target file name.</param>
-        /// <returns>False if the upload should be aborted.</returns>
-        private bool FindDuplicateFile(Screenshot screenshot, ref string target)
-        {
-            if (string.IsNullOrEmpty(screenshot.OriginalFileName)) return true;
-
-            var directory = Path.GetDirectoryName(target).Replace('\\', '/');
-            var listing = client.ListDirectory(directory);
-            var name = Path.GetFileNameWithoutExtension(screenshot.OriginalFileName);
-            var duplicate = listing.FirstOrDefault(x =>
-                x.Contains(name)
-            );
-
-            if (!string.IsNullOrEmpty(duplicate))
-            {
-                var e = new DuplicateFileEventArgs(screenshot, Program.Config.FtpHostname, duplicate);
-
-                OnDuplicateFileFound(e);
-                switch (e.Action)
-                {
-                    case DuplicateFileAction.Replace:
-                        if (duplicate.StartsWith("/"))
-                            target = duplicate;
-                        target = PathUtility.UriCombine(directory, duplicate);
-                        Trace.WriteLine("Changed upload target to " + target);
-                        return true;
-                    case DuplicateFileAction.Abort:
-                        return false;
-                    case DuplicateFileAction.Ignore:
-                    default:
-                        return true;
-                }
-            }
-
-            return true;
         }
     }
 }
