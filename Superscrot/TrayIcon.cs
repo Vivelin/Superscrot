@@ -28,7 +28,7 @@ namespace Superscrot
                 Properties.Resources.Pause, new EventHandler(OnTrayDisable));
 
             trayIcon = new NotifyIcon();
-            trayIcon.Text = Application.ProductName;
+            trayIcon.Text = $"{Application.ProductName} {Application.ProductVersion}";
             SetIcon(Properties.Resources.IconImage);
 
             trayIcon.ContextMenuStrip = new ContextMenuStrip();
