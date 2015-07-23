@@ -19,7 +19,7 @@ namespace Superscrot
         /// </param>
         /// <returns>
         /// <paramref name="value"/> if it is not <c>null</c> or empty, or a
-        /// value from <paramref name="values"/> that is not <c>null</c> or 
+        /// value from <paramref name="values"/> that is not <c>null</c> or
         /// empty, or <c>null</c> if all parameters are <c>null</c> or empty.
         /// </returns>
         public static string Coalesce(this string value, params string[] values)
@@ -43,8 +43,8 @@ namespace Superscrot
         /// <param name="format">A composite format string.</param>
         /// <param name="args">The objects to format.</param>
         /// <returns>
-        /// The formatted string, or <c>null</c> if <paramref name="format"/>
-        /// or <paramref name="args"/> are <c>null</c>.
+        /// The formatted string, or <c>null</c> if <paramref name="format"/> or
+        /// <paramref name="args"/> are <c>null</c>.
         /// </returns>
         public static string With(this string format, params object[] args)
         {

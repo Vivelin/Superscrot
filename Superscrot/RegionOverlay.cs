@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Superscrot
@@ -16,11 +11,6 @@ namespace Superscrot
     {
         private Screen _screen;
         private MouseEventArgs _start = null;
-
-        /// <summary>
-        /// Gets the region selected by the user.
-        /// </summary>
-        public Rectangle SelectedRegion { get; private set; }
 
         /// <summary>
         /// Initializes a new region overlay with the colors from the program configuration.
@@ -49,57 +39,10 @@ namespace Superscrot
             this.Opacity = Program.Config.OverlayOpacity;
         }
 
-        private void RegionOverlay_Load(object sender, EventArgs e)
-        {
-            _screen = Screen.FromPoint(Cursor.Position);
-            this.Left = _screen.Bounds.Left;
-            this.Top = _screen.Bounds.Top;
-            this.Width = _screen.Bounds.Width;
-            this.Height = _screen.Bounds.Height;
-            this.Focus();
-        }
-
-        private void RegionOverlay_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (!_screen.Bounds.Contains(Cursor.Position)) return;
-
-            if (_start == null)
-            {
-                _start = new MouseEventArgs(e.Button, e.Clicks, Cursor.Position.X, Cursor.Position.Y, e.Delta); // use Cursor.Position since the e.Location is relative to the current screen only
-            }
-        }
-
-        private void RegionOverlay_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button != _start.Button)
-            {
-                this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-                this.Close();
-            }
-            else if (_start != null)
-            {
-                SelectedRegion = GetRectangle(e);
-                this.DialogResult = System.Windows.Forms.DialogResult.OK;
-                this.Close();
-            }
-        }
-
-        private void RegionOverlay_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_start != null)
-            {
-                Rectangle rect = GetRectangle(e);
-                rect.Offset(-_screen.Bounds.X, -_screen.Bounds.Y); // Drawing is in form coordinates, which is screen-relative, unlike Cursor.Position
-                using (Graphics g = this.CreateGraphics())
-                using (Pen p = new Pen(this.ForeColor))
-                using (Brush b = new SolidBrush(this.ForeColor))
-                {
-                    g.Clear(this.BackColor);
-                    g.FillRectangle(b, rect);
-                    g.Flush();
-                }
-            }
-        }
+        /// <summary>
+        /// Gets the region selected by the user.
+        /// </summary>
+        public Rectangle SelectedRegion { get; private set; }
 
         /// <summary>
         /// Gets a rectangle based on the start position and the current mouse position.
@@ -137,7 +80,7 @@ namespace Superscrot
                 // Include the end-point so that selecting the whole screen
                 // actually selects the whole screen, and not everything except
                 // one pixel on each axis.
-                return Rectangle.FromLTRB(left, top, right + 1, bottom + 1); 
+                return Rectangle.FromLTRB(left, top, right + 1, bottom + 1);
             }
             return Rectangle.Empty;
         }
@@ -148,5 +91,56 @@ namespace Superscrot
             this.Close();
         }
 
+        private void RegionOverlay_Load(object sender, EventArgs e)
+        {
+            _screen = Screen.FromPoint(Cursor.Position);
+            this.Left = _screen.Bounds.Left;
+            this.Top = _screen.Bounds.Top;
+            this.Width = _screen.Bounds.Width;
+            this.Height = _screen.Bounds.Height;
+            this.Focus();
+        }
+
+        private void RegionOverlay_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!_screen.Bounds.Contains(Cursor.Position)) return;
+
+            if (_start == null)
+            {
+                _start = new MouseEventArgs(e.Button, e.Clicks, Cursor.Position.X, Cursor.Position.Y, e.Delta); // use Cursor.Position since the e.Location is relative to the current screen only
+            }
+        }
+
+        private void RegionOverlay_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_start != null)
+            {
+                Rectangle rect = GetRectangle(e);
+                rect.Offset(-_screen.Bounds.X, -_screen.Bounds.Y); // Drawing is in form coordinates, which is screen-relative, unlike Cursor.Position
+                using (Graphics g = this.CreateGraphics())
+                using (Pen p = new Pen(this.ForeColor))
+                using (Brush b = new SolidBrush(this.ForeColor))
+                {
+                    g.Clear(this.BackColor);
+                    g.FillRectangle(b, rect);
+                    g.Flush();
+                }
+            }
+        }
+
+        private void RegionOverlay_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button != _start.Button)
+            {
+                this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                this.Close();
+            }
+            else if (_start != null)
+            {
+                SelectedRegion = GetRectangle(e);
+                this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                this.Close();
+            }
+        }
     }
 }

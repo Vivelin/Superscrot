@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Superscrot.Controls
 {
     /// <summary>
-    /// Represents a Windows split button that allows the user to select a
-    /// color.
+    /// Represents a Windows split button that allows the user to select a color.
     /// </summary>
     [DefaultEvent("ColorChanged")]
     public class ColorPickerButton : System.Windows.Forms.Button
@@ -26,8 +22,7 @@ namespace Superscrot.Controls
         }
 
         /// <summary>
-        /// Occurs when the value of the <see cref="Color"/> property has 
-        /// changed.
+        /// Occurs when the value of the <see cref="Color"/> property has changed.
         /// </summary>
         [Category("Property Changed")]
         [Description("Occurs whenever the Color property changes.")]
@@ -86,21 +81,11 @@ namespace Superscrot.Controls
         }
 
         /// <summary>
-        /// Raises the <see cref="ColorChanged"/> event.
-        /// </summary>
-        protected virtual void OnColorChanged()
-        {
-            var handler = ColorChanged;
-            if (handler != null)
-            {
-                handler(this, EventArgs.Empty);
-            }
-        }
-
-        /// <summary>
         /// Shows a color dialog and raises the Click event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
+        /// <param name="e">
+        /// An <see cref="EventArgs"/> that contains the event data.
+        /// </param>
         protected override void OnClick(EventArgs e)
         {
             using (var dialog = new ColorDialog())
@@ -116,9 +101,23 @@ namespace Superscrot.Controls
         }
 
         /// <summary>
+        /// Raises the <see cref="ColorChanged"/> event.
+        /// </summary>
+        protected virtual void OnColorChanged()
+        {
+            var handler = ColorChanged;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
         /// Raises the Paint event.
         /// </summary>
-        /// <param name="pevent">A <see cref="PaintEventArgs"/> that contains the event data.</param>
+        /// <param name="pevent">
+        /// A <see cref="PaintEventArgs"/> that contains the event data.
+        /// </param>
         protected override void OnPaint(PaintEventArgs pevent)
         {
             base.OnPaint(pevent);

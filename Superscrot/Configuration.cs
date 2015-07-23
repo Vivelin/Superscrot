@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Drawing;
-using System.Diagnostics;
 
 namespace Superscrot
 {
@@ -15,11 +13,11 @@ namespace Superscrot
     /// </summary>
     public class Configuration
     {
-        private long jpegQuality = 100L;
-        private double overlayOpacity = 0.6;
         private string failedScreenshotsFolder;
         private string ftpServerPath;
         private string httpBaseUri;
+        private long jpegQuality = 100L;
+        private double overlayOpacity = 0.6;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class
@@ -83,7 +81,68 @@ namespace Superscrot
             this.EnableTrayIcon = that.EnableTrayIcon;
         }
 
-        #region Path settings
+        /// <summary>
+        /// Gets or sets a value that determines whether or not to check for
+        /// duplicate files when uploading a screenshot.
+        /// </summary>
+        [DisplayName("Check for duplicate files"), Category("Misc. settings")]
+        [Description("Set to true to check if a file with the same name already exists on the server.")]
+        public bool CheckForDuplicateFiles { get; set; }
+
+        /// <summary>
+        /// Determines whether to display a system tray icon.
+        /// </summary>
+        [DisplayName("Enable tray icon"), Category("User interface")]
+        [Description("Determines whether to display a system tray icon.")]
+        public bool EnableTrayIcon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to the folder where failed screenshots are saved.
+        /// </summary>
+        [DisplayName("Failed screenshots folder"), Category("Misc. settings")]
+        [Description("The location where screenshots that could not be uploaded are saved to.")]
+        public string FailedScreenshotsFolder
+        {
+            get { return failedScreenshotsFolder; }
+            set
+            {
+                if (value != failedScreenshotsFolder)
+                {
+                    failedScreenshotsFolder = value;
+                    EnsureDirectoryExists(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets the format of the filename that screenshots are saved as.
+        /// </summary>
+        [DisplayName("Filename format"), Category("Image settings")]
+        [Description(@"The format of the filename that screenshots are saved as. See http://www.horsedrowner.net/superscrot#filenameformats. The extension is automatically changed or appended before uploading.")]
+        public string FilenameFormat { get; set; }
+
+        /// <summary>
+        /// Gets/sets the hostname or IP address of the server to upload to.
+        /// </summary>
+        [DisplayName("Hostname"), Category("Connection")]
+        [Description("The hostname or IP address of the server to upload to. Example: ftp.example.com")]
+        public string FtpHostname { get; set; }
+
+        /// <summary>
+        /// Gets/sets the password of the user.
+        /// </summary>
+        [DisplayName("Password"), Category("Connection")]
+        [Description("All your password are belong to me.")]
+        [PasswordPropertyText(true)]
+        public string FtpPassword { get; set; }
+
+        /// <summary>
+        /// Gets/sets the port of the server to upload to.
+        /// </summary>
+        [DisplayName("Port"), Category("Connection")]
+        [Description("The port of the server to upload to. Usually 21 for FTP or 22 for SSH.")]
+        public int FtpPort { get; set; }
+
         /// <summary>
         /// Gets/sets the path to the directory on the server to save
         /// screenshots to.
@@ -105,8 +164,22 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Gets/sets the base URI that leads to the FTP server path. 
-        /// This will be copied to the clipboard after a succesfull upload.
+        /// Gets/sets the timeout in milliseconds to wait for responses to FTP requests.
+        /// </summary>
+        [DisplayName("Timeout"), Category("Connection")]
+        [Description("The timeout in milliseconds to wait for responses to requests.")]
+        public int FtpTimeout { get; set; }
+
+        /// <summary>
+        /// Gets/sets the username of a user on the server to upload as.
+        /// </summary>
+        [DisplayName("Username"), Category("Connection")]
+        [Description("The username of a user on the server to upload as.")]
+        public string FtpUsername { get; set; }
+
+        /// <summary>
+        /// Gets/sets the base URI that leads to the FTP server path. This will
+        /// be copied to the clipboard after a succesfull upload.
         /// </summary>
         [DisplayName("HTTP base URI"), Category("FTP settings")]
         [Description("The base URI that is copied to the clipboard after uploading. Example: http://www.example.com/screenshots/")]
@@ -123,74 +196,6 @@ namespace Superscrot
                 }
             }
         }
-        #endregion
-
-        #region FTP settings
-        /// <summary>
-        /// Gets/sets the hostname or IP address of the server to upload to. 
-        /// </summary>
-        [DisplayName("Hostname"), Category("Connection")]
-        [Description("The hostname or IP address of the server to upload to. Example: ftp.example.com")]
-        public string FtpHostname { get; set; }
-
-        /// <summary>
-        /// Gets/sets the port of the server to upload to. 
-        /// </summary>
-        [DisplayName("Port"), Category("Connection")]
-        [Description("The port of the server to upload to. Usually 21 for FTP or 22 for SSH.")]
-        public int FtpPort { get; set; }
-
-        /// <summary>
-        /// Gets/sets the username of a user on the server to upload as.
-        /// </summary>
-        [DisplayName("Username"), Category("Connection")]
-        [Description("The username of a user on the server to upload as.")]
-        public string FtpUsername { get; set; }
-
-        /// <summary>
-        /// Gets/sets the password of the user.
-        /// </summary>
-        [DisplayName("Password"), Category("Connection")]
-        [Description("All your password are belong to me.")]
-        [PasswordPropertyText(true)]
-        public string FtpPassword { get; set; }
-
-        /// <summary>
-        /// Gets/sets the timeout in milliseconds to wait for responses to FTP requests.
-        /// </summary>
-        [DisplayName("Timeout"), Category("Connection")]
-        [Description("The timeout in milliseconds to wait for responses to requests.")]
-        public int FtpTimeout { get; set; }
-
-        /// <summary>
-        /// Gets/sets a value that determines whether to use SSH FTP.
-        /// </summary>
-        [DisplayName("Use SSH"), Category("Connection")]
-        [Description("Determines whether to use FTP over SSH or not.")]
-        public bool UseSSH { get; set; }
-
-        /// <summary>
-        /// Gets/sets the path to the private key to use.
-        /// </summary>
-        [DisplayName("SSH private key path"), Category("Connection")]
-        [Description("The path to the private key file to use for authentication over SSH.")]
-        public string PrivateKeyPath { get; set; }
-        #endregion
-
-        #region Image settings
-        /// <summary>
-        /// Gets/sets the format of the filename that screenshots are saved as.
-        /// </summary>
-        [DisplayName("Filename format"), Category("Image settings")]
-        [Description(@"The format of the filename that screenshots are saved as. See http://www.horsedrowner.net/superscrot#filenameformats. The extension is automatically changed or appended before uploading.")]
-        public string FilenameFormat { get; set; }
-
-        /// <summary>
-        /// Determines whether to use JPEG compression.
-        /// </summary>
-        [DisplayName("Use JPEG compression"), Category("Image settings")]
-        [Description("Determines whether to use JPEG compression for screenshots (high quality, but still JPEG). If disabled, uses PNG.")]
-        public bool UseCompression { get; set; }
 
         /// <summary>
         /// Gets/sets the quality level of JPEG compressed images.
@@ -207,9 +212,7 @@ namespace Superscrot
                 else jpegQuality = value;
             }
         }
-        #endregion
 
-        #region Overlay settings
         /// <summary>
         /// Gets/sets the background color on the region selection overlay.
         /// </summary>
@@ -219,34 +222,12 @@ namespace Superscrot
         public Color OverlayBackgroundColor { get; set; }
 
         /// <summary>
-        /// I love XML Serialization but this is fucking gay.
-        /// </summary>
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement("OverlayBackgroundColor")]
-        public string XmlOverlayBackgroundColor
-        {
-            get { return XmlColor.SerializeColor(OverlayBackgroundColor); }
-            set { OverlayBackgroundColor = XmlColor.DeserializeColor(value); }
-        }
-
-        /// <summary>
         /// Gets/set the foreground color on the region selection overlay.
         /// </summary>
         [DisplayName("Foreground color"), Category("Overlay settings")]
         [Description("The foreground color on the region selection overlay.")]
         [XmlIgnore()]
         public Color OverlayForegroundColor { get; set; }
-
-        /// <summary>
-        /// I love XML Serialization but this is fucking gay.
-        /// </summary>
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlElement("OverlayForegroundColor")]
-        public string XmlOverlayForegroundColor
-        {
-            get { return XmlColor.SerializeColor(OverlayForegroundColor); }
-            set { OverlayForegroundColor = XmlColor.DeserializeColor(value); }
-        }
 
         /// <summary>
         /// Gets/sets the opacity of the overlay (0 - 1).
@@ -267,14 +248,13 @@ namespace Superscrot
                     overlayOpacity = value;
             }
         }
-        #endregion
 
         /// <summary>
-        /// Determines whether to display a system tray icon.
+        /// Gets/sets the path to the private key to use.
         /// </summary>
-        [DisplayName("Enable tray icon"), Category("User interface")]
-        [Description("Determines whether to display a system tray icon.")]
-        public bool EnableTrayIcon { get; set; }
+        [DisplayName("SSH private key path"), Category("Connection")]
+        [Description("The path to the private key file to use for authentication over SSH.")]
+        public string PrivateKeyPath { get; set; }
 
         /// <summary>
         /// Determines whether to display a preview dialog when a screenshot is taken.
@@ -284,35 +264,47 @@ namespace Superscrot
         public bool ShowPreviewDialog { get; set; }
 
         /// <summary>
-        /// Gets or sets the path to the folder where failed screenshots are saved.
+        /// Determines whether to use JPEG compression.
         /// </summary>
-        [DisplayName("Failed screenshots folder"), Category("Misc. settings")]
-        [Description("The location where screenshots that could not be uploaded are saved to.")]
-        public string FailedScreenshotsFolder
+        [DisplayName("Use JPEG compression"), Category("Image settings")]
+        [Description("Determines whether to use JPEG compression for screenshots (high quality, but still JPEG). If disabled, uses PNG.")]
+        public bool UseCompression { get; set; }
+
+        /// <summary>
+        /// Gets/sets a value that determines whether to use SSH FTP.
+        /// </summary>
+        [DisplayName("Use SSH"), Category("Connection")]
+        [Description("Determines whether to use FTP over SSH or not.")]
+        public bool UseSSH { get; set; }
+
+        /// <summary>
+        /// I love XML Serialization but this is fucking gay.
+        /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement("OverlayBackgroundColor")]
+        public string XmlOverlayBackgroundColor
         {
-            get { return failedScreenshotsFolder; }
-            set
-            {
-                if (value != failedScreenshotsFolder)
-                {
-                    failedScreenshotsFolder = value;
-                    EnsureDirectoryExists(value);
-                }
-            }
+            get { return XmlColor.SerializeColor(OverlayBackgroundColor); }
+            set { OverlayBackgroundColor = XmlColor.DeserializeColor(value); }
         }
 
         /// <summary>
-        /// Gets or sets a value that determines whether or not to check for 
-        /// duplicate files when uploading a screenshot.
+        /// I love XML Serialization but this is fucking gay.
         /// </summary>
-        [DisplayName("Check for duplicate files"), Category("Misc. settings")]
-        [Description("Set to true to check if a file with the same name already exists on the server.")]
-        public bool CheckForDuplicateFiles { get; set; }
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlElement("OverlayForegroundColor")]
+        public string XmlOverlayForegroundColor
+        {
+            get { return XmlColor.SerializeColor(OverlayForegroundColor); }
+            set { OverlayForegroundColor = XmlColor.DeserializeColor(value); }
+        }
 
         /// <summary>
         /// Loads settings from the specified file.
         /// </summary>
-        /// <param name="filename">The filename of an XML file that has been serialized by SaveSettings.</param>
+        /// <param name="filename">
+        /// The filename of an XML file that has been serialized by SaveSettings.
+        /// </param>
         /// <returns>A new instance of the Configuration class.</returns>
         public static Configuration LoadSettings(string filename)
         {

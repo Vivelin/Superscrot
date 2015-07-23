@@ -11,109 +11,41 @@ namespace Superscrot
     /// </summary>
     public static class PathUtility
     {
-        private const char PlaceholderStart = '{';
         private const char PlaceholderEnd = '}';
         private const char PlaceholderEscape = '\\';
+        private const char PlaceholderStart = '{';
 
         /// <summary>
-        /// Returns the given input string stripped of invalid filename characters.
-        /// </summary>
-        /// <param name="input">The string to format.</param>
-        public static string RemoveInvalidFilenameChars(string input)
-        {
-            if (input == null) return string.Empty;
-
-            var invalidChars = Path.GetInvalidFileNameChars();
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in input)
-            {
-                if (!invalidChars.Contains(c))
-                    stringBuilder.Append(c);
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        /// <summary>
-        /// Combines all parts as an URI, separated by forward slashes. The resulting value does not end with a forward slash.
-        /// </summary>
-        /// <param name="parts">A collection of strings. Backslashes are converted to forward slashes.</param>
-        public static string UriCombine(params string[] parts)
-        {
-            string combined = string.Empty;
-
-            foreach (string item in parts)
-            {
-                if (item != string.Empty)
-                {
-                    combined += item.Replace('\\', '/');
-                    if (!combined.EndsWith("/")) combined += '/';
-                }
-            }
-
-            return combined.TrimEnd('/');
-        }
-
-        /// <summary>
-        /// Encodes a URL string by replacing certains characters.
-        /// </summary>
-        /// <param name="str">The string to URL encode.</param>
-        /// <returns>The URL encoded string, or an empty string.</returns>
-        public static string UrlEncode(string str)
-        {
-            string encoded = string.Empty;
-
-            string[] paths = str.Split('/', '\\');
-            for (int i = 0; i < paths.Length; i++)
-            {
-                paths[i] = Uri.EscapeDataString(paths[i]);
-            }
-            encoded = string.Join("/", paths);
-
-            return encoded;
-        }
-
-        /// <summary>
-        /// Converts a numeric value into a string that represents the number expressed as a size 
-        /// value in bytes, kilobytes, megabytes, or gigabytes, depending on the size.
-        /// </summary>
-        /// <param name="size">The numeric value to be converted.</param>
-        /// <returns>The converted string.</returns>
-        public static string FormatFileSize(long size)
-        {
-            var buffer = new StringBuilder(11);
-            NativeMethods.StrFormatByteSize(size, buffer, buffer.Capacity);
-            return buffer.ToString();
-        }
-
-
-        /// <summary>
-        /// Replaces one or more placeholders in a string with the specified
-        /// values.
+        /// Replaces one or more placeholders in a string with the specified values.
         /// </summary>
         /// <param name="format">The composite format string.</param>
-        /// <param name="args">A string dictionary containing the placeholder
-        /// names and values that they are to be replaced with.</param>
-        /// <returns>A new string with the placeholders replaced by their
-        /// values.</returns>
+        /// <param name="args">
+        /// A string dictionary containing the placeholder names and values that
+        /// they are to be replaced with.
+        /// </param>
+        /// <returns>
+        /// A new string with the placeholders replaced by their values.
+        /// </returns>
         public static string Format(string format, StringDictionary args)
         {
             return Format(format, args, DateTime.Now);
         }
 
         /// <summary>
-        /// Replaces one or more placeholders in a string with the specified
-        /// values.
+        /// Replaces one or more placeholders in a string with the specified values.
         /// </summary>
         /// <param name="format">The composite format string.</param>
-        /// <param name="args">A string dictionary containing the placeholder
-        /// names and values that they are to be replaced with.</param>
-        /// <param name="date">A <see cref="DateTime"/> object to format dates
-        /// and times with.</param>
-        /// <returns>A new string with the placeholders replaced by their
-        /// values.</returns>
-        public static string Format(string format, StringDictionary args, 
+        /// <param name="args">
+        /// A string dictionary containing the placeholder names and values that
+        /// they are to be replaced with.
+        /// </param>
+        /// <param name="date">
+        /// A <see cref="DateTime"/> object to format dates and times with.
+        /// </param>
+        /// <returns>
+        /// A new string with the placeholders replaced by their values.
+        /// </returns>
+        public static string Format(string format, StringDictionary args,
             DateTime date)
         {
             if (format == null) return null;
@@ -175,6 +107,40 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Converts a numeric value into a string that represents the number
+        /// expressed as a size value in bytes, kilobytes, megabytes, or
+        /// gigabytes, depending on the size.
+        /// </summary>
+        /// <param name="size">The numeric value to be converted.</param>
+        /// <returns>The converted string.</returns>
+        public static string FormatFileSize(long size)
+        {
+            var buffer = new StringBuilder(11);
+            NativeMethods.StrFormatByteSize(size, buffer, buffer.Capacity);
+            return buffer.ToString();
+        }
+
+        /// <summary>
+        /// Returns the given input string stripped of invalid filename characters.
+        /// </summary>
+        /// <param name="input">The string to format.</param>
+        public static string RemoveInvalidFilenameChars(string input)
+        {
+            if (input == null) return string.Empty;
+
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in input)
+            {
+                if (!invalidChars.Contains(c))
+                    stringBuilder.Append(c);
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        /// <summary>
         /// Translates a path on the FTP server to an HTTP link.
         /// </summary>
         /// <param name="serverPath">The full path to the file on the server.</param>
@@ -193,6 +159,48 @@ namespace Superscrot
             var baseUrl = folder.Replace(Program.Config.FtpServerPath, Program.Config.HttpBaseUri);
             var url = UriCombine(baseUrl, UrlEncode(file));
             return url;
+        }
+
+        /// <summary>
+        /// Combines all parts as an URI, separated by forward slashes. The
+        /// resulting value does not end with a forward slash.
+        /// </summary>
+        /// <param name="parts">
+        /// A collection of strings. Backslashes are converted to forward slashes.
+        /// </param>
+        public static string UriCombine(params string[] parts)
+        {
+            string combined = string.Empty;
+
+            foreach (string item in parts)
+            {
+                if (item != string.Empty)
+                {
+                    combined += item.Replace('\\', '/');
+                    if (!combined.EndsWith("/")) combined += '/';
+                }
+            }
+
+            return combined.TrimEnd('/');
+        }
+
+        /// <summary>
+        /// Encodes a URL string by replacing certains characters.
+        /// </summary>
+        /// <param name="str">The string to URL encode.</param>
+        /// <returns>The URL encoded string, or an empty string.</returns>
+        public static string UrlEncode(string str)
+        {
+            string encoded = string.Empty;
+
+            string[] paths = str.Split('/', '\\');
+            for (int i = 0; i < paths.Length; i++)
+            {
+                paths[i] = Uri.EscapeDataString(paths[i]);
+            }
+            encoded = string.Join("/", paths);
+
+            return encoded;
         }
     }
 }

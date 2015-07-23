@@ -11,16 +11,42 @@ namespace Superscrot
     /// </summary>
     public static class Program
     {
-        private static bool startedWithDefaultSettings = false;
-        private static EventWaitHandle startupEventHandle;
-        private static string settingsPath = string.Empty;
         private static Configuration config = null;
         private static Manager manager = null;
+        private static string settingsPath = string.Empty;
+        private static bool startedWithDefaultSettings = false;
+        private static EventWaitHandle startupEventHandle;
 
         /// <summary>
         /// Occurs when the <see cref="Config"/> property changes.
         /// </summary>
         public static event EventHandler ConfigurationChanged;
+
+        /// <summary>
+        /// Provides common configurable settings.
+        /// </summary>
+        public static Configuration Config
+        {
+            get { return config; }
+            internal set
+            {
+                if (value != config)
+                {
+                    config = value;
+                    OnConfigurationChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Coordinates top-level functionality and provides common functions
+        /// that interact between classes.
+        /// </summary>
+        public static Manager Manager
+        {
+            get { return manager; }
+            internal set { manager = value; }
+        }
 
         /// <summary>
         /// Gets the path to the file where the settings are located.
@@ -31,80 +57,11 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Provides common configurable settings.
-        /// </summary>
-        public static Configuration Config
-        {
-            get { return config; }
-            internal set 
-            {
-                if (value != config)
-                {
-                    config = value;
-                    OnConfigurationChanged();
-                }
-            }
-        }				
-
-
-        /// <summary>
-        /// Coordinates top-level functionality and provides common functions that interact between 
-        /// classes.
-        /// </summary>
-        public static Manager Manager
-        {
-            get { return manager; }
-            internal set { manager = value; }
-        }
-
-        /// <summary>
         /// This application's tray icon.
         /// </summary>
         public static TrayIcon Tray
         {
             get { return TrayIcon.GetInstance(); }
-        }
-
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main(string[] args)
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            AppDomain.CurrentDomain.UnhandledException += 
-                new UnhandledExceptionEventHandler(UnhandledException);
-
-            Manager = new Superscrot.Manager();
-            LoadSettings();
-
-            CommandlineParser cmd = new CommandlineParser(args);
-            if (startedWithDefaultSettings || cmd["config"] != null)
-            {
-                ShowConfigEditor();
-            }
-
-            bool created = false;
-            startupEventHandle = new EventWaitHandle(false, 
-                EventResetMode.ManualReset, 
-                Environment.UserName + "SuperscrotStartup", out created);
-            if (created)
-            {
-                if (!Manager.InitializeKeyboardHook())
-                {
-                    Exit();
-                    return;
-                }
-                Tray.Show();
-                Application.Run();
-            }
-            else
-            {
-                MessageBox.Show(SR.InstanceAlreadyRunning, "Superscrot", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                return;
-            }
         }
 
         /// <summary>
@@ -126,6 +83,74 @@ namespace Superscrot
             {
                 settings.Configuration = new Configuration(Program.Config);
                 settings.ShowDialog();
+            }
+        }
+
+        private static void LoadSettings()
+        {
+            string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Superscrot");
+            if (!Directory.Exists(appData))
+                Directory.CreateDirectory(appData);
+
+            settingsPath = Path.Combine(appData, "Config.xml");
+
+            var logName = string.Format("{0:y}.svclog", DateTime.Now);
+            var logPath = Path.Combine(appData, logName);
+            Trace.Listeners.Add(new XmlWriterTraceListener(logPath, "Superscrot"));
+            Trace.AutoFlush = true;
+
+            if (File.Exists(settingsPath))
+            {
+                config = Configuration.LoadSettings(settingsPath);
+            }
+            else
+            {
+                //Save default settings
+                config = new Configuration();
+                Program.Config.SaveSettings(settingsPath);
+                startedWithDefaultSettings = true;
+            }
+        }
+
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        private static void Main(string[] args)
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            AppDomain.CurrentDomain.UnhandledException +=
+                new UnhandledExceptionEventHandler(UnhandledException);
+
+            Manager = new Superscrot.Manager();
+            LoadSettings();
+
+            CommandlineParser cmd = new CommandlineParser(args);
+            if (startedWithDefaultSettings || cmd["config"] != null)
+            {
+                ShowConfigEditor();
+            }
+
+            bool created = false;
+            startupEventHandle = new EventWaitHandle(false,
+                EventResetMode.ManualReset,
+                Environment.UserName + "SuperscrotStartup", out created);
+            if (created)
+            {
+                if (!Manager.InitializeKeyboardHook())
+                {
+                    Exit();
+                    return;
+                }
+                Tray.Show();
+                Application.Run();
+            }
+            else
+            {
+                MessageBox.Show(SR.InstanceAlreadyRunning, "Superscrot",
+                    MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
             }
         }
 
@@ -153,32 +178,6 @@ namespace Superscrot
             {
                 Trace.WriteLine("An exception occurred while handling an unhandled exception:");
                 Trace.WriteLine(ex);
-            }
-        }
-
-        private static void LoadSettings()
-        {
-            string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Superscrot");
-            if (!Directory.Exists(appData))
-                Directory.CreateDirectory(appData);
-
-            settingsPath = Path.Combine(appData, "Config.xml");
-
-            var logName = string.Format("{0:y}.svclog", DateTime.Now);
-            var logPath = Path.Combine(appData, logName);
-            Trace.Listeners.Add(new XmlWriterTraceListener(logPath, "Superscrot"));
-            Trace.AutoFlush = true;
-
-            if (File.Exists(settingsPath))
-            {
-                config = Configuration.LoadSettings(settingsPath);
-            }
-            else
-            {
-                //Save default settings
-                config = new Configuration();
-                Program.Config.SaveSettings(settingsPath);
-                startedWithDefaultSettings = true;
             }
         }
     }

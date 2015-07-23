@@ -11,13 +11,15 @@ namespace Superscrot
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
-        /// Converts the value of the current <see cref="DateTime"/> object to
-        /// a Unix timestamp.
+        /// Converts the value of the current <see cref="DateTime"/> object to a
+        /// Unix timestamp.
         /// </summary>
-        /// <param name="value">The <see cref="DateTime"/> object whose value
-        /// to convert.</param>
-        /// <returns>A value indicating the total number of elapsed seconds 
-        /// since Unix epoch.</returns>
+        /// <param name="value">
+        /// The <see cref="DateTime"/> object whose value to convert.
+        /// </param>
+        /// <returns>
+        /// A value indicating the total number of elapsed seconds since Unix epoch.
+        /// </returns>
         public static long ToUnixTimestamp(this DateTime value)
         {
             var diff = value.ToUniversalTime() - UnixEpoch;

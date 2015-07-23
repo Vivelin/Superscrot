@@ -12,13 +12,13 @@ namespace Superscrot
     /// </summary>
     internal class NativeWindow : IDisposable
     {
-        private NativeMethods.RECT rect;
-        private NativeMethods.WINDOWPLACEMENT placement;
+        private string caption;
         private NativeMethods.WINDOWINFO info;
         private Point? location;
-        private Size? size;
-        private string caption;
         private Process owner;
+        private NativeMethods.WINDOWPLACEMENT placement;
+        private NativeMethods.RECT rect;
+        private Size? size;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NativeWindow"/> class
@@ -33,9 +33,25 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Returns the text of the window's title bar.
+        /// </summary>
+        public string Caption
+        {
+            get { return caption; }
+        }
+
+        /// <summary>
         /// Gets a handle to the window.
         /// </summary>
         public IntPtr Handle { get; private set; }
+
+        /// <summary>
+        /// Gets the height of the window.
+        /// </summary>
+        public int Height
+        {
+            get { return Size.Height; }
+        }
 
         /// <summary>
         /// Gets the current upper-left coordinate of the window.
@@ -59,6 +75,23 @@ namespace Superscrot
                 }
                 return location.Value;
             }
+        }
+
+        /// <summary>
+        /// Determines whether the window is being displayed as a maximized
+        /// window or not.
+        /// </summary>
+        public bool Maximized
+        {
+            get { return placement.showCmd == NativeMethods.SHOWCMD.SW_SHOWMAXIMIZED; }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Process"/> object that represents the owner of the window.
+        /// </summary>
+        public Process Owner
+        {
+            get { return owner; }
         }
 
         /// <summary>
@@ -94,41 +127,7 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Gets the height of the window.
-        /// </summary>
-        public int Height
-        {
-            get { return Size.Height; }
-        }
-
-        /// <summary>
-        /// Determines whether the window is being displayed as a maximized 
-        /// window or not.
-        /// </summary>
-        public bool Maximized
-        {
-            get { return placement.showCmd == NativeMethods.SHOWCMD.SW_SHOWMAXIMIZED; }
-        }
-
-        /// <summary>
-        /// Returns the text of the window's title bar.
-        /// </summary>
-        public string Caption
-        {
-            get { return caption; }
-        }
-
-        /// <summary>
-        /// Gets a <see cref="Process"/> object that represents the owner of 
-        /// the window.
-        /// </summary>
-        public Process Owner
-        {
-            get { return owner; }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="NativeWindow"/> class for 
+        /// Creates a new instance of the <see cref="NativeWindow"/> class for
         /// the foreground window.
         /// </summary>
         /// <returns>
@@ -142,11 +141,18 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Cleans up resources used by this object.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Returns a string representation of the window.
         /// </summary>
-        /// <returns>
-        /// A string containing the name of the owner of the window.
-        /// </returns>
+        /// <returns>A string containing the name of the owner of the window.</returns>
         public override string ToString()
         {
             try
@@ -174,17 +180,7 @@ namespace Superscrot
         /// <summary>
         /// Cleans up resources used by this object.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Cleans up resources used by this object.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release managed resources.
-        /// </param>
+        /// <param name="disposing"><c>true</c> to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -199,7 +195,7 @@ namespace Superscrot
 
         private void Init()
         {
-            /* Make a call to the window manager to get the proper window 
+            /* Make a call to the window manager to get the proper window
              * dimensions. GetWindowRect doesn't return an accurate rectangle
              * on certain window types */
             var hresult = NativeMethods.DwmGetWindowAttribute(Handle,
@@ -214,8 +210,8 @@ namespace Superscrot
             if (!NativeMethods.GetWindowPlacement(Handle, out placement))
                 throw new Win32Exception();
 
-            /* Sadly, DwmGetWindowAttribute still doesn't return an 
-             * accurate rectangle if the window is maximized. Or more 
+            /* Sadly, DwmGetWindowAttribute still doesn't return an
+             * accurate rectangle if the window is maximized. Or more
              * precisely, it is TOO accurate, as the window's borders are
              * included but not visible on the screen... */
             info = new NativeMethods.WINDOWINFO();

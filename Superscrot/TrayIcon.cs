@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Superscrot
 {
     /// <summary>
-    /// Handles the application's tray icon initializes and behaviour. 
+    /// Handles the application's tray icon initializes and behaviour.
     /// </summary>
     public class TrayIcon : IDisposable
     {
         private static TrayIcon _instance = null;
 
-        private NotifyIcon trayIcon;
         private ToolStripItem toggleEnableItem;
+        private NotifyIcon trayIcon;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TrayIcon"/> class.
@@ -24,7 +21,7 @@ namespace Superscrot
         {
             Program.Manager.EnabledChanged += Manager_EnabledChanged;
 
-            toggleEnableItem = new ToolStripMenuItem("Suspend", 
+            toggleEnableItem = new ToolStripMenuItem("Suspend",
                 Properties.Resources.Pause, new EventHandler(OnTrayDisable));
 
             trayIcon = new NotifyIcon();
@@ -56,11 +53,12 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Shows the tray icon.
+        /// Releases resources used by this instance.
         /// </summary>
-        public void Show()
+        public void Dispose()
         {
-            trayIcon.Visible = true;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -69,6 +67,14 @@ namespace Superscrot
         public void Hide()
         {
             trayIcon.Visible = false;
+        }
+
+        /// <summary>
+        /// Shows the tray icon.
+        /// </summary>
+        public void Show()
+        {
+            trayIcon.Visible = true;
         }
 
         /// <summary>
@@ -95,15 +101,6 @@ namespace Superscrot
         /// <summary>
         /// Releases resources used by this instance.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases resources used by this instance.
-        /// </summary>
         /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
@@ -124,13 +121,20 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Suspends or resumes Superscrot.
+        /// Draws the specified <see cref="Image"/> over the tray icon's image.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected virtual void OnTrayDisable(object sender, EventArgs e)
+        /// <param name="overlayImage">
+        /// An <see cref="Image"/> to draw on top of the tray icon's image.
+        /// </param>
+        protected void DrawOverlay(Image overlayImage)
         {
-            Program.Manager.Enabled = !Program.Manager.Enabled;
+            var image = Properties.Resources.IconImage;
+            using (var g = Graphics.FromImage(image))
+            {
+                g.DrawImage(overlayImage, 0, 0);
+            }
+
+            SetIcon(image);
         }
 
         /// <summary>
@@ -139,6 +143,16 @@ namespace Superscrot
         protected virtual void OnTrayConfigure(object sender, EventArgs e)
         {
             Program.ShowConfigEditor();
+        }
+
+        /// <summary>
+        /// Suspends or resumes Superscrot.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnTrayDisable(object sender, EventArgs e)
+        {
+            Program.Manager.Enabled = !Program.Manager.Enabled;
         }
 
         /// <summary>
@@ -153,27 +167,10 @@ namespace Superscrot
         /// <summary>
         /// Sets the tray icon's image to the specified <see cref="Bitmap"/>.
         /// </summary>
-        /// <param name="image">A <see cref="Bitmap"/> image to set as icon.
-        /// </param>
+        /// <param name="image">A <see cref="Bitmap"/> image to set as icon.</param>
         protected void SetIcon(Bitmap image)
         {
             trayIcon.Icon = Icon.FromHandle(image.GetHicon());
-        }
-
-        /// <summary>
-        /// Draws the specified <see cref="Image"/> over the tray icon's image.
-        /// </summary>
-        /// <param name="overlayImage">An <see cref="Image"/> to draw on top of 
-        /// the tray icon's image.</param>
-        protected void DrawOverlay(Image overlayImage)
-        {
-            var image = Properties.Resources.IconImage;
-            using (var g = Graphics.FromImage(image))
-            {
-                g.DrawImage(overlayImage, 0, 0);
-            }
-
-            SetIcon(image);
         }
 
         private void Manager_EnabledChanged(object sender, EventArgs e)

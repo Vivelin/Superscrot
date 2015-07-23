@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Superscrot.Uploaders
 {
     /// <summary>
-    /// Provides the functionality to upload and delete screenshot to and from an FTP server.
+    /// Provides the functionality to upload and delete screenshot to and from
+    /// an FTP server.
     /// </summary>
-    class FtpUploader : Uploader
+    internal class FtpUploader : Uploader
     {
         private FTP.FtpClient client;
 
@@ -19,17 +17,34 @@ namespace Superscrot.Uploaders
         /// with the specified username and password.
         /// </summary>
         /// <param name="info">An object containing the connection info.</param>
-        /// <param name="timeout">The time in milliseconds to wait for a 
-        /// response from the server.</param>
+        /// <param name="timeout">
+        /// The time in milliseconds to wait for a response from the server.
+        /// </param>
         public FtpUploader(ConnectionInfo info, int timeout = 30000)
         {
-            client = new FTP.FtpClient(info.Host, info.Port, info.UserName, 
+            client = new FTP.FtpClient(info.Host, info.Port, info.UserName,
                 info.Password);
             client.Timeout = timeout;
         }
 
         /// <summary>
-        /// Uploads a screenshot to the target location on the currently configured server.
+        /// Removes a screenshot from the server.
+        /// </summary>
+        /// <param name="path">The path to the file on the server to remove.</param>
+        /// <returns>True if the file was deleted, false otherwise.</returns>
+        /// <exception cref="Superscrot.ConnectionFailedException">
+        /// Connectioned to the server failed.
+        /// </exception>
+        public override bool Delete(string path)
+        {
+            EnsureConnection();
+
+            return client.DeleteFile(path);
+        }
+
+        /// <summary>
+        /// Uploads a screenshot to the target location on the currently
+        /// configured server.
         /// </summary>
         /// <param name="stream">The file to upload.</param>
         /// <param name="target">The path on the server to upload to.</param>
@@ -43,25 +58,8 @@ namespace Superscrot.Uploaders
 
             if (!client.DirectoryExists(Path.GetDirectoryName(target)))
                 client.CreateDirectory(Path.GetDirectoryName(target));
-            
+
             return client.Upload(stream, target);
-        }
-
-        /// <summary>
-        /// Removes a screenshot from the server.
-        /// </summary>
-        /// <param name="path">
-        /// The path to the file on the server to remove.
-        /// </param>
-        /// <returns>True if the file was deleted, false otherwise.</returns>
-        /// <exception cref="Superscrot.ConnectionFailedException">
-        /// Connectioned to the server failed.
-        /// </exception>
-        public override bool Delete(string path)
-        {
-            EnsureConnection();
-
-            return client.DeleteFile(path);
         }
 
         /// <summary>
@@ -73,7 +71,7 @@ namespace Superscrot.Uploaders
         /// The directory on the server to search in.
         /// </param>
         /// <returns>
-        /// The full name of the first matching file on the server, or 
+        /// The full name of the first matching file on the server, or
         /// <c>null</c> if no matching files could be found.
         /// </returns>
         protected override string FindDuplicate(string name, string directory)
