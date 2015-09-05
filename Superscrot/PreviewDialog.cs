@@ -6,7 +6,8 @@ namespace Superscrot
 {
     /// <summary>
     /// Shows a preview of a screenshot, and allows the user to change the
-    /// filename, as well as to save the screenshot to a file or copy it to the clipboard.
+    /// filename, as well as to save the screenshot to a file or copy it to the
+    /// clipboard.
     /// </summary>
     public partial class PreviewDialog : Form
     {
@@ -14,7 +15,8 @@ namespace Superscrot
         private string _tempFileName;
 
         /// <summary>
-        /// Initializes a new instance of the preview dialog for the specified screenshot.
+        /// Initializes a new instance of the preview dialog for the specified
+        /// screenshot.
         /// </summary>
         /// <param name="s">The screenshot to preview.</param>
         public PreviewDialog(Screenshot s)
@@ -22,7 +24,7 @@ namespace Superscrot
             _screenshot = s;
 
             InitializeComponent();
-            FileSizeLabel.Text = string.Format(new FileSizeFormatProvider(), "Size: {0}", s.CalculateSize());
+            FileSizeLabel.Text = string.Format(new FileSizeFormatProvider(), SR.FileSizeLabel, s.CalculateSize());
 
             if (s.IsFile)
             {
@@ -153,7 +155,8 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Opens the image in the default image viewer when the preview is clicked.
+        /// Opens the image in the default image viewer when the preview is
+        /// clicked.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

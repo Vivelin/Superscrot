@@ -87,7 +87,8 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Gets a <see cref="Process"/> object that represents the owner of the window.
+        /// Gets a <see cref="Process"/> object that represents the owner of the
+        /// window.
         /// </summary>
         public Process Owner
         {
@@ -152,7 +153,9 @@ namespace Superscrot
         /// <summary>
         /// Returns a string representation of the window.
         /// </summary>
-        /// <returns>A string containing the name of the owner of the window.</returns>
+        /// <returns>
+        /// A string containing the name of the owner of the window.
+        /// </returns>
         public override string ToString()
         {
             try
@@ -180,7 +183,9 @@ namespace Superscrot
         /// <summary>
         /// Cleans up resources used by this object.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release managed resources.</param>
+        /// <param name="disposing">
+        /// <c>true</c> to release managed resources.
+        /// </param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -223,7 +228,8 @@ namespace Superscrot
             if (length > 0)
             {
                 var sb = new StringBuilder(length + 1); // Explicitly null-terminated
-                NativeMethods.GetWindowText(Handle, sb, sb.Capacity);
+                hresult = NativeMethods.GetWindowText(Handle, sb, sb.Capacity);
+                Marshal.ThrowExceptionForHR(hresult);
                 caption = sb.ToString();
             }
             else

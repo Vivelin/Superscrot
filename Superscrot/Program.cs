@@ -148,7 +148,7 @@ namespace Superscrot
             }
             else
             {
-                MessageBox.Show(SR.InstanceAlreadyRunning, "Superscrot",
+                MessageBox.Show(SR.InstanceAlreadyRunning, Application.ProductName,
                     MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return;
             }

@@ -25,7 +25,8 @@ namespace Superscrot
         /// <remarks>
         /// This is used to show Windows Forms dialogs on the UI thread while in
         /// the context of a background thread (e.g. while <c>await</c> ing) to
-        /// preview issues that would require some components to run on an STA thread.
+        /// preview issues that would require some components to run on an STA
+        /// thread.
         /// </remarks>
         private SynchronizationContext uiContext = null;
 
@@ -74,7 +75,8 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// Releases resources used by the <see cref="Superscrot.Manager"/>
+        /// class.
         /// </summary>
         public void Dispose()
         {
@@ -108,7 +110,8 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Deletes the last uploaded file. Can be called multiple times consecutively.
+        /// Deletes the last uploaded file. Can be called multiple times
+        /// consecutively.
         /// </summary>
         public async void UndoUpload()
         {
@@ -177,6 +180,8 @@ namespace Superscrot
             screenshot.DuplicateFileFound += Screenshot_DuplicateFileFound;
             if (await screenshot.UploadAsync())
             {
+                Program.Tray.SetStatus(TrayIcon.Status.None);
+
                 if (screenshot.IsUploaded)
                 {
                     Debug.WriteLine("Screenshot uploaded successfully to "
@@ -194,7 +199,8 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// Releases resources used by the <see cref="Superscrot.Manager"/>
+        /// class.
         /// </summary>
         /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
@@ -354,6 +360,7 @@ namespace Superscrot
         {
             try
             {
+                Program.Tray.SetStatus(TrayIcon.Status.None);
                 Program.Tray.ShowError(SR.GenericUploadFailed,
                     SR.CheckHostConnection.With(Program.Config.FtpHostname));
                 System.Media.SystemSounds.Exclamation.Play();
@@ -413,6 +420,8 @@ namespace Superscrot
                     }
                 }, null);
             }
+
+            Program.Tray.SetStatus(TrayIcon.Status.Uploading);
         }
     }
 }

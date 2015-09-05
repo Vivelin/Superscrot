@@ -75,6 +75,7 @@
     <DocumentationFile>bin\Debug\Superscrot.xml</DocumentationFile>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\Release x64\</OutputPath>
@@ -304,6 +305,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\WindowsForm_817_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\StatusAnnotations_Alert_16xSM_color.png" />
+    <Content Include="Resources\StatusAnnotations_Warning_16xSM_color.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
