@@ -84,7 +84,8 @@ namespace Superscrot.Dialogs
 
             // Interface
             Configuration.ShowPreviewDialog = showPreview.Checked;
-            Configuration.OverlayBackgroundColor = backgroundColor.Color;
+			Configuration.ShowBalloontip = showBalloontip.Checked;
+			Configuration.OverlayBackgroundColor = backgroundColor.Color;
             Configuration.OverlayForegroundColor = selectionColor.Color;
             Configuration.OverlayOpacity = (opacitySlider.Value / 100.0f);
 
@@ -121,6 +122,7 @@ namespace Superscrot.Dialogs
 
             // Interface
             showPreview.Checked = Configuration.ShowPreviewDialog;
+			showBalloontip.Checked = Configuration.ShowBalloontip;
             backgroundColor.Color = Configuration.OverlayBackgroundColor;
             selectionColor.Color = Configuration.OverlayForegroundColor;
             opacitySlider.Value = (int)(Configuration.OverlayOpacity * 100);
@@ -296,5 +298,10 @@ namespace Superscrot.Dialogs
         {
             IsDirty = true;
         }
-    }
+
+		private void showBalloontip_CheckedChanged(object sender, EventArgs e)
+		{
+			IsDirty = true;
+		}
+	}
 }

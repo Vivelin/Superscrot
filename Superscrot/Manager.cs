@@ -188,7 +188,10 @@ namespace Superscrot
                         + screenshot.PublicUrl);
                     SetClipboard(screenshot);
                     System.Media.SystemSounds.Asterisk.Play();
-
+					if (Program.Config.ShowBalloontip)
+					{
+						Program.Tray.ShowMessage("Screenshot uploaded sucessfully", screenshot.PublicUrl, ToolTipIcon.Info);
+					}
                     History.Push(screenshot);
                 }
             }
