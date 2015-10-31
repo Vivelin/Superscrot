@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following set
 // of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FTPLib")]
-[assembly: AssemblyDescription("Simple FTP library")]
+[assembly: AssemblyTitle("Superscrot")]
+[assembly: AssemblyDescription("A better screenshot uploader")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("horsedrowner")]
-[assembly: AssemblyProduct("FTPLib")]
+[assembly: AssemblyProduct("Superscrot")]
 [assembly: AssemblyCopyright("Copyright © horsedrowner 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b3219e96-0ef0-427b-a92d-5be9a7cb3b26")]
+[assembly: Guid("48671a00-3152-4b60-9851-7a9d8afd6831")]
 
 // Version information for an assembly consists of the following four values:
 // 
@@ -27,5 +27,5 @@ using System.Runtime.InteropServices;
 // 
 // You can specify all the values or you can default the Build and Revision
 // Numbers by using the '*' as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.1.0")]
-[assembly: AssemblyFileVersion("1.1.1.0")]
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: AssemblyFileVersion("4.0.0.0")]
