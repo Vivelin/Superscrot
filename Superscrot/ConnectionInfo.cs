@@ -1,22 +1,24 @@
 ﻿namespace Superscrot
 {
     /// <summary>
-    /// Represents connection and authentication info. 
+    /// Represents connection and authentication info.
     /// </summary>
-    class ConnectionInfo
+    internal class ConnectionInfo
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInfo"/> 
-        /// class.
+        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
         /// </summary>
-        public ConnectionInfo() { }
+        public ConnectionInfo()
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInfo"/>
-        /// class using the specified <see cref="Configuration"/>.
+        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class
+        /// using the specified <see cref="Configuration"/>.
         /// </summary>
-        /// <param name="config">The <see cref="Configuration"/> to load the
-        /// connection info from.</param>
+        /// <param name="config">
+        /// The <see cref="Configuration"/> to load the connection info from.
+        /// </param>
         public ConnectionInfo(Configuration config)
         {
             Host = config.FtpHostname;
@@ -32,23 +34,18 @@
         public string Host { get; set; }
 
         /// <summary>
-        /// Gets or sets the port number of the server.
-        /// </summary>
-        public int Port { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the user to authenticate as.
-        /// </summary>
-        public string UserName { get; set; }
-
-        /// <summary>
         /// Gets or sets the password of the user to authenticate as.
         /// </summary>
         /// <remarks>
-        /// If <see cref="PrivateKeyPath"/> points to an existing private key 
+        /// If <see cref="PrivateKeyPath"/> points to an existing private key
         /// file, the password will only be used as fallback.
         /// </remarks>
         public string Password { get; set; }
+
+        /// <summary>
+        /// Gets or sets the port number of the server.
+        /// </summary>
+        public int Port { get; set; }
 
         /// <summary>
         /// Gets or sets the path to the private key file to authenticate with.
@@ -60,5 +57,10 @@
         /// is used as fallback authentication.
         /// </remarks>
         public string PrivateKeyPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the user to authenticate as.
+        /// </summary>
+        public string UserName { get; set; }
     }
 }

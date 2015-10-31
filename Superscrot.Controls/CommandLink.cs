@@ -52,30 +52,7 @@ namespace Superscrot.Controls
         }
 
         /// <summary>
-        /// Notifies the Button whether it is the default button so that it 
-        /// can adjust its appearance accordingly.
-        /// </summary>
-        /// <param name="value">
-        /// <c>true</c> if the button is to have the appearance of the default
-        /// button; otherwise, <c>false</c>.
-        /// </param>
-        public override void NotifyDefault(bool value)
-        {
-            style = value ? NativeMethods.BS_DEFCOMMANDLINK : NativeMethods.BS_COMMANDLINK;
-            base.NotifyDefault(value);
-        }
-
-        /// <summary>
-        /// Updates the command link's note.
-        /// </summary>
-        protected void UpdateDescription()
-        {
-            RecreateHandle();
-            NativeMethods.SendMessage(Handle, NativeMethods.BCM_SETNOTE, IntPtr.Zero, Description);
-        }
-
-        /// <summary>
-        /// Gets a CreateParams on the base class when creating a window. Sets 
+        /// Gets a CreateParams on the base class when creating a window. Sets
         /// the CommandLink button style.
         /// </summary>
         protected override CreateParams CreateParams
@@ -97,6 +74,29 @@ namespace Superscrot.Controls
             {
                 return new System.Drawing.Size(150, 41); // 58 with a one-line description
             }
+        }
+
+        /// <summary>
+        /// Notifies the Button whether it is the default button so that it can
+        /// adjust its appearance accordingly.
+        /// </summary>
+        /// <param name="value">
+        /// <c>true</c> if the button is to have the appearance of the default
+        /// button; otherwise, <c>false</c>.
+        /// </param>
+        public override void NotifyDefault(bool value)
+        {
+            style = value ? NativeMethods.BS_DEFCOMMANDLINK : NativeMethods.BS_COMMANDLINK;
+            base.NotifyDefault(value);
+        }
+
+        /// <summary>
+        /// Updates the command link's note.
+        /// </summary>
+        protected void UpdateDescription()
+        {
+            RecreateHandle();
+            NativeMethods.SendMessage(Handle, NativeMethods.BCM_SETNOTE, IntPtr.Zero, Description);
         }
     }
 }

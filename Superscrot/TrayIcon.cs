@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Superscrot
 {
     /// <summary>
-    /// Handles the application's tray icon initializes and behaviour. 
+    /// Handles the application's tray icon initializes and behaviour.
     /// </summary>
     public class TrayIcon : IDisposable
     {
         private static TrayIcon _instance = null;
 
+        private MenuItem toggleEnableItem;
         private NotifyIcon trayIcon;
-        private ToolStripItem toggleEnableItem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TrayIcon"/> class.
@@ -24,22 +21,42 @@ namespace Superscrot
         {
             Program.Manager.EnabledChanged += Manager_EnabledChanged;
 
-            toggleEnableItem = new ToolStripMenuItem("Suspend", 
-                Properties.Resources.Pause, new EventHandler(OnTrayDisable));
+            toggleEnableItem = new MenuItem(SR.Suspend, new EventHandler(OnTrayDisable));
 
             trayIcon = new NotifyIcon();
-            trayIcon.Text = $"{Application.ProductName} {Application.ProductVersion}";
-            SetIcon(Properties.Resources.IconImage);
+            SetStatus(Status.None);
 
-            trayIcon.ContextMenuStrip = new ContextMenuStrip();
-            trayIcon.ContextMenuStrip.Items.Add(toggleEnableItem);
-            trayIcon.ContextMenuStrip.Items.Add("-");
-            trayIcon.ContextMenuStrip.Items.Add("Settings", Properties.Resources.Configure, new EventHandler(OnTrayConfigure));
-            trayIcon.ContextMenuStrip.Items.Add("Exit", Properties.Resources.Exit, new EventHandler(OnTrayExit));
+            trayIcon.ContextMenu = new ContextMenu();
+            trayIcon.ContextMenu.MenuItems.Add(toggleEnableItem);
+            trayIcon.ContextMenu.MenuItems.Add("-");
+            trayIcon.ContextMenu.MenuItems.Add(SR.Settings, new EventHandler(OnTrayConfigure));
+            trayIcon.ContextMenu.MenuItems.Add(SR.Exit, new EventHandler(OnTrayExit));
         }
 
         /// <summary>
-        /// Gets a reference to the current tray icon, or null if it is disabled.
+        /// Specifies the status to display on the tray icon.
+        /// </summary>
+        public enum Status
+        {
+            /// <summary>
+            /// Indicates normal operation.
+            /// </summary>
+            None,
+
+            /// <summary>
+            /// Indicates Superscrot is suspended.
+            /// </summary>
+            Stopped,
+
+            /// <summary>
+            /// Indicates an upload is in progress.
+            /// </summary>
+            Uploading
+        }
+
+        /// <summary>
+        /// Gets a reference to the current tray icon, or null if it is
+        /// disabled.
         /// </summary>
         public static TrayIcon GetInstance()
         {
@@ -56,11 +73,12 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Shows the tray icon.
+        /// Releases resources used by this instance.
         /// </summary>
-        public void Show()
+        public void Dispose()
         {
-            trayIcon.Visible = true;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -69,6 +87,43 @@ namespace Superscrot
         public void Hide()
         {
             trayIcon.Visible = false;
+        }
+
+        /// <summary>
+        /// Sets the current status to be displayed.
+        /// </summary>
+        /// <param name="value">
+        /// A <see cref="Status"/> value indicating the status to display.
+        /// </param>
+        public void SetStatus(Status value)
+        {
+            SetIcon(Properties.Resources.IconImage);
+            var statusFormat = "{0} {1}{2}";
+            var statusText = string.Empty;
+
+            switch (value)
+            {
+                case Status.Stopped:
+                    DrawOverlay(Properties.Resources.StoppedOverlay);
+                    statusText = $" - {SR.Suspended}";
+                    break;
+
+                case Status.Uploading:
+                    DrawOverlay(Properties.Resources.AlertOverlay);
+                    statusText = $" - {SR.Uploading}";
+                    break;
+            }
+
+            trayIcon.Text = string.Format(statusFormat, Application.ProductName,
+                Application.ProductVersion, statusText);
+        }
+
+        /// <summary>
+        /// Shows the tray icon.
+        /// </summary>
+        public void Show()
+        {
+            trayIcon.Visible = true;
         }
 
         /// <summary>
@@ -95,15 +150,6 @@ namespace Superscrot
         /// <summary>
         /// Releases resources used by this instance.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases resources used by this instance.
-        /// </summary>
         /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
         {
@@ -124,13 +170,20 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Suspends or resumes Superscrot.
+        /// Draws the specified <see cref="Image"/> over the tray icon's image.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected virtual void OnTrayDisable(object sender, EventArgs e)
+        /// <param name="overlayImage">
+        /// An <see cref="Image"/> to draw on top of the tray icon's image.
+        /// </param>
+        protected void DrawOverlay(Image overlayImage)
         {
-            Program.Manager.Enabled = !Program.Manager.Enabled;
+            var image = Properties.Resources.IconImage;
+            using (var g = Graphics.FromImage(image))
+            {
+                g.DrawImage(overlayImage, 0, 0);
+            }
+
+            SetIcon(image);
         }
 
         /// <summary>
@@ -139,6 +192,16 @@ namespace Superscrot
         protected virtual void OnTrayConfigure(object sender, EventArgs e)
         {
             Program.ShowConfigEditor();
+        }
+
+        /// <summary>
+        /// Suspends or resumes Superscrot.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnTrayDisable(object sender, EventArgs e)
+        {
+            Program.Manager.Enabled = !Program.Manager.Enabled;
         }
 
         /// <summary>
@@ -153,42 +216,25 @@ namespace Superscrot
         /// <summary>
         /// Sets the tray icon's image to the specified <see cref="Bitmap"/>.
         /// </summary>
-        /// <param name="image">A <see cref="Bitmap"/> image to set as icon.
+        /// <param name="image">
+        /// A <see cref="Bitmap"/> image to set as icon.
         /// </param>
         protected void SetIcon(Bitmap image)
         {
             trayIcon.Icon = Icon.FromHandle(image.GetHicon());
         }
 
-        /// <summary>
-        /// Draws the specified <see cref="Image"/> over the tray icon's image.
-        /// </summary>
-        /// <param name="overlayImage">An <see cref="Image"/> to draw on top of 
-        /// the tray icon's image.</param>
-        protected void DrawOverlay(Image overlayImage)
-        {
-            var image = Properties.Resources.IconImage;
-            using (var g = Graphics.FromImage(image))
-            {
-                g.DrawImage(overlayImage, 0, 0);
-            }
-
-            SetIcon(image);
-        }
-
         private void Manager_EnabledChanged(object sender, EventArgs e)
         {
             if (Program.Manager.Enabled)
             {
-                toggleEnableItem.Text = "Suspend";
-                toggleEnableItem.Image = Properties.Resources.Pause;
-                SetIcon(Properties.Resources.IconImage);
+                toggleEnableItem.Text = SR.Suspend;
+                SetStatus(Status.None);
             }
             else
             {
-                toggleEnableItem.Text = "Resume";
-                toggleEnableItem.Image = Properties.Resources.Start;
-                DrawOverlay(Properties.Resources.StoppedOverlay);
+                toggleEnableItem.Text = SR.Resume;
+                SetStatus(Status.Stopped);
             }
         }
     }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Superscrot
 {
@@ -12,24 +9,32 @@ namespace Superscrot
     public class ConnectionFailedException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.ConnectionFailedException"/> 
-        /// class.
+        /// Initializes a new instance of the <see
+        /// cref="Superscrot.ConnectionFailedException"/> class.
         /// </summary>
-        public ConnectionFailedException() { }
+        public ConnectionFailedException()
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.ConnectionFailedException"/> 
-        /// class with the specified error message.
+        /// Initializes a new instance of the <see
+        /// cref="Superscrot.ConnectionFailedException"/> class with the
+        /// specified error message.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        public ConnectionFailedException(string message) : base(message) { }
+        public ConnectionFailedException(string message) : base(message)
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.ConnectionFailedException"/> 
-        /// class with the specified error message and hostname.
+        /// Initializes a new instance of the <see
+        /// cref="Superscrot.ConnectionFailedException"/> class with the
+        /// specified error message and hostname.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        /// <param name="hostname">The hostname of the server that could not be connected to.</param>
+        /// <param name="hostname">
+        /// The hostname of the server that could not be connected to.
+        /// </param>
         public ConnectionFailedException(string message, string hostname)
             : base(message)
         {
@@ -37,24 +42,34 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.ConnectionFailedException"/> 
-        /// class with the specified error message and a reference to the inner exception that is 
-        /// the cause of this exception.
+        /// Initializes a new instance of the <see
+        /// cref="Superscrot.ConnectionFailedException"/> class with the
+        /// specified error message and a reference to the inner exception that
+        /// is the cause of this exception.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        /// <param name="inner">The exception that is the cause of the current exception, or a 
-        /// null reference if no inner exception is specified.</param>
-        public ConnectionFailedException(string message, Exception inner) : base(message, inner) { }
+        /// <param name="inner">
+        /// The exception that is the cause of the current exception, or a null
+        /// reference if no inner exception is specified.
+        /// </param>
+        public ConnectionFailedException(string message, Exception inner) : base(message, inner)
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.ConnectionFailedException"/> 
-        /// class with the specified error message, the hostname of the server and a reference to 
-        /// the inner exception that is the cause of this exception.
+        /// Initializes a new instance of the <see
+        /// cref="Superscrot.ConnectionFailedException"/> class with the
+        /// specified error message, the hostname of the server and a reference
+        /// to the inner exception that is the cause of this exception.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        /// <param name="hostname">The hostname of the server that could not be connected to.</param>
-        /// <param name="inner">The exception that is the cause of the current exception, or a 
-        /// null reference if no inner exception is specified.</param>
+        /// <param name="hostname">
+        /// The hostname of the server that could not be connected to.
+        /// </param>
+        /// <param name="inner">
+        /// The exception that is the cause of the current exception, or a null
+        /// reference if no inner exception is specified.
+        /// </param>
         public ConnectionFailedException(string message, string hostname, Exception inner)
             : base(message, inner)
         {
@@ -62,14 +77,17 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Superscrot.ConnectionFailedException"/> 
-        /// class with serialized data.
+        /// Initializes a new instance of the <see
+        /// cref="Superscrot.ConnectionFailedException"/> class with serialized data.
         /// </summary>
-        /// <param name="info">The System.Runtime.Serialization.SerializationInfo that holds the 
+        /// <param name="info">
+        /// The System.Runtime.Serialization.SerializationInfo that holds the
         /// serialized object data about the exception being thrown.
         /// </param>
-        /// <param name="context">The System.Runtime.Serialization.StreamingContext that contains 
-        /// contextual information about the source or destination.</param>
+        /// <param name="context">
+        /// The System.Runtime.Serialization.StreamingContext that contains
+        /// contextual information about the source or destination.
+        /// </param>
         protected ConnectionFailedException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context)
@@ -79,20 +97,26 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Sets the System.Runtime.Serialization.SerializationInfo with information about the exception.
+        /// Gets the hostname of the server that could not be connected to.
         /// </summary>
-        /// <param name="info">The System.Runtime.Serialization.SerializationInfo that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The System.Runtime.Serialization.StreamingContext that contains contextual information about the source or destination.</param>
+        public string Hostname { get; private set; }
+
+        /// <summary>
+        /// Sets the System.Runtime.Serialization.SerializationInfo with
+        /// information about the exception.
+        /// </summary>
+        /// <param name="info">
+        /// The System.Runtime.Serialization.SerializationInfo that holds the
+        /// serialized object data about the exception being thrown.
+        /// </param>
+        /// <param name="context">
+        /// The System.Runtime.Serialization.StreamingContext that contains
+        /// contextual information about the source or destination.
+        /// </param>
         public override void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
         {
             info.AddValue("Hostname", Hostname);
             base.GetObjectData(info, context);
         }
-
-        /// <summary>
-        /// Gets the hostname of the server that could not be connected to.
-        /// </summary>
-        public string Hostname { get; private set; }
     }
-
 }

@@ -12,8 +12,7 @@ namespace Superscrot.Controls
         private string placeholder = string.Empty;
 
         /// <summary>
-        /// Occurs when the value of the <see cref="Placeholder"/> property has
-        /// changed.
+        /// Occurs when the value of the <see cref="Placeholder"/> property has changed.
         /// </summary>
         [Category("Property Changed")]
         [Description("Occurs whenever the Placeholder property changes.")]

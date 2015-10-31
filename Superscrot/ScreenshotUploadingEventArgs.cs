@@ -8,9 +8,8 @@ namespace Superscrot
     public class UploadingEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see 
-        /// cref="UploadingEventArgs"/> class with the specified file
-        /// name.
+        /// Initializes a new instance of the <see cref="UploadingEventArgs"/>
+        /// class with the specified file name.
         /// </summary>
         /// <param name="fileName">The name of the file being uploaded.</param>
         public UploadingEventArgs(string fileName)
@@ -19,15 +18,14 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Gets or sets the name of the file that the screenshot will be 
+        /// Gets or sets a value indicating whether the upload should be cancelled.
+        /// </summary>
+        public bool Cancel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the file that the screenshot will be
         /// uploaded as.
         /// </summary>
         public string FileName { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the upload should be 
-        /// cancelled.
-        /// </summary>
-        public bool Cancel { get; set; }
     }
 }

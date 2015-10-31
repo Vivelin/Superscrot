@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 
 namespace Superscrot
 {
     /// <summary>
-    /// Provides methods to workaround XML serialization problems with the <see cref="System.Drawing.Color"/> class.
+    /// Provides methods to workaround XML serialization problems with the <see
+    /// cref="System.Drawing.Color"/> class.
     /// </summary>
     public static class XmlColor
     {
@@ -28,10 +26,53 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Converts a string serialized with <see cref="SerializeColor"/> to a
+        /// new instance of the <see cref="System.Drawing.Color"/> class.
+        /// </summary>
+        /// <param name="color">
+        /// A string value containing the color serialized with <see cref="SerializeColor"/>.
+        /// </param>
+        /// <returns>
+        /// A new instance of the <see cref="System.Drawing.Color"/> class.
+        /// </returns>
+        public static Color DeserializeColor(string color)
+        {
+            try
+            {
+                byte a, r, g, b;
+                string[] pieces = color.Split(new char[] { ':' });
+                ColorFormat colorType = (ColorFormat)Enum.Parse(typeof(ColorFormat), pieces[0], true);
+
+                switch (colorType)
+                {
+                    case ColorFormat.NamedColor:
+                        return Color.FromName(pieces[1]);
+
+                    case ColorFormat.ARGBColor:
+                        a = byte.Parse(pieces[1]);
+                        r = byte.Parse(pieces[2]);
+                        g = byte.Parse(pieces[3]);
+                        b = byte.Parse(pieces[4]);
+                        return Color.FromArgb(a, r, g, b);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex);
+            }
+            return Color.Empty;
+        }
+
+        /// <summary>
         /// Returns a string that represents the specified <see cref="System.Drawing.Color"/>.
         /// </summary>
-        /// <param name="color">The <see cref="System.Drawing.Color"/> to serialize.</param>
-        /// <returns>A string representing the color that can be deserialized using the <see cref="DeserializeColor"/> method.</returns>
+        /// <param name="color">
+        /// The <see cref="System.Drawing.Color"/> to serialize.
+        /// </param>
+        /// <returns>
+        /// A string representing the color that can be deserialized using the
+        /// <see cref="DeserializeColor"/> method.
+        /// </returns>
         public static string SerializeColor(Color color)
         {
             try
@@ -50,39 +91,6 @@ namespace Superscrot
                 System.Diagnostics.Trace.WriteLine(ex);
                 return "NamedColor:Transparent";
             }
-        }
-
-        /// <summary>
-        /// Converts a string serialized with <see cref="SerializeColor"/> to a new instance of 
-        /// the <see cref="System.Drawing.Color"/> class.
-        /// </summary>
-        /// <param name="color">A string value containing the color serialized with <see cref="SerializeColor"/>.</param>
-        /// <returns>A new instance of the <see cref="System.Drawing.Color"/> class.</returns>
-        public static Color DeserializeColor(string color)
-        {
-            try
-            {
-                byte a, r, g, b;
-                string[] pieces = color.Split(new char[] { ':' });
-                ColorFormat colorType = (ColorFormat)Enum.Parse(typeof(ColorFormat), pieces[0], true);
-
-                switch (colorType)
-                {
-                    case ColorFormat.NamedColor:
-                        return Color.FromName(pieces[1]);
-                    case ColorFormat.ARGBColor:
-                        a = byte.Parse(pieces[1]);
-                        r = byte.Parse(pieces[2]);
-                        g = byte.Parse(pieces[3]);
-                        b = byte.Parse(pieces[4]);
-                        return Color.FromArgb(a, r, g, b);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.WriteLine(ex);
-            }
-            return Color.Empty;
         }
     }
 }

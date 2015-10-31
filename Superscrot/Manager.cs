@@ -15,28 +15,26 @@ namespace Superscrot
     /// </summary>
     public class Manager : IDisposable
     {
-        private KeyboardHook hook = null;
-        private History history = null;
         private bool enabled = true;
+        private History history = null;
+        private KeyboardHook hook = null;
 
         /// <summary>
-        /// The synchronization context for the main (UI) thread. 
+        /// The synchronization context for the main (UI) thread.
         /// </summary>
         /// <remarks>
-        /// This is used to show Windows Forms dialogs on the UI thread while
-        /// in the context of a background thread (e.g. while <c>await</c>ing)
-        /// to preview issues that would require some components to run on an
-        /// STA thread.
+        /// This is used to show Windows Forms dialogs on the UI thread while in
+        /// the context of a background thread (e.g. while <c>await</c> ing) to
+        /// preview issues that would require some components to run on an STA
+        /// thread.
         /// </remarks>
         private SynchronizationContext uiContext = null;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Manager"/> class.
         /// </summary>
         public Manager()
         {
-
         }
 
         /// <summary>
@@ -45,7 +43,7 @@ namespace Superscrot
         public event EventHandler EnabledChanged;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the <see cref="Manager"/> 
+        /// Gets or sets a value indicating whether the <see cref="Manager"/>
         /// will respond to keyboard input or not.
         /// </summary>
         public bool Enabled
@@ -77,6 +75,16 @@ namespace Superscrot
         }
 
         /// <summary>
+        /// Releases resources used by the <see cref="Superscrot.Manager"/>
+        /// class.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Initializes the global keyboard hook.
         /// </summary>
         public bool InitializeKeyboardHook()
@@ -95,51 +103,14 @@ namespace Superscrot
             catch (System.ComponentModel.Win32Exception ex)
             {
                 Trace.WriteLine(ex);
-                MessageBox.Show(SR.HotkeyAlreadyRegistered, "Superscrot", 
+                MessageBox.Show(SR.HotkeyAlreadyRegistered, "Superscrot",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
 
         /// <summary>
-        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Uploads a screenshot.
-        /// </summary>
-        /// <param name="screenshot">The screenshot to upload.</param>
-        public async Task UploadScreenshot(Screenshot screenshot)
-        {
-            if (screenshot == null) throw new ArgumentNullException("screenshot");
-
-            screenshot.Uploading += Screenshot_Uploading;
-            screenshot.DuplicateFileFound += Screenshot_DuplicateFileFound;
-            if (await screenshot.UploadAsync())
-            {
-                if (screenshot.IsUploaded)
-                {
-                    Debug.WriteLine("Screenshot uploaded successfully to "
-                        + screenshot.PublicUrl);
-                    SetClipboard(screenshot);
-                    System.Media.SystemSounds.Asterisk.Play();
-
-                    History.Push(screenshot);
-                }
-            }
-            else
-            {
-                ReportUploadError(screenshot);
-            }
-        }
-        
-        /// <summary>
-        /// Deletes the last uploaded file. Can be called multiple times 
+        /// Deletes the last uploaded file. Can be called multiple times
         /// consecutively.
         /// </summary>
         public async void UndoUpload()
@@ -198,7 +169,41 @@ namespace Superscrot
         }
 
         /// <summary>
-        /// Releases resources used by the <see cref="Superscrot.Manager"/> class.
+        /// Uploads a screenshot.
+        /// </summary>
+        /// <param name="screenshot">The screenshot to upload.</param>
+        public async Task UploadScreenshot(Screenshot screenshot)
+        {
+            if (screenshot == null) throw new ArgumentNullException("screenshot");
+
+            screenshot.Uploading += Screenshot_Uploading;
+            screenshot.DuplicateFileFound += Screenshot_DuplicateFileFound;
+            if (await screenshot.UploadAsync())
+            {
+                Program.Tray.SetStatus(TrayIcon.Status.None);
+
+                if (screenshot.IsUploaded)
+                {
+                    Debug.WriteLine("Screenshot uploaded successfully to "
+                        + screenshot.PublicUrl);
+                    SetClipboard(screenshot);
+                    System.Media.SystemSounds.Asterisk.Play();
+                    if (Program.Config.ShowBalloontip)
+                    {
+                        Program.Tray.ShowMessage("Screenshot uploaded sucessfully", screenshot.PublicUrl, ToolTipIcon.Info);
+                    }
+                    History.Push(screenshot);
+                }
+            }
+            else
+            {
+                ReportUploadError(screenshot);
+            }
+        }
+
+        /// <summary>
+        /// Releases resources used by the <see cref="Superscrot.Manager"/>
+        /// class.
         /// </summary>
         /// <param name="disposing">True to release managed resources.</param>
         protected virtual void Dispose(bool disposing)
@@ -227,7 +232,7 @@ namespace Superscrot
         private static bool IsImageFile(string file)
         {
             string ext = Path.GetExtension(file);
-            string[] recognizedExtensions = { ".png", ".jpg", ".jpeg", ".bmp", 
+            string[] recognizedExtensions = { ".png", ".jpg", ".jpeg", ".bmp",
                                                 ".tiff", ".gif" };
             foreach (string recognizedExtension in recognizedExtensions)
             {
@@ -239,10 +244,12 @@ namespace Superscrot
 
             return false;
         }
+
         private static void SetClipboard(Screenshot screenshot)
         {
             SetClipboard(screenshot.PublicUrl);
         }
+
         private static void SetClipboard(string text)
         {
             try
@@ -261,6 +268,53 @@ namespace Superscrot
                 {
                     throw new Exception(SR.ClipboardBlocked);
                 }
+            }
+        }
+
+        private async void KeyPressed(object sender, KeyPressedEventArgs e)
+        {
+            if (!Enabled) return;
+
+            try
+            {
+                uiContext = SynchronizationContext.Current;
+
+                if (e.Key == Keys.PrintScreen)
+                {
+                    Screenshot screenshot = null;
+                    switch (e.Modifier)
+                    {
+                        case ModifierKeys.None:
+                            screenshot = Screenshot.FromDesktop();
+                            break;
+
+                        case ModifierKeys.Alt:
+                            screenshot = Screenshot.FromActiveWindow();
+                            break;
+
+                        case ModifierKeys.Control:
+                            screenshot = Screenshot.FromRegion();
+                            break;
+
+                        case ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift:
+                            UndoUpload();
+                            return;
+                    }
+
+                    if (screenshot != null)
+                        await UploadScreenshot(screenshot);
+                }
+                else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
+                {
+                    await UploadClipboard();
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+                System.Media.SystemSounds.Exclamation.Play();
+                Program.Tray.ShowError(SR.GenericError,
+                    SR.GenericErrorMessage.With(ex.Message));
             }
         }
 
@@ -291,23 +345,37 @@ namespace Superscrot
             return stringBuilder.ToString();
         }
 
-        private void Screenshot_Uploading(object sender, UploadingEventArgs e)
+        private void ReportDeletionError(Screenshot screenshot)
         {
-            if (Program.Config.ShowPreviewDialog)
+            try
             {
-                var screenshot = (Screenshot)sender;
+                Program.Tray.ShowError(SR.GenericDeleteFailed,
+                    SR.CheckHostConnection.With(Program.Config.FtpHostname));
+                System.Media.SystemSounds.Exclamation.Play();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
+        }
 
-                Debug.Assert(uiContext != null, 
-                    "Main thread context should not be null");
-                uiContext.Send(_ =>
-                {
-                    using (var dialog = new PreviewDialog(screenshot))
-                    {
-                        if (dialog.ShowDialog() != DialogResult.OK)
-                            e.Cancel = true;
-                        e.FileName = dialog.FileName;
-                    }
-                }, null);
+        private void ReportUploadError(Screenshot screenshot)
+        {
+            try
+            {
+                Program.Tray.SetStatus(TrayIcon.Status.None);
+                Program.Tray.ShowError(SR.GenericUploadFailed,
+                    SR.CheckHostConnection.With(Program.Config.FtpHostname));
+                System.Media.SystemSounds.Exclamation.Play();
+
+                var fileName = PathUtility.RemoveInvalidFilenameChars(screenshot.GetFileName());
+                var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
+                screenshot.Save(target);
+                Trace.WriteLine("Failed screenshot saved to " + target);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
             }
         }
 
@@ -324,9 +392,11 @@ namespace Superscrot
                     case DialogResult.Ignore:
                         e.Action = DuplicateFileAction.Ignore;
                         break;
+
                     case DialogResult.Yes:
                         e.Action = DuplicateFileAction.Replace;
                         break;
+
                     case DialogResult.Abort:
                     default:
                         e.Action = DuplicateFileAction.Abort;
@@ -335,82 +405,26 @@ namespace Superscrot
             }
         }
 
-        private void ReportUploadError(Screenshot screenshot)
+        private void Screenshot_Uploading(object sender, UploadingEventArgs e)
         {
-            try
+            if (Program.Config.ShowPreviewDialog)
             {
-                Program.Tray.ShowError(SR.GenericUploadFailed,
-                    SR.CheckHostConnection.With(Program.Config.FtpHostname));
-                System.Media.SystemSounds.Exclamation.Play();
+                var screenshot = (Screenshot)sender;
 
-                var fileName = PathUtility.RemoveInvalidFilenameChars(screenshot.GetFileName());
-                var target = Path.Combine(Program.Config.FailedScreenshotsFolder, fileName);
-                screenshot.Save(target);
-                Trace.WriteLine("Failed screenshot saved to " + target);
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-            }
-        }
-
-        private void ReportDeletionError(Screenshot screenshot)
-        {
-            try
-            {
-                Program.Tray.ShowError(SR.GenericDeleteFailed,
-                    SR.CheckHostConnection.With(Program.Config.FtpHostname));
-                System.Media.SystemSounds.Exclamation.Play();
-
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-            }
-        }
-
-        private async void KeyPressed(object sender, KeyPressedEventArgs e)
-        {
-            if (!Enabled) return;
-
-            try
-            {
-                uiContext = SynchronizationContext.Current;
-
-                if (e.Key == Keys.PrintScreen)
+                Debug.Assert(uiContext != null,
+                    "Main thread context should not be null");
+                uiContext.Send(_ =>
                 {
-                    Screenshot screenshot = null;
-                    switch (e.Modifier)
+                    using (var dialog = new PreviewDialog(screenshot))
                     {
-                        case ModifierKeys.None:
-                            screenshot = Screenshot.FromDesktop();
-                            break;
-                        case ModifierKeys.Alt:
-                            screenshot = Screenshot.FromActiveWindow();
-                            break;
-                        case ModifierKeys.Control:
-                            screenshot = Screenshot.FromRegion();
-                            break;
-                        case ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift:
-                            UndoUpload();
-                            return;
+                        if (dialog.ShowDialog() != DialogResult.OK)
+                            e.Cancel = true;
+                        e.FileName = dialog.FileName;
                     }
+                }, null);
+            }
 
-                    if (screenshot != null)
-                        await UploadScreenshot(screenshot);
-                }
-                else if (e.Key == Keys.PageUp && e.Modifier == ModifierKeys.Control)
-                {
-                    await UploadClipboard();
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-                System.Media.SystemSounds.Exclamation.Play();
-                Program.Tray.ShowError(SR.GenericError, 
-                    SR.GenericErrorMessage.With(ex.Message));
-            }
+            Program.Tray.SetStatus(TrayIcon.Status.Uploading);
         }
     }
 }
