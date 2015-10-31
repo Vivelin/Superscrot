@@ -77,6 +77,7 @@
             this.cancelButton = new System.Windows.Forms.Button();
             this.applyButton = new System.Windows.Forms.Button();
             this.helpLink = new System.Windows.Forms.LinkLabel();
+            this.showBalloontip = new System.Windows.Forms.CheckBox();
             this.tabControl.SuspendLayout();
             this.uploadTab.SuspendLayout();
             this.filenameGroup.SuspendLayout();
@@ -502,6 +503,7 @@
             // 
             // interfaceTab
             // 
+            this.interfaceTab.Controls.Add(this.showBalloontip);
             this.interfaceTab.Controls.Add(this.overlayGroup);
             this.interfaceTab.Controls.Add(this.showPreview);
             this.interfaceTab.Location = new System.Drawing.Point(4, 24);
@@ -522,7 +524,7 @@
             this.overlayGroup.Controls.Add(this.selectionLabel);
             this.overlayGroup.Controls.Add(this.backgroundColor);
             this.overlayGroup.Controls.Add(this.backgroundLabel);
-            this.overlayGroup.Location = new System.Drawing.Point(6, 31);
+            this.overlayGroup.Location = new System.Drawing.Point(6, 56);
             this.overlayGroup.Name = "overlayGroup";
             this.overlayGroup.Size = new System.Drawing.Size(421, 172);
             this.overlayGroup.TabIndex = 1;
@@ -642,6 +644,17 @@
             this.helpLink.Text = "Help";
             this.helpLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.helpLink_LinkClicked);
             // 
+            // showBalloontip
+            // 
+            this.showBalloontip.AutoSize = true;
+            this.showBalloontip.Location = new System.Drawing.Point(6, 31);
+            this.showBalloontip.Name = "showBalloontip";
+            this.showBalloontip.Size = new System.Drawing.Size(358, 19);
+            this.showBalloontip.TabIndex = 2;
+            this.showBalloontip.Text = "Show a balloon tip when a screenshot is successfully uploaded ";
+            this.showBalloontip.UseVisualStyleBackColor = true;
+            this.showBalloontip.CheckedChanged += new System.EventHandler(this.showBalloontip_CheckedChanged);
+            // 
             // Settings
             // 
             this.AcceptButton = this.okButton;
@@ -735,5 +748,6 @@
         private Controls.Slider opacitySlider;
         private Controls.Slider qualitySlider;
         private System.Windows.Forms.Button openFailedButton;
+        private System.Windows.Forms.CheckBox showBalloontip;
     }
 }

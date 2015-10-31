@@ -26,6 +26,7 @@ namespace Superscrot
         public Configuration()
         {
             EnableTrayIcon = true;
+            ShowBalloontip = true;
             ShowPreviewDialog = true;
 
             FilenameFormat = "{yyyy}\\\\{MM}\\\\{unix}-{name}";
@@ -79,6 +80,7 @@ namespace Superscrot
             this.OverlayForegroundColor = that.OverlayForegroundColor;
             this.OverlayOpacity = that.OverlayOpacity;
             this.EnableTrayIcon = that.EnableTrayIcon;
+            this.ShowBalloontip = that.ShowBalloontip;
         }
 
         /// <summary>
@@ -95,6 +97,13 @@ namespace Superscrot
         [DisplayName("Enable tray icon"), Category("User interface")]
         [Description("Determines whether to display a system tray icon.")]
         public bool EnableTrayIcon { get; set; }
+
+        /// <summary>
+        /// Determines whether to display a balloon tip when a screenshot is successfully uploaded.
+        /// </summary>
+        [DisplayName("Show Balloon tip"), Category("User interface")]
+        [Description("Determines whether to display a balloon tip when a screenshot is successfully uploaded.")]
+        public bool ShowBalloontip { get; set; }
 
         /// <summary>
         /// Gets or sets the path to the folder where failed screenshots are saved.
